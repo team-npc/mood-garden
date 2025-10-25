@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans text-gray-900 bg-gradient-to-br from-sage-50 to-earth-50;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-sage-600 hover:bg-sage-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-earth-100 hover:bg-earth-200 text-earth-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-sage-100 p-6;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent bg-white/50 backdrop-blur-sm;
+  }
+}
+
+/* Custom animations for plant states */
+.plant-healthy {
+  filter: saturate(1.2) brightness(1.1);
+}
+
+.plant-wilting {
+  filter: saturate(0.6) brightness(0.8);
+  transform: scale(0.95);
+}
+
+.plant-dead {
+  filter: saturate(0.2) brightness(0.5) grayscale(0.3);
+  transform: scale(0.85);
+}
