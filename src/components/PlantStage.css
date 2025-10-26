@@ -1,0 +1,378 @@
+/* Magical Garden Plant Animations */
+
+/* Smooth growing animations - no pop-ups */
+@keyframes magicalGrow {
+  0% {
+    transform: scale(0) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes magicalGrowSeed {
+  0% {
+    transform: scale(0) translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes gentleSway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+@keyframes delicateSway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(0.8deg);
+  }
+  75% {
+    transform: rotate(-0.8deg);
+  }
+}
+
+@keyframes floatingBob {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Leaf animations */
+@keyframes leafGrow {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes petalBloom {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes petalFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(300px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Glow effects */
+@keyframes glowPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(107, 240, 255, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(107, 240, 255, 0.6));
+  }
+}
+
+@keyframes magicalGlow {
+  0% {
+    filter: drop-shadow(0 0 0px rgba(255, 251, 0, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(255, 251, 0, 0.8));
+  }
+  100% {
+    filter: drop-shadow(0 0 0px rgba(255, 251, 0, 0));
+  }
+}
+
+/* Plant container styles */
+.plant-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  perspective: 1000px;
+}
+
+.plant-container svg {
+  animation: gentleSway 4s ease-in-out infinite;
+  transition: all 0.3s ease-out;
+}
+
+.plant-container:hover svg {
+  animation-play-state: paused;
+  transform: scale(1.02);
+}
+
+/* Stage-specific animations */
+.plant-seed {
+  animation: magicalGrowSeed 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.plant-sprout {
+  animation: magicalGrow 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+.plant-plant {
+  animation: magicalGrow 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.3s;
+}
+
+.plant-blooming {
+  animation: magicalGrow 3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.4s;
+}
+
+.plant-tree {
+  animation: magicalGrow 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.5s;
+}
+
+.plant-fruiting-tree {
+  animation: magicalGrow 4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.6s;
+}
+
+/* Health states */
+.plant-healthy {
+  filter: saturate(1.2) brightness(1.1);
+  transition: all 0.3s ease-out;
+}
+
+.plant-wilting {
+  filter: saturate(0.6) brightness(0.8);
+  transition: all 0.3s ease-out;
+  animation: gentleSway 5s ease-in-out infinite;
+}
+
+.plant-dead {
+  filter: saturate(0.2) brightness(0.5) grayscale(0.3);
+  transition: all 0.3s ease-out;
+}
+
+/* Flower animations */
+.flower-bloom {
+  animation: petalBloom 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.flower-sway {
+  animation: delicateSway 3s ease-in-out infinite;
+}
+
+/* Fruit bob animation */
+.fruit-bob {
+  animation: floatingBob 2.5s ease-in-out infinite;
+}
+
+/* Falling petals container */
+.falling-petals {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  animation: petalFall linear forwards;
+}
+
+/* Glow effects for achievements */
+.glow-effect {
+  animation: magicalGlow 2s ease-in-out infinite;
+}
+
+.bloom-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Leaf vein details */
+.leaf-detail {
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+
+/* Smooth transitions */
+.plant-healthy svg,
+.plant-wilting svg,
+.plant-dead svg {
+  transition: filter 0.5s ease-out, transform 0.3s ease-out;
+}
+
+/* Night mode aesthetic */
+.plant-container {
+  position: relative;
+  background: radial-gradient(ellipse at center, rgba(107, 240, 255, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  padding: 20px;
+}
+
+/* Magical light particles */
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(30px) scale(0);
+    opacity: 0;
+  }
+}
+
+.light-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(255, 251, 0, 0.8);
+  border-radius: 50%;
+  animation: floatUp 2s ease-in forwards;
+  filter: blur(1px);
+}
+
+.light-particle.cyan {
+  background-color: rgba(107, 240, 255, 0.8);
+}
+
+/* Responsive scaling */
+@media (max-width: 768px) {
+  .plant-container {
+    min-height: 300px;
+    padding: 15px;
+  }
+  
+  .plant-container svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Smooth bloom animation sequence */
+@keyframes bloomSequence {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) rotate(-22.5deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.flower-bloom-sequence {
+  animation: bloomSequence 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Stem growing animation */
+@keyframes stemGrow {
+  0% {
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    opacity: 0;
+  }
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    opacity: 1;
+  }
+}
+
+.stem-grow {
+  animation: stemGrow 1.5s ease-out forwards;
+}
+
+/* Leaf unfurl animation */
+@keyframes leafUnfurl {
+  0% {
+    transform: rotateX(90deg) scaleY(0.1);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateX(0deg) scaleY(1);
+    opacity: 1;
+  }
+}
+
+.leaf-unfurl {
+  transform-origin: bottom center;
+  animation: leafUnfurl 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Pixelated block growth */
+@keyframes blockGrow {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.block-grow {
+  animation: blockGrow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: center;
+}
+
+/* Staggered block animation */
+.block-grow:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.block-grow:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.block-grow:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.block-grow:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+.block-grow:nth-child(5) {
+  animation-delay: 0.6s;
+}
+
+.block-grow:nth-child(6) {
+  animation-delay: 0.75s;
+}
+
+.block-grow:nth-child(7) {
+  animation-delay: 0.9s;
+}
+
+.block-grow:nth-child(8) {
+  animation-delay: 1.05s;
+}

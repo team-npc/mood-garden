@@ -9,6 +9,7 @@ import GardenPage from './pages/GardenPage';
 import JournalPage from './pages/JournalPage';
 import ProfilePage from './pages/ProfilePage';
 import FocusModePage from './pages/FocusModePage';
+import HelpPage from './pages/HelpPage';
 import TestAccountsPage from './pages/TestAccountsPage';
 
 /**
@@ -87,6 +88,13 @@ function App() {
                 <ProtectedRoute>
                   <Navigation />
                   <ProfilePage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/help" element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <HelpPage />
                 </ProtectedRoute>
               } />
 

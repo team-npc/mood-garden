@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Plus, Calendar, TrendingUp, Award, Droplets } from 'lucide-react';
 import { usePlantLogic } from '../hooks/usePlantLogic';
 import { useJournal } from '../hooks/useJournal';
-import PlantStage from '../components/PlantStage';
+import PlantStageNew from '../components/PlantStageNew';
 import JournalEntryForm from '../components/JournalEntryForm';
 
 /**
@@ -41,6 +41,7 @@ const GardenPage = () => {
    * @param {number} health - Plant health (0-100)
    * @returns {string} Color class
    */
+  // eslint-disable-next-line no-unused-vars
   const getHealthBarColor = (health) => {
     if (health >= 70) return 'bg-green-500';
     if (health >= 40) return 'bg-yellow-500';
@@ -80,6 +81,7 @@ const GardenPage = () => {
   const visualState = getPlantVisualState();
   const daysUntilNext = getDaysUntilNextStage();
   const stageProgress = getStageProgress();
+  // eslint-disable-next-line no-unused-vars
   const plantInsights = getPlantInsights();
 
   return (
@@ -102,7 +104,7 @@ const GardenPage = () => {
               {/* Plant Visual with glow effect */}
               <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-sage-200/20 dark:bg-sage-800/20 rounded-full blur-3xl"></div>
-                <PlantStage
+                <PlantStageNew
                   stage={plant?.stage || 'seed'}
                   visualState={visualState}
                   flowers={plant?.flowers || []}
@@ -192,7 +194,7 @@ const GardenPage = () => {
               {/* New Entry Button - Enhanced */}
               <button
                 onClick={() => setShowEntryForm(true)}
-                className="btn-primary text-lg px-10 py-4 inline-flex items-center space-x-3 text-lg font-semibold shadow-xl"
+                className="btn-primary text-lg px-10 py-4 inline-flex items-center space-x-3 font-semibold shadow-xl"
               >
                 <Plus className="w-6 h-6" />
                 <span>Water Your Garden</span>

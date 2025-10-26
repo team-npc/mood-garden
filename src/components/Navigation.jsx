@@ -15,7 +15,8 @@ import {
   LogOut,
   Moon,
   Sun,
-  Target
+  Target,
+  HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -75,6 +76,12 @@ const Navigation = () => {
       label: 'Focus Mode', 
       icon: Target,
       description: 'Pomodoro timer'
+    },
+    { 
+      path: '/help', 
+      label: 'Help', 
+      icon: HelpCircle,
+      description: 'Plant growth guide'
     },
     { 
       path: '/profile', 

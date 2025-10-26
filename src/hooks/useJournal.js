@@ -168,9 +168,15 @@ export const useJournal = () => {
     const entryDate = new Date(date);
     const diffTime = now - entryDate;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
 
-    if (diffDays === 0) {
-      return 'Today';
+    if (diffMinutes < 1) {
+      return 'Just now';
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes} ${diffMinutes === 1 ? 'minute' : 'minutes'} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
     } else if (diffDays === 1) {
       return 'Yesterday';
     } else if (diffDays < 7) {

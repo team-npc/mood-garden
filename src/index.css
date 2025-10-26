@@ -47,14 +47,125 @@
 /* Custom animations for plant states */
 .plant-healthy {
   filter: saturate(1.2) brightness(1.1);
+  transition: all 0.3s ease-out;
 }
 
 .plant-wilting {
   filter: saturate(0.6) brightness(0.8);
   transform: scale(0.95);
+  transition: all 0.3s ease-out;
 }
 
 .plant-dead {
   filter: saturate(0.2) brightness(0.5) grayscale(0.3);
   transform: scale(0.85);
+  transition: all 0.3s ease-out;
+}
+
+/* Smooth animations */
+@keyframes gentleSway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+@keyframes bloomPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(var(--drift, 30px)) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes petalFall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(400px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Plant sway effect */
+.plant-container svg {
+  transition: transform 0.3s ease-out;
+}
+
+.plant-container:hover svg {
+  transform: scale(1.02);
+}
+
+/* Custom Range Slider Styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  transition: all 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.7);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  transition: all 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.7);
+}
+
+input[type="range"]::-moz-range-thumb:active {
+  transform: scale(1.1);
+}
+
+input[type="range"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input[type="range"]:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+input[type="range"]:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+  box-shadow: none;
 }

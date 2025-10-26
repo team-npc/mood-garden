@@ -102,22 +102,8 @@ const WritingInspiration = ({ onPromptSelect }) => {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4"
+                className="grid grid-cols-2 gap-3 mb-4"
               >
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Entries Analyzed</div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {insights.totalEntries}
-                  </div>
-                </div>
-
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Avg Words</div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {insights.avgWordCount}
-                  </div>
-                </div>
-
                 <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
                   <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Mood Trend</div>
                   <div className="flex items-center">
@@ -148,17 +134,17 @@ const WritingInspiration = ({ onPromptSelect }) => {
                 <div className="font-medium mb-1">Your Emotional Landscape</div>
                 <p className="text-sm opacity-90">
                   {insights.dominantSentiment === 'positive' && 
-                    `Your entries radiate positivity! With ${insights.totalEntries} entries averaging ${insights.avgWordCount} words, your garden is blooming with optimism. Keep nurturing this beautiful energy! `}
+                    `Your entries radiate positivity! Your garden is blooming with optimism. Keep nurturing this beautiful energy! `}
                   {insights.dominantSentiment === 'negative' && 
-                    `I notice you're processing some challenging emotions across your ${insights.totalEntries} entries. Remember, even difficult reflections help your garden grow deeper roots. You're doing important work. `}
+                    `I notice you're processing some challenging emotions. Remember, even difficult reflections help your garden grow deeper roots. You're doing important work. `}
                   {insights.dominantSentiment === 'neutral' && (
                     insights.totalEntries > 20 
-                      ? `Your ${insights.totalEntries} entries show thoughtful reflection. You're building a rich inner garden with an average of ${insights.avgWordCount} words per entry. This consistent practice is powerful! `
+                      ? `Your entries show thoughtful reflection. You're building a rich inner garden. This consistent practice is powerful! `
                       : `Your entries show balanced reflection. You're observing life with clarity and mindfulness. This steady approach helps your garden grow strong. `
                   )}
                   {insights.emotionalTrend === 'improving' && "Things are looking up! ✨"}
                   {insights.emotionalTrend === 'declining' && "Be gentle with yourself during this time. 🤗"}
-                  {insights.writingTrend === 'increasing' && "Your entries are getting longer and more detailed! 📝"}
+                  {insights.writingTrend === 'increasing' && "Your entries are getting richer and more detailed! 📝"}
                 </p>
               </div>
             </div>
