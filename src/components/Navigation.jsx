@@ -14,7 +14,8 @@ import {
   X,
   LogOut,
   Moon,
-  Sun
+  Sun,
+  Target
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -68,6 +69,12 @@ const Navigation = () => {
       label: 'Journal', 
       icon: BookOpen,
       description: 'View your entries'
+    },
+    { 
+      path: '/focus', 
+      label: 'Focus Mode', 
+      icon: Target,
+      description: 'Pomodoro timer'
     },
     { 
       path: '/profile', 

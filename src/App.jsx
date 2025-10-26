@@ -8,6 +8,7 @@ import WelcomePage from './pages/WelcomePage';
 import GardenPage from './pages/GardenPage';
 import JournalPage from './pages/JournalPage';
 import ProfilePage from './pages/ProfilePage';
+import FocusModePage from './pages/FocusModePage';
 
 /**
  * Error Boundary Component for debugging
@@ -71,6 +72,13 @@ function App() {
                 <ProtectedRoute>
                   <Navigation />
                   <JournalPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/focus" element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <FocusModePage />
                 </ProtectedRoute>
               } />
               
