@@ -220,129 +220,499 @@ const FocusModePage = () => {
   };
 
   /**
-   * Render focus plant based on stage
+   * Render focus plant with smooth continuous growth
    */
   const renderFocusPlant = () => {
+    const progress = getProgress();
     const colors = isPlantDead 
-      ? { primary: '#6b7280', secondary: '#374151', accent: '#9ca3af' }
-      : { primary: '#22c55e', secondary: '#15803d', accent: '#86efac' };
+      ? { primary: '#6b7280', secondary: '#374151', accent: '#9ca3af', trunk: '#4b5563' }
+      : { primary: '#10b981', secondary: '#059669', accent: '#6ee7b7', trunk: '#78350f' };
+
+    // Smooth growth calculations
+    const stemHeight = Math.min(progress * 1.2, 120);
+    const stemWidth = 3 + (progress / 100) * 5;
+    const leafSize = Math.min(progress * 0.2, 20);
+    const canopySize = Math.max(0, (progress - 20) * 1);
+    const flowerOpacity = Math.max(0, Math.min(1, (progress - 70) / 20));
+    const fruitOpacity = Math.max(0, Math.min(1, (progress - 90) / 10));
 
     return (
-      <svg width="300" height="300" viewBox="0 0 300 300" className="w-full h-auto">
-        {/* Pot */}
-        <ellipse cx="150" cy="220" rx="60" ry="12" fill="#7c2d12" opacity="0.8" />
-        <rect x="100" y="205" width="100" height="25" rx="5" fill="#7c2d12" opacity="0.9" />
-        <ellipse cx="150" cy="210" rx="50" ry="10" fill="#a3a3a3" />
+      <svg width="320" height="320" viewBox="0 0 320 320" className="w-full h-auto">
+        <defs>
+          <linearGradient id="trunkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#78350f" />
+            <stop offset="50%" stopColor="#92400e" />
+            <stop offset="100%" stopColor="#78350f" />
+          </linearGradient>
+          
+          <radialGradient id="canopyGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={colors.accent} stopOpacity="0.9" />
+            <stop offset="50%" stopColor={colors.primary} stopOpacity="0.85" />
+            <stop offset="100%" stopColor={colors.secondary} stopOpacity="0.7" />
+          </radialGradient>
+
+          <filter id="leafShadow">
+            <feDropShadow dx="0" dy="1" stdDeviation="1" floodOpacity="0.2"/>
+          </filter>
+          
+          <linearGradient id="potGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#7c2d12" />
+            <stop offset="50%" stopColor="#9a3412" />
+            <stop offset="100%" stopColor="#7c2d12" />
+          </linearGradient>
+        </defs>
+
+        {/* Enhanced Pot */}
+        <g>
+          <ellipse cx="160" cy="240" rx="65" ry="14" fill="url(#potGradient)" opacity="0.9" />
+          <path 
+            d="M 105 225 Q 105 245 160 245 Q 215 245 215 225 L 210 210 Q 210 205 160 205 Q 110 205 110 210 Z"
+            fill="url(#potGradient)"
+          />
+          <ellipse cx="160" cy="215" rx="50" ry="12" fill="#92400e" />
+          <ellipse cx="160" cy="215" rx="48" ry="10" fill="#a8a29e" />
+        </g>
         
-        {/* Plant stages */}
-        {plantStage === 0 && (
-          <motion.g
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <circle cx="150" cy="215" r="4" fill="#8b5cf6" />
-          </motion.g>
-        )}
-        
-        {plantStage >= 1 && (
-          <motion.g
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          >
-            <line x1="150" y1="210" x2="150" y2="180" stroke={colors.primary} strokeWidth="3" />
-            <ellipse cx="140" cy="185" rx="8" ry="4" fill={colors.accent} transform="rotate(-30 140 185)" />
-            <ellipse cx="160" cy="185" rx="8" ry="4" fill={colors.accent} transform="rotate(30 160 185)" />
-          </motion.g>
-        )}
-        
-        {plantStage >= 2 && (
-          <motion.g
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.2 }}
-          >
-            <line x1="150" y1="180" x2="150" y2="140" stroke={colors.secondary} strokeWidth="4" />
-            <ellipse cx="135" cy="160" rx="12" ry="6" fill={colors.primary} transform="rotate(-45 135 160)" />
-            <ellipse cx="165" cy="160" rx="12" ry="6" fill={colors.primary} transform="rotate(45 165 160)" />
-          </motion.g>
-        )}
-        
-        {plantStage >= 3 && (
-          <motion.g
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.3 }}
-          >
-            <line x1="150" y1="140" x2="130" y2="120" stroke={colors.secondary} strokeWidth="3" />
-            <line x1="150" y1="140" x2="170" y2="120" stroke={colors.secondary} strokeWidth="3" />
-            <ellipse cx="120" cy="135" rx="15" ry="8" fill={colors.primary} transform="rotate(-60 120 135)" />
-            <ellipse cx="180" cy="135" rx="15" ry="8" fill={colors.primary} transform="rotate(60 180 135)" />
-          </motion.g>
-        )}
-        
-        {plantStage >= 4 && (
-          <motion.g
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.4 }}
-          >
-            <circle cx="150" cy="120" r="35" fill={colors.primary} opacity="0.8" />
-            <circle cx="130" cy="130" r="20" fill={colors.accent} opacity="0.6" />
-            <circle cx="170" cy="130" r="20" fill={colors.accent} opacity="0.6" />
-            
-            {/* Flowers */}
-            {!isPlantDead && (
-              <>
-                <circle cx="140" cy="115" r="4" fill="#ffc0cb" stroke="#fff" strokeWidth="1" />
-                <circle cx="160" cy="115" r="4" fill="#ff69b4" stroke="#fff" strokeWidth="1" />
-              </>
-            )}
-          </motion.g>
-        )}
-        
-        {plantStage >= 5 && !isPlantDead && (
-          <motion.g
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.5 }}
-          >
-            {/* Fruits */}
-            <circle cx="135" cy="140" r="6" fill="#ff4444" stroke="#fff" strokeWidth="1" />
-            <circle cx="165" cy="140" r="6" fill="#ff8c00" stroke="#fff" strokeWidth="1" />
-            <circle cx="150" cy="105" r="6" fill="#9acd32" stroke="#fff" strokeWidth="1" />
-            
-            {/* Sparkles */}
-            {[0, 1, 2, 3].map((i) => (
-              <motion.circle
-                key={i}
-                cx={150 + Math.cos(i * Math.PI / 2) * 50}
-                cy={120 + Math.sin(i * Math.PI / 2) * 50}
-                r="2"
-                fill="#fde047"
+        {/* Growing plant with smooth transitions */}
+        <motion.g
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Seed */}
+          {progress < 8 && (
+            <motion.g>
+              <circle 
+                cx="160" 
+                cy="220" 
+                r={4 + progress * 0.2}
+                fill="#7c3aed"
+                filter="url(#leafShadow)"
+              />
+              <motion.circle 
+                cx="160" 
+                cy="220" 
+                r={3 + progress * 0.15}
+                fill="#a78bfa"
                 animate={{
-                  opacity: [0, 1, 0],
-                  scale: [0, 1.5, 0]
+                  scale: [1, 1.15, 1],
+                  opacity: [0.7, 1, 0.7]
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
-                  delay: i * 0.5
+                  ease: "easeInOut"
                 }}
               />
-            ))}
-          </motion.g>
-        )}
+            </motion.g>
+          )}
+
+          {/* Main Trunk - realistic with texture */}
+          {stemHeight > 0 && (
+            <motion.g>
+              <motion.path
+                d={`M 160 215 Q ${160 - stemWidth/2} ${215 - stemHeight/2} ${160 - stemWidth/3} ${215 - stemHeight} Q 160 ${210 - stemHeight} ${160 + stemWidth/3} ${215 - stemHeight} Q ${160 + stemWidth/2} ${215 - stemHeight/2} 160 215`}
+                fill="url(#trunkGradient)"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+              />
+              
+              <motion.line 
+                x1={160 - stemWidth/3} 
+                y1="215" 
+                x2={160 - stemWidth/3} 
+                y2={215 - stemHeight} 
+                stroke="#78350f"
+                strokeWidth="0.5"
+                opacity="0.6"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+              />
+              <motion.line 
+                x1={160 + stemWidth/3} 
+                y1="215" 
+                x2={160 + stemWidth/3} 
+                y2={215 - stemHeight} 
+                stroke="#92400e"
+                strokeWidth="0.5"
+                opacity="0.6"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+              />
+            </motion.g>
+          )}
+
+          {/* Leaves with veins */}
+          {progress > 12 && (
+            <>
+              {[0, 1, 2, 3].map((i) => {
+                const leafProgress = Math.max(0, Math.min(1, (progress - 12 - i * 12) / 15));
+                const yPos = 205 - i * 18 - (progress - 12) * 0.25;
+                const xOffset = 15 + i * 3;
+                
+                return leafProgress > 0 && yPos > 95 && (
+                  <motion.g key={`leaf-left-${i}`}>
+                    <motion.ellipse
+                      cx={160 - xOffset - leafSize * 0.3}
+                      cy={yPos}
+                      rx={leafSize * 0.7 * leafProgress}
+                      ry={leafSize * 0.4 * leafProgress}
+                      fill={colors.primary}
+                      filter="url(#leafShadow)"
+                      transform={`rotate(-50 ${160 - xOffset - leafSize * 0.3} ${yPos})`}
+                      animate={{ 
+                        rotate: [-50, -48, -50],
+                        y: [0, -1.5, 0]
+                      }}
+                      transition={{ 
+                        duration: 3 + i * 0.3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: i * 0.2
+                      }}
+                    />
+                    <motion.line
+                      x1={160 - xOffset}
+                      y1={yPos}
+                      x2={160 - xOffset - leafSize * 0.6 * leafProgress}
+                      y2={yPos}
+                      stroke={colors.secondary}
+                      strokeWidth="0.5"
+                      opacity="0.5"
+                      transform={`rotate(-50 ${160 - xOffset} ${yPos})`}
+                    />
+                  </motion.g>
+                );
+              })}
+
+              {[0, 1, 2, 3].map((i) => {
+                const leafProgress = Math.max(0, Math.min(1, (progress - 12 - i * 12) / 15));
+                const yPos = 200 - i * 18 - (progress - 12) * 0.25;
+                const xOffset = 15 + i * 3;
+                
+                return leafProgress > 0 && yPos > 95 && (
+                  <motion.g key={`leaf-right-${i}`}>
+                    <motion.ellipse
+                      cx={160 + xOffset + leafSize * 0.3}
+                      cy={yPos}
+                      rx={leafSize * 0.7 * leafProgress}
+                      ry={leafSize * 0.4 * leafProgress}
+                      fill={colors.primary}
+                      filter="url(#leafShadow)"
+                      transform={`rotate(50 ${160 + xOffset + leafSize * 0.3} ${yPos})`}
+                      animate={{ 
+                        rotate: [50, 52, 50],
+                        y: [0, -1.5, 0]
+                      }}
+                      transition={{ 
+                        duration: 3 + i * 0.3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: i * 0.2 + 0.15
+                      }}
+                    />
+                    <motion.line
+                      x1={160 + xOffset}
+                      y1={yPos}
+                      x2={160 + xOffset + leafSize * 0.6 * leafProgress}
+                      y2={yPos}
+                      stroke={colors.secondary}
+                      strokeWidth="0.5"
+                      opacity="0.5"
+                      transform={`rotate(50 ${160 + xOffset} ${yPos})`}
+                    />
+                  </motion.g>
+                );
+              })}
+            </>
+          )}
+
+          {/* Curved Branches */}
+          {progress > 35 && stemHeight > 50 && (
+            <>
+              <motion.path
+                d={`M 160 ${215 - stemHeight * 0.6} Q ${145 - (progress - 35) * 0.25} ${215 - stemHeight * 0.65} ${140 - (progress - 35) * 0.3} ${215 - stemHeight * 0.7}`}
+                stroke={colors.trunk}
+                strokeWidth={stemWidth * 0.5}
+                strokeLinecap="round"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              />
+              <motion.path
+                d={`M 160 ${215 - stemHeight * 0.6} Q ${175 + (progress - 35) * 0.25} ${215 - stemHeight * 0.65} ${180 + (progress - 35) * 0.3} ${215 - stemHeight * 0.7}`}
+                stroke={colors.trunk}
+                strokeWidth={stemWidth * 0.5}
+                strokeLinecap="round"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+              />
+              
+              {progress > 50 && (
+                <>
+                  <motion.path
+                    d={`M 160 ${215 - stemHeight * 0.75} Q ${150 - (progress - 50) * 0.2} ${215 - stemHeight * 0.78} ${145 - (progress - 50) * 0.25} ${215 - stemHeight * 0.82}`}
+                    stroke={colors.trunk}
+                    strokeWidth={stemWidth * 0.35}
+                    strokeLinecap="round"
+                    fill="none"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  />
+                  <motion.path
+                    d={`M 160 ${215 - stemHeight * 0.75} Q ${170 + (progress - 50) * 0.2} ${215 - stemHeight * 0.78} ${175 + (progress - 50) * 0.25} ${215 - stemHeight * 0.82}`}
+                    stroke={colors.trunk}
+                    strokeWidth={stemWidth * 0.35}
+                    strokeLinecap="round"
+                    fill="none"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+                  />
+                </>
+              )}
+            </>
+          )}
+
+          {/* Multi-layered Canopy */}
+          {canopySize > 5 && (
+            <>
+              <motion.circle
+                cx="160"
+                cy={215 - stemHeight - 5}
+                r={canopySize * 0.8}
+                fill="url(#canopyGradient)"
+                opacity={isPlantDead ? 0.3 : 0.85}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 80, damping: 12 }}
+              />
+              <motion.circle
+                cx={160 - canopySize * 0.4}
+                cy={215 - stemHeight}
+                r={canopySize * 0.55}
+                fill={colors.primary}
+                opacity={isPlantDead ? 0.25 : 0.75}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.1 }}
+              />
+              <motion.circle
+                cx={160 + canopySize * 0.4}
+                cy={215 - stemHeight}
+                r={canopySize * 0.55}
+                fill={colors.primary}
+                opacity={isPlantDead ? 0.25 : 0.75}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.15 }}
+              />
+              
+              {canopySize > 20 && (
+                <>
+                  <motion.circle
+                    cx={160 - canopySize * 0.55}
+                    cy={215 - stemHeight + canopySize * 0.3}
+                    r={canopySize * 0.4}
+                    fill={colors.accent}
+                    opacity={isPlantDead ? 0.2 : 0.6}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.2 }}
+                  />
+                  <motion.circle
+                    cx={160 + canopySize * 0.55}
+                    cy={215 - stemHeight + canopySize * 0.3}
+                    r={canopySize * 0.4}
+                    fill={colors.accent}
+                    opacity={isPlantDead ? 0.2 : 0.6}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.25 }}
+                  />
+                  <motion.circle
+                    cx="160"
+                    cy={215 - stemHeight - canopySize * 0.6}
+                    r={canopySize * 0.45}
+                    fill={colors.secondary}
+                    opacity={isPlantDead ? 0.25 : 0.7}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.3 }}
+                  />
+                </>
+              )}
+            </>
+          )}
+
+          {/* Beautiful Flowers with petals */}
+          {flowerOpacity > 0 && !isPlantDead && canopySize > 20 && (
+            <>
+              {[
+                { x: 160 - canopySize * 0.55, y: 215 - stemHeight - 10, color: '#ffc0cb', size: 1 },
+                { x: 160 + canopySize * 0.55, y: 215 - stemHeight - 10, color: '#ff69b4', size: 1.1 },
+                { x: 160, y: 215 - stemHeight - canopySize * 0.5, color: '#ffd700', size: 1.2 },
+                { x: 160 - canopySize * 0.3, y: 215 - stemHeight - 2, color: '#ff6b9d', size: 0.9 },
+                { x: 160 + canopySize * 0.3, y: 215 - stemHeight - 2, color: '#da70d6', size: 1 },
+              ].map((flower, i) => (
+                <motion.g key={`flower-${i}`}>
+                  {[0, 1, 2, 3, 4].map((petal) => {
+                    const angle = (petal / 5) * Math.PI * 2;
+                    return (
+                      <motion.ellipse
+                        key={petal}
+                        cx={flower.x + Math.cos(angle) * (2.5 * flower.size)}
+                        cy={flower.y + Math.sin(angle) * (2.5 * flower.size)}
+                        rx={2 * flower.size}
+                        ry={3.5 * flower.size}
+                        fill={flower.color}
+                        stroke="#fff"
+                        strokeWidth="0.5"
+                        opacity={flowerOpacity * 0.9}
+                        transform={`rotate(${(petal * 72)} ${flower.x} ${flower.y})`}
+                        animate={{ 
+                          scale: [1, 1.05, 1],
+                        }}
+                        transition={{ 
+                          duration: 2.5,
+                          repeat: Infinity,
+                          delay: i * 0.15 + petal * 0.05,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    );
+                  })}
+                  <motion.circle
+                    cx={flower.x}
+                    cy={flower.y}
+                    r={2 * flower.size}
+                    fill="#ffd700"
+                    stroke="#fff"
+                    strokeWidth="0.3"
+                    opacity={flowerOpacity}
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: i * 0.2
+                    }}
+                  />
+                </motion.g>
+              ))}
+            </>
+          )}
+
+          {/* Realistic Fruits with shine */}
+          {fruitOpacity > 0 && !isPlantDead && canopySize > 30 && (
+            <>
+              {[
+                { x: 160 - canopySize * 0.65, y: 215 - stemHeight + 8, color: '#dc2626', highlight: '#fca5a5' },
+                { x: 160 + canopySize * 0.65, y: 215 - stemHeight + 8, color: '#ea580c', highlight: '#fdba74' },
+                { x: 160 - canopySize * 0.35, y: 215 - stemHeight + 15, color: '#65a30d', highlight: '#bef264' },
+                { x: 160 + canopySize * 0.35, y: 215 - stemHeight + 15, color: '#7c3aed', highlight: '#c4b5fd' },
+                { x: 160, y: 215 - stemHeight - 15, color: '#dc2626', highlight: '#fca5a5' },
+              ].map((fruit, i) => (
+                <motion.g key={`fruit-${i}`}>
+                  <motion.circle
+                    cx={fruit.x}
+                    cy={fruit.y}
+                    r={4 + fruitOpacity * 2.5}
+                    fill={fruit.color}
+                    stroke="#78350f"
+                    strokeWidth="0.5"
+                    opacity={fruitOpacity}
+                    filter="url(#leafShadow)"
+                    initial={{ scale: 0, y: -15 }}
+                    animate={{ 
+                      scale: 1,
+                      y: 0,
+                      opacity: fruitOpacity
+                    }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 150,
+                      damping: 8,
+                      delay: i * 0.15
+                    }}
+                  />
+                  <motion.ellipse
+                    cx={fruit.x - 1.5}
+                    cy={fruit.y - 1.5}
+                    rx={1.5}
+                    ry={2}
+                    fill={fruit.highlight}
+                    opacity={fruitOpacity * 0.7}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: i * 0.15 + 0.2 }}
+                  />
+                  <motion.line
+                    x1={fruit.x}
+                    y1={fruit.y - (4 + fruitOpacity * 2.5)}
+                    x2={fruit.x}
+                    y2={fruit.y - (4 + fruitOpacity * 2.5) - 3}
+                    stroke="#78350f"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    opacity={fruitOpacity}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ delay: i * 0.15 + 0.3 }}
+                  />
+                </motion.g>
+              ))}
+            </>
+          )}
+
+          {/* Magical Star Sparkles */}
+          {progress > 95 && !isPlantDead && (
+            <>
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+                const angle = (i / 8) * Math.PI * 2;
+                const radius = 45 + canopySize * 0.8;
+                return (
+                  <motion.g key={`sparkle-${i}`}>
+                    <motion.path
+                      d={`M ${160 + Math.cos(angle) * radius} ${215 - stemHeight - 5 + Math.sin(angle) * radius} 
+                          l 1.5 1.5 l 2 0 l -1.5 1.5 l 0.5 2 l -2 -1 l -2 1 l 0.5 -2 l -1.5 -1.5 l 2 0 Z`}
+                      fill="#fbbf24"
+                      stroke="#fef3c7"
+                      strokeWidth="0.5"
+                      animate={{
+                        opacity: [0, 1, 0],
+                        scale: [0, 1.5, 0],
+                      }}
+                      transition={{
+                        duration: 2.5,
+                        repeat: Infinity,
+                        delay: i * 0.25,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  </motion.g>
+                );
+              })}
+            </>
+          )}
+        </motion.g>
         
         {/* Dead plant effect */}
         {isPlantDead && (
           <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, type: "spring" }}
           >
-            <text x="150" y="150" textAnchor="middle" fontSize="40" opacity="0.5">💀</text>
+            <text x="160" y="140" textAnchor="middle" fontSize="50" opacity="0.6">💀</text>
           </motion.g>
         )}
       </svg>
@@ -371,7 +741,7 @@ const FocusModePage = () => {
           </div>
           <div className="card text-center">
             <div className="text-3xl mb-2">🌱</div>
-            <div className="text-2xl font-bold text-sage-600 dark:text-sage-400">{plantStage}/5</div>
+            <div className="text-2xl font-bold text-sage-600 dark:text-sage-400">{Math.round(getProgress())}%</div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Growth</div>
           </div>
           <div className="card text-center col-span-2 md:col-span-1">
