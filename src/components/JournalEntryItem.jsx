@@ -74,7 +74,7 @@ const JournalEntryItem = ({ entry, showFullContent = false }) => {
           {entry.mood && (
             <span className="text-2xl" title="Mood">{entry.mood}</span>
           )}
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <Calendar className="w-4 h-4" />
             <span>{formatDate(entry.createdAt)}</span>
           </div>
@@ -90,17 +90,17 @@ const JournalEntryItem = ({ entry, showFullContent = false }) => {
 
       {/* Content */}
       <div className="prose prose-sm max-w-none">
-        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+        <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
           {isExpanded ? entry.content : getPreview(entry.content)}
         </p>
       </div>
 
       {/* Expand/Collapse Toggle */}
       {hasLongContent && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center space-x-1 text-sm text-sage-600 hover:text-sage-700 transition-colors"
+            className="flex items-center space-x-1 text-sm text-sage-600 dark:text-sage-400 hover:text-sage-700 dark:hover:text-sage-300 transition-colors"
           >
             {isExpanded ? (
               <>
@@ -119,15 +119,15 @@ const JournalEntryItem = ({ entry, showFullContent = false }) => {
 
       {/* Tags or Additional Info */}
       {(entry.wordCount >= 100 || entry.characterCount >= 500) && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
           <div className="flex flex-wrap gap-2">
             {entry.wordCount >= 100 && (
-              <span className="inline-flex items-center px-2 py-1 text-xs bg-sage-100 text-sage-700 rounded-full">
+              <span className="inline-flex items-center px-2 py-1 text-xs bg-sage-100 dark:bg-sage-900/30 text-sage-700 dark:text-sage-300 rounded-full">
                 Thoughtful reflection
               </span>
             )}
             {entry.characterCount >= 500 && (
-              <span className="inline-flex items-center px-2 py-1 text-xs bg-earth-100 text-earth-700 rounded-full">
+              <span className="inline-flex items-center px-2 py-1 text-xs bg-earth-100 dark:bg-earth-900/30 text-earth-700 dark:text-earth-300 rounded-full">
                 Deep dive
               </span>
             )}

@@ -123,22 +123,22 @@ const RegisterForm = ({ onToggleMode }) => {
   return (
     <div className="card max-w-md mx-auto">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-sage-100 rounded-full mb-4">
-          <Leaf className="w-8 h-8 text-sage-600" />
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-sage-100 dark:bg-sage-900/30 rounded-full mb-4">
+          <Leaf className="w-8 h-8 text-sage-600 dark:text-sage-400" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Plant Your Garden</h2>
-        <p className="text-gray-600">Create an account to begin your mindful journey</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Plant Your Garden</h2>
+        <p className="text-gray-600 dark:text-gray-400">Create an account to begin your mindful journey</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-4 py-3 rounded-lg mb-4">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
-          <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Display Name
           </label>
           <div className="relative">
@@ -152,15 +152,15 @@ const RegisterForm = ({ onToggleMode }) => {
               placeholder="What should we call you?"
               required
             />
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
           </div>
           {validationErrors.displayName && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.displayName}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.displayName}</p>
           )}
         </div>
 
         <div className="relative">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Email Address
           </label>
           <div className="relative">
@@ -174,15 +174,15 @@ const RegisterForm = ({ onToggleMode }) => {
               placeholder="Enter your email"
               required
             />
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
           </div>
           {validationErrors.email && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.email}</p>
           )}
         </div>
 
         <div className="relative">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Password
           </label>
           <div className="relative">
@@ -196,22 +196,22 @@ const RegisterForm = ({ onToggleMode }) => {
               placeholder="Create a password"
               required
             />
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
           {validationErrors.password && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.password}</p>
           )}
         </div>
 
         <div className="relative">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Confirm Password
           </label>
           <div className="relative">
@@ -225,17 +225,17 @@ const RegisterForm = ({ onToggleMode }) => {
               placeholder="Confirm your password"
               required
             />
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400"
             >
               {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
           {validationErrors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.confirmPassword}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.confirmPassword}</p>
           )}
         </div>
 
@@ -251,10 +251,10 @@ const RegisterForm = ({ onToggleMode }) => {
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span>
           </div>
         </div>
 
@@ -274,11 +274,11 @@ const RegisterForm = ({ onToggleMode }) => {
       </div>
 
       <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{' '}
           <button
             onClick={onToggleMode}
-            className="text-sage-600 hover:text-sage-700 font-medium"
+            className="text-sage-600 dark:text-sage-400 hover:text-sage-700 dark:hover:text-sage-300 font-medium"
           >
             Sign in here
           </button>

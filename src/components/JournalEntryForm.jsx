@@ -74,13 +74,13 @@ const JournalEntryForm = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transition-colors duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">New Journal Entry</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">New Journal Entry</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -90,7 +90,7 @@ const JournalEntryForm = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
         <form onSubmit={handleSubmit} className="p-6">
           {/* Mood Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               How are you feeling? (optional)
             </label>
             <div className="flex items-center space-x-2">
@@ -100,7 +100,7 @@ const JournalEntryForm = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
                   <button
                     type="button"
                     onClick={() => setSelectedMood(null)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   >
                     Clear
                   </button>
@@ -126,7 +126,7 @@ const JournalEntryForm = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
 
           {/* Content Area */}
           <div className="mb-4">
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               What's on your mind?
             </label>
             <textarea
@@ -134,13 +134,13 @@ const JournalEntryForm = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
               value={content}
               onChange={handleContentChange}
               placeholder="Let your thoughts flow... Write about your day, your feelings, your dreams, or anything that comes to mind."
-              className="w-full h-64 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent resize-none"
+              className="w-full h-64 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
               disabled={isSubmitting}
               autoFocus
             />
             
             {/* Plant encouragement */}
-            <div className="mt-2 text-sm text-sage-600 text-center">
+            <div className="mt-2 text-sm text-sage-600 dark:text-sage-400 text-center">
               {content.length === 0 
                 ? "🌱 Your plant is waiting for your thoughts..."
                 : content.length < 50

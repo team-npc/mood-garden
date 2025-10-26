@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
 import WelcomePage from './pages/WelcomePage';
@@ -50,12 +51,13 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<WelcomePage />} />
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
+            <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<WelcomePage />} />
               
               {/* Protected Routes */}
               <Route path="/garden" element={
@@ -85,6 +87,7 @@ function App() {
           </div>
         </Router>
       </AuthProvider>
+    </ThemeProvider>
     </ErrorBoundary>
   );
 }

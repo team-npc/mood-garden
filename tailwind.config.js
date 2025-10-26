@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -41,6 +42,8 @@ export default {
         'grow': 'grow 0.5s ease-out',
         'bloom': 'bloom 1s ease-out',
         'wilt': 'wilt 2s ease-in-out',
+        'fade-in': 'fadeIn 0.6s ease-out',
+        'slide-up': 'slideUp 0.8s ease-out',
       },
       keyframes: {
         float: {
@@ -59,6 +62,14 @@ export default {
         wilt: {
           '0%': { transform: 'scale(1)', filter: 'saturate(1)' },
           '100%': { transform: 'scale(0.9)', filter: 'saturate(0.3)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         }
       }
     },

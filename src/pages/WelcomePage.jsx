@@ -49,49 +49,60 @@ const WelcomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50">
-      {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-sage-100 rounded-full mb-6">
-            <Leaf className="w-10 h-10 text-sage-600" />
+    <div className="min-h-screen nature-gradient">
+      {/* Hero Section - Enhanced */}
+      <div className="container mx-auto px-4 py-20">
+        <div className="text-center mb-20 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-sage-100 to-earth-100 dark:from-sage-800 dark:to-earth-800 rounded-full mb-8 shadow-2xl animate-float">
+            <Leaf className="w-12 h-12 text-sage-600 dark:text-sage-300" />
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Mood Garden 2.0
+          <h1 className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-gray-100 mb-6 animate-slide-up">
+            Mood Garden
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <div className="text-3xl md:text-4xl font-light text-sage-600 dark:text-sage-400 mb-8">
+            Where thoughts bloom into wisdom
+          </div>
+          
+          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed text-balance">
             Nurture your mind through mindful journaling. Watch your virtual plant grow, bloom, 
-            and bear fruit as you cultivate the habit of self-reflection.
+            and bear fruit as you cultivate the habit of self-reflection—without counting, 
+            without metrics, just natural growth.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <button
               onClick={() => setAuthMode('register')}
-              className="btn-primary text-lg px-8 py-3"
+              className="btn-primary text-xl px-12 py-5 shadow-2xl transform hover:scale-110 transition-all duration-300"
             >
-              Plant Your Garden
+              <span className="flex items-center space-x-3">
+                <span>🌱</span>
+                <span>Begin Your Garden</span>
+              </span>
             </button>
             <button
               onClick={() => setAuthMode('login')}
-              className="btn-secondary text-lg px-8 py-3"
+              className="btn-secondary text-xl px-12 py-5 shadow-xl transform hover:scale-110 transition-all duration-300"
             >
-              Continue Growing
+              <span className="flex items-center space-x-3">
+                <span>🌿</span>
+                <span>Return to Garden</span>
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        {/* Features Grid - Enhanced */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
           <div className="card text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-sage-100 rounded-full mb-4">
               <BookOpen className="w-6 h-6 text-sage-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Mindful Journaling
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               Express your thoughts, feelings, and experiences in a safe, private space.
             </p>
           </div>

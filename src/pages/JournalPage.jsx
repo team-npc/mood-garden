@@ -62,34 +62,34 @@ const JournalPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50">
+    <div className="min-h-screen nature-gradient transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Your Journal
+        {/* Header - Enhanced */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
+          <div className="animate-fade-in">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+              Your Sacred Journal
             </h1>
-            <p className="text-gray-600">
-              Reflect on your thoughts and track your mindful journey
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Every word plants a seed of wisdom
             </p>
           </div>
           
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <button
               onClick={() => setShowStats(!showStats)}
-              className="btn-secondary inline-flex items-center space-x-2"
+              className="btn-secondary inline-flex items-center space-x-2 shadow-lg"
             >
-              <BarChart3 className="w-4 h-4" />
-              <span>{showStats ? 'Hide' : 'Show'} Insights</span>
+              <BarChart3 className="w-5 h-5" />
+              <span>{showStats ? 'Hide' : 'Show'} Garden Insights</span>
             </button>
             
             <button
               onClick={() => setShowEntryForm(true)}
-              className="btn-primary inline-flex items-center space-x-2"
+              className="btn-primary inline-flex items-center space-x-2 shadow-lg"
             >
-              <Plus className="w-4 h-4" />
-              <span>New Entry</span>
+              <Plus className="w-5 h-5" />
+              <span>Plant a Thought</span>
             </button>
           </div>
         </div>
@@ -111,82 +111,87 @@ const JournalPage = () => {
               </div>
             </div>
 
-            {/* Plant Insights Panel (when visible) */}
+            {/* Plant Insights Panel (when visible) - Enhanced */}
             {showStats && (
-              <div className="card mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                  <span className="mr-2">🌱</span>
+              <div className="glass-morphism rounded-2xl p-8 mb-8 border-2 border-sage-200 dark:border-sage-800">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
+                  <span className="mr-3 text-3xl">🌱</span>
                   Garden Insights
                 </h2>
                 
-                {/* Plant Status */}
-                <div className="bg-gradient-to-r from-sage-50 to-earth-50 rounded-lg p-6 mb-6">
+                {/* Plant Status - Poetic */}
+                <div className="bg-gradient-to-r from-sage-50 via-earth-50 to-sage-50 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-2xl p-8 mb-8 shadow-inner">
                   <div className="text-center">
-                    <div className="text-lg font-medium text-gray-900 mb-2">
+                    <div className="text-2xl font-medium text-gray-900 dark:text-gray-100 mb-3 leading-relaxed">
                       {plantInsights.plantMessage}
                     </div>
-                    <div className="text-sage-600 italic">
-                      {plantInsights.encouragement}
+                    <div className="text-lg text-sage-700 dark:text-sage-300 italic font-serif">
+                      "{plantInsights.encouragement}"
                     </div>
                   </div>
                   
-                  <div className="mt-4 flex justify-center">
-                    <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-white/60 backdrop-blur-sm">
-                      <span className="mr-2">Growth Phase:</span>
+                  <div className="mt-6 flex justify-center">
+                    <div className="inline-flex items-center px-5 py-2 rounded-full text-base bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-md border border-sage-200 dark:border-sage-700">
+                      <span className="mr-2 text-xl">
+                        {plantInsights.growthPhase === 'blooming' ? '🌸' :
+                         plantInsights.growthPhase === 'developing' ? '🌿' :
+                         plantInsights.growthPhase === 'sprouting' ? '🌱' :
+                         '✨'}
+                      </span>
                       <span className="font-medium capitalize">{plantInsights.growthPhase}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Activity & Mood Garden */}
-                <div className="grid md:grid-cols-2 gap-6">
+                {/* Activity & Mood Garden - Visual */}
+                <div className="grid md:grid-cols-2 gap-8">
                   <div>
-                    <h3 className="font-medium text-gray-900 mb-3 flex items-center">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center text-lg">
                       <span className="mr-2">🌿</span>
-                      Recent Activity
+                      Garden Activity
                     </h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-3 ${
-                          plantInsights.recentActivity === 'flourishing' ? 'bg-green-500' :
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-4 h-4 rounded-full shadow-lg ${
+                          plantInsights.recentActivity === 'flourishing' ? 'bg-green-500 animate-pulse' :
                           plantInsights.recentActivity === 'growing' ? 'bg-sage-500' :
                           plantInsights.recentActivity === 'budding' ? 'bg-yellow-500' :
                           'bg-gray-400'
                         }`}></div>
-                        <span className="text-sm text-gray-600 capitalize">
+                        <span className="text-base text-gray-700 dark:text-gray-300 capitalize font-medium">
                           {plantInsights.recentActivity}
                         </span>
                       </div>
                       
                       {plantInsights.hasRecentEntries && (
-                        <div className="text-sm text-sage-600 bg-sage-50 rounded p-2">
-                          Your garden shows signs of regular tending
+                        <div className="text-sm text-sage-700 dark:text-sage-300 bg-sage-50 dark:bg-sage-900/30 rounded-xl p-4 italic border-l-4 border-sage-400">
+                          Your garden shows signs of regular tending and care
                         </div>
                       )}
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="font-medium text-gray-900 mb-3 flex items-center">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center text-lg">
                       <span className="mr-2">🎨</span>
-                      Emotional Garden
+                      Emotional Palette
                     </h3>
-                    <div className="space-y-3">
-                      <div className="text-sm text-gray-600">
+                    <div className="space-y-4">
+                      <div className="text-base text-gray-700 dark:text-gray-300">
                         {moodGarden.gardenMessage}
                       </div>
                       
                       {moodGarden.colorfulEntries && (
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-2">
                           {moodGarden.recentMoods?.map((mood, index) => (
-                            <span key={index} className="text-lg">
+                            <span key={index} className="text-3xl transform hover:scale-125 transition-transform cursor-pointer">
                               {mood}
                             </span>
                           ))}
                         </div>
                       )}
                       
-                      <div className="text-xs text-sage-600 italic">
+                      <div className="text-sm text-sage-700 dark:text-sage-300 italic">
                         {moodGarden.suggestion}
                       </div>
                     </div>
