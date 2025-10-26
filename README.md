@@ -29,6 +29,7 @@ Mood Garden 2.0 transforms journaling into a beautiful, organic experience witho
 - Emoji picker for emotional context
 - Plant-inspired feedback based on content depth (🌱🌿🌳)
 - Search and filter through past entries
+- Writing prompts for daily reflection and growth
 
 ### 🌿 **Dynamic Plant Growth**
 - **6 Growth Stages**: seed → sprout → plant → blooming → tree → fruiting tree

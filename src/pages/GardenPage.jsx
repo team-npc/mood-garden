@@ -61,7 +61,7 @@ const GardenPage = () => {
       tree: 'Mature Tree',
       fruitingTree: 'Fruit-bearing Tree'
     };
-    return stageNames[stage] || 'Unknown';
+    return stageNames[stage] || stageNames['seed'] || 'Seed';
   };
 
   if (plantLoading) {
@@ -103,7 +103,7 @@ const GardenPage = () => {
               <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-sage-200/20 dark:bg-sage-800/20 rounded-full blur-3xl"></div>
                 <PlantStage
-                  stage={plant?.stage}
+                  stage={plant?.stage || 'seed'}
                   visualState={visualState}
                   flowers={plant?.flowers || []}
                   fruits={plant?.fruits || []}
@@ -115,7 +115,7 @@ const GardenPage = () => {
               {/* Plant Status */}
               <div className="mb-8">
                 <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                  {getStageDisplayName(plant?.stage)}
+                  {getStageDisplayName(plant?.stage || 'seed')}
                 </h2>
                 
                 {encouragementMessage && (

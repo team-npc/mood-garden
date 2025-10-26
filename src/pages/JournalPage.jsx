@@ -3,11 +3,13 @@
  * Displays journal entries history and statistics
  */
 
-import React, { useState } from 'react';
-import { Plus, Search, Calendar, BarChart3, Filter } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Search, Calendar, BarChart3, Filter, Download } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
 import JournalEntryItem from '../components/JournalEntryItem';
 import JournalEntryForm from '../components/JournalEntryForm';
+import { useAuth } from '../context/AuthContext';
+import { exportAsJSON, exportAsCSV, exportAsText } from '../utils/exportData';
 
 /**
  * Journal Page Component
@@ -16,6 +18,9 @@ const JournalPage = () => {
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showStats, setShowStats] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const { user } = useAuth();
+  const exportMenuRef = useRef(null);
   
   const { 
     entries, 
@@ -29,12 +34,65 @@ const JournalPage = () => {
   } = useJournal();
 
   /**
+   * Close export menu when clicking outside
+   */
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+        setShowExportMenu(false);
+      }
+    };
+
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showExportMenu]);
+
+  /**
    * Handle new journal entry submission
    * @param {string} content - Entry content
    * @param {string} mood - Selected mood
    */
   const handleNewEntry = async (content, mood) => {
     await addEntry(content, mood);
+  };
+
+  /**
+   * Export all journal data as JSON
+   */
+  const handleExportData = (format = 'json') => {
+    try {
+      let success = false;
+      
+      switch (format) {
+        case 'json':
+          success = exportAsJSON(user, entries);
+          break;
+        case 'csv':
+          success = exportAsCSV(user, entries);
+          break;
+        case 'txt':
+          success = exportAsText(user, entries);
+          break;
+        default:
+          success = exportAsJSON(user, entries);
+      }
+
+      if (success) {
+        alert(`✅ Your data has been exported as ${format.toUpperCase()} successfully!`);
+      } else {
+        alert('❌ Failed to export data. Please try again.');
+      }
+      
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('❌ Failed to export data. Please try again.');
+    }
   };
 
   /**
@@ -75,13 +133,50 @@ const JournalPage = () => {
             </p>
           </div>
           
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
+          <div className="flex items-center space-x-4 mt-4 md:mt-0 flex-wrap gap-2">
+            {/* Export Data Button with Dropdown */}
+            <div className="relative" ref={exportMenuRef}>
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="btn-secondary inline-flex items-center space-x-2 shadow-lg"
+                title="Export your journal data"
+              >
+                <Download className="w-5 h-5" />
+                <span>Export Data</span>
+              </button>
+              
+              {showExportMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleExportData('json')}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-sage-50 dark:hover:bg-sage-900/30 transition-colors"
+                    >
+                      📄 Export as JSON
+                    </button>
+                    <button
+                      onClick={() => handleExportData('csv')}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-sage-50 dark:hover:bg-sage-900/30 transition-colors"
+                    >
+                      📊 Export as CSV
+                    </button>
+                    <button
+                      onClick={() => handleExportData('txt')}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-sage-50 dark:hover:bg-sage-900/30 transition-colors"
+                    >
+                      📝 Export as Text
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            
             <button
               onClick={() => setShowStats(!showStats)}
               className="btn-secondary inline-flex items-center space-x-2 shadow-lg"
             >
               <BarChart3 className="w-5 h-5" />
-              <span>{showStats ? 'Hide' : 'Show'} Garden Insights</span>
+              <span>{showStats ? 'Hide' : 'Show'} Insights</span>
             </button>
             
             <button
@@ -294,19 +389,19 @@ const JournalPage = () => {
             {/* Recent Activity */}
             {entries.length > 0 && (
               <div className="card">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                   Recent Activity
                 </h3>
                 <div className="space-y-3">
                   {entries.slice(0, 3).map((entry) => (
-                    <div key={entry.id} className="border-l-4 border-sage-200 pl-3">
+                    <div key={entry.id} className="border-l-4 border-sage-200 dark:border-sage-700 pl-3">
                       <div className="flex items-center space-x-2 mb-1">
                         {entry.mood && <span className="text-sm">{entry.mood}</span>}
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {formatEntryDate(entry.createdAt)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 line-clamp-2">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
                         {entry.content.length > 80 
                           ? entry.content.substring(0, 80) + '...'
                           : entry.content}
@@ -319,20 +414,20 @@ const JournalPage = () => {
 
             {/* Writing Tips */}
             <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Writing Inspiration
               </h3>
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="p-3 bg-sage-50 rounded-lg">
-                  <p className="font-medium text-sage-800 mb-1">Daily Reflection</p>
+              <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                <div className="p-3 bg-sage-50 dark:bg-sage-900/30 rounded-lg">
+                  <p className="font-medium text-sage-800 dark:text-sage-300 mb-1">Daily Reflection</p>
                   <p>What brought you joy today?</p>
                 </div>
-                <div className="p-3 bg-earth-50 rounded-lg">
-                  <p className="font-medium text-earth-800 mb-1">Mindful Moment</p>
+                <div className="p-3 bg-earth-50 dark:bg-earth-900/30 rounded-lg">
+                  <p className="font-medium text-earth-800 dark:text-earth-300 mb-1">Mindful Moment</p>
                   <p>Describe a moment when you felt truly present.</p>
                 </div>
-                <div className="p-3 bg-sage-50 rounded-lg">
-                  <p className="font-medium text-sage-800 mb-1">Growth Edge</p>
+                <div className="p-3 bg-sage-50 dark:bg-sage-900/30 rounded-lg">
+                  <p className="font-medium text-sage-800 dark:text-sage-300 mb-1">Growth Edge</p>
                   <p>What's one thing you learned about yourself recently?</p>
                 </div>
               </div>

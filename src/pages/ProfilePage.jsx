@@ -20,6 +20,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useJournal } from '../hooks/useJournal';
+import { exportAsJSON } from '../utils/exportData';
+import { recalculatePlantStage } from '../firebase/firestore';
 
 /**
  * Profile Page Component
@@ -27,6 +30,7 @@ import { useTheme } from '../context/ThemeContext';
 const ProfilePage = () => {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { entries } = useJournal();
   
   // Load notification settings from localStorage
   const [notifications, setNotifications] = useState(() => {
@@ -115,9 +119,40 @@ const ProfilePage = () => {
    * Handle data export
    */
   const handleExportData = () => {
-    // In a real app, you would fetch user data and create a downloadable file
-    console.log('Exporting user data...');
-    alert('Data export feature would be implemented here');
+    try {
+      const success = exportAsJSON(user, entries);
+      
+      if (success) {
+        alert('✅ Your data has been exported successfully!');
+      } else {
+        alert('❌ Failed to export data. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('❌ Failed to export data. Please try again.');
+    }
+  };
+
+  /**
+   * Handle plant recalculation (fix stuck plants)
+   */
+  const handleRecalculatePlant = async () => {
+    try {
+      console.log('Starting plant recalculation...');
+      const newStage = await recalculatePlantStage(user.uid);
+      console.log('Recalculation successful, new stage:', newStage);
+      alert(`✅ Plant recalculated! New stage: ${newStage}\n\nPlease refresh the Garden page to see the updated plant.`);
+      // Reload the page after a short delay to see the changes
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (error) {
+      console.error('Error recalculating plant:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
+      alert(`❌ Failed to recalculate plant: ${error.message}\n\nCheck the console for details.`);
+    }
   };
 
   /**
@@ -372,6 +407,14 @@ const ProfilePage = () => {
                 >
                   <Download className="w-4 h-4" />
                   <span>Export My Data</span>
+                </button>
+                
+                <button
+                  onClick={handleRecalculatePlant}
+                  className="w-full btn-secondary text-left flex items-center space-x-2"
+                >
+                  <span className="w-4 h-4">🌱</span>
+                  <span>Fix Plant Growth</span>
                 </button>
                 
                 <div className="text-sm text-gray-600 dark:text-gray-400 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">

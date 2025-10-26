@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Test Accounts - Mood Garden</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .account-list {
+      background: #f7fafc;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .account-item {
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .account-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .account-name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .account-details {
+      font-size: 13px;
+      color: #666;
+    }
+    
+    .button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .button:active {
+      transform: translateY(0);
+    }
+    
+    .button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .log {
+      background: #1a202c;
+      color: #48bb78;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .log.visible {
+      display: block;
+    }
+    
+    .log-line {
+      margin-bottom: 5px;
+      line-height: 1.5;
+    }
+    
+    .log-error {
+      color: #fc8181;
+    }
+    
+    .log-success {
+      color: #48bb78;
+    }
+    
+    .log-info {
+      color: #63b3ed;
+    }
+    
+    .credentials {
+      background: #e6fffa;
+      border: 2px solid #38b2ac;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .credentials.visible {
+      display: block;
+    }
+    
+    .credentials h3 {
+      color: #234e52;
+      margin-bottom: 15px;
+    }
+    
+    .credential-item {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .credential-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .credential-label {
+      font-size: 11px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .credential-value {
+      font-family: 'Courier New', monospace;
+      color: #2d3748;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌱 Create Test Accounts</h1>
+    <p class="subtitle">Generate pre-populated test accounts with journal entries and plant growth</p>
+    
+    <div class="account-list">
+      <div class="account-item">
+        <div class="account-name">🌳 Tree Gardener</div>
+        <div class="account-details">30-day streak • Mature Tree stage • 10 flowers</div>
+      </div>
+      <div class="account-item">
+        <div class="account-name">🍎 Fruiting Master</div>
+        <div class="account-details">45-day streak • Fruiting Tree stage • Flowers & Fruits</div>
+      </div>
+      <div class="account-item">
+        <div class="account-name">🌸 Blooming Soul</div>
+        <div class="account-details">15-day streak • Blooming Plant stage • 5 flowers</div>
+      </div>
+    </div>
+    
+    <button id="createBtn" class="button">Create Test Accounts</button>
+    
+    <div id="log" class="log"></div>
+    <div id="credentials" class="credentials"></div>
+  </div>
+
+  <script type="module">
+    import { 
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword 
+    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { 
+      collection,
+      doc,
+      setDoc,
+      serverTimestamp,
+      Timestamp 
+    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { auth, db } from './src/firebase/config.js';
+
+    const TEST_ACCOUNTS = [
+      {
+        email: 'tree.gardener@test.com',
+        password: 'Test123456',
+        displayName: 'Tree Gardener',
+        streak: 30,
+        stage: 'tree',
+        description: '30-day streak with mature tree'
+      },
+      {
+        email: 'fruiting.master@test.com',
+        password: 'Test123456',
+        displayName: 'Fruiting Master',
+        streak: 45,
+        stage: 'fruitingTree',
+        description: '45-day streak with fruiting tree'
+      },
+      {
+        email: 'blooming.soul@test.com',
+        password: 'Test123456',
+        displayName: 'Blooming Soul',
+        streak: 15,
+        stage: 'blooming',
+        description: '15-day streak with blooming plant'
+      }
+    ];
+
+    const ENTRY_TEMPLATES = [
+      { content: "Today was a beautiful day. I spent time in nature and felt grateful for the simple things in life.", mood: "😌" },
+      { content: "Reflecting on my progress and feeling proud of how far I've come. Growth takes time and patience.", mood: "✨" },
+      { content: "Practiced mindfulness during my morning walk. The fresh air and sunshine lifted my spirits.", mood: "💚" },
+      { content: "Had a meaningful conversation with a friend today. Connection with others brings such joy.", mood: "🌟" },
+      { content: "Accomplished something I'd been putting off. It feels good to take action on my goals.", mood: "🌱" },
+      { content: "Took time to rest and recharge today. Sometimes doing nothing is exactly what we need.", mood: "😊" },
+      { content: "Learned something new and exciting. The joy of discovery never gets old.", mood: "🎯" },
+      { content: "Felt challenged today but pushed through. Proud of my resilience and determination.", mood: "💪" },
+      { content: "Enjoyed a quiet evening with a good book. These peaceful moments are precious.", mood: "📚" },
+      { content: "Cooked a delicious meal and shared it with loved ones. Food and love, the perfect combination.", mood: "🍲" }
+    ];
+
+    const logElement = document.getElementById('log');
+    const credentialsElement = document.getElementById('credentials');
+    const createBtn = document.getElementById('createBtn');
+
+    function log(message, type = 'info') {
+      const line = document.createElement('div');
+      line.className = `log-line log-${type}`;
+      line.textContent = message;
+      logElement.appendChild(line);
+      logElement.scrollTop = logElement.scrollHeight;
+      logElement.classList.add('visible');
+    }
+
+    async function createEntriesForStreak(uid, streakDays) {
+      log(`Creating ${streakDays} days of entries...`, 'info');
+      const entriesRef = collection(db, 'users', uid, 'entries');
+      
+      for (let i = streakDays - 1; i >= 0; i--) {
+        const daysAgo = i;
+        const entryDate = new Date();
+        entryDate.setDate(entryDate.getDate() - daysAgo);
+        entryDate.setHours(20, 0, 0, 0);
+        
+        const template = ENTRY_TEMPLATES[Math.floor(Math.random() * ENTRY_TEMPLATES.length)];
+        
+        const entryData = {
+          content: `Day ${streakDays - i} reflection: ${template.content}`,
+          mood: template.mood,
+          createdAt: Timestamp.fromDate(entryDate),
+          wordCount: template.content.split(/\s+/).length,
+          characterCount: template.content.length
+        };
+        
+        const entryDoc = doc(entriesRef);
+        await setDoc(entryDoc, entryData);
+        
+        if ((streakDays - i) % 10 === 0) {
+          log(`  Created entry ${streakDays - i}/${streakDays}`, 'info');
+        }
+      }
+      
+      log(`✅ Created ${streakDays} entries`, 'success');
+    }
+
+    async function createPlantDocument(uid, streakDays, desiredStage) {
+      log(`Creating plant with stage: ${desiredStage}`, 'info');
+      const plantRef = doc(db, 'users', uid, 'plant', 'current');
+      
+      const growthPoints = streakDays;
+      
+      const flowers = [];
+      const flowerMilestones = Math.floor(streakDays / 3);
+      const flowerTypes = ['cherry', 'daisy', 'rose', 'sunflower', 'tulip'];
+      
+      for (let i = 0; i < Math.min(flowerMilestones, 10); i++) {
+        flowers.push({
+          type: flowerTypes[i % flowerTypes.length],
+          earnedAt: Timestamp.fromDate(new Date()),
+          streak: (i + 1) * 3
+        });
+      }
+      
+      const fruits = [];
+      if (desiredStage === 'fruitingTree') {
+        const fruitMilestones = Math.floor(streakDays / 5);
+        const fruitTypes = ['apple', 'orange', 'pear', 'plum', 'cherry'];
+        
+        for (let i = 0; i < Math.min(fruitMilestones, 8); i++) {
+          fruits.push({
+            type: fruitTypes[i % fruitTypes.length],
+            earnedAt: Timestamp.fromDate(new Date()),
+            streak: (i + 1) * 5
+          });
+        }
+      }
+      
+      const lastEntryDate = new Date();
+      lastEntryDate.setHours(20, 0, 0, 0);
+      
+      const plantData = {
+        stage: desiredStage,
+        health: 100,
+        lastWatered: Timestamp.fromDate(lastEntryDate),
+        lastEntryDate: Timestamp.fromDate(lastEntryDate),
+        daysSinceLastEntry: 0,
+        totalEntries: streakDays,
+        currentStreak: streakDays,
+        longestStreak: streakDays,
+        flowers: flowers,
+        fruits: fruits,
+        specialEffects: [],
+        createdAt: Timestamp.fromDate(new Date(Date.now() - streakDays * 24 * 60 * 60 * 1000)),
+        updatedAt: serverTimestamp(),
+        metadata: {
+          timeToNextStage: 1,
+          growthPoints: growthPoints,
+          wiltingStarted: false,
+          lastGrowthCheck: serverTimestamp()
+        }
+      };
+      
+      await setDoc(plantRef, plantData);
+      log(`✅ Plant created: ${desiredStage} (${flowers.length} flowers, ${fruits.length} fruits)`, 'success');
+    }
+
+    async function createTestAccount(accountConfig) {
+      log(`\n${'='.repeat(40)}`, 'info');
+      log(`Creating: ${accountConfig.displayName}`, 'info');
+      log(`Email: ${accountConfig.email}`, 'info');
+      log(`${'='.repeat(40)}\n`, 'info');
+      
+      try {
+        let userCredential;
+        try {
+          log('Checking if account exists...', 'info');
+          userCredential = await signInWithEmailAndPassword(
+            auth,
+            accountConfig.email,
+            accountConfig.password
+          );
+          log('✅ Account already exists, using existing account', 'success');
+        } catch (signInError) {
+          if (signInError.code === 'auth/user-not-found' || signInError.code === 'auth/invalid-credential') {
+            log('Creating new account...', 'info');
+            userCredential = await createUserWithEmailAndPassword(
+              auth,
+              accountConfig.email,
+              accountConfig.password
+            );
+            log('✅ Account created successfully', 'success');
+          } else {
+            throw signInError;
+          }
+        }
+        
+        const user = userCredential.user;
+        
+        await createEntriesForStreak(user.uid, accountConfig.streak);
+        await createPlantDocument(user.uid, accountConfig.streak, accountConfig.stage);
+        
+        log(`\n✅ "${accountConfig.displayName}" is ready!`, 'success');
+        log(`   Stage: ${accountConfig.stage}`, 'success');
+        log(`   Streak: ${accountConfig.streak} days`, 'success');
+        
+        return true;
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        return false;
+      }
+    }
+
+    async function createAllTestAccounts() {
+      createBtn.disabled = true;
+      createBtn.textContent = 'Creating...';
+      logElement.innerHTML = '';
+      credentialsElement.innerHTML = '';
+      
+      log('🌱 MOOD GARDEN TEST ACCOUNT GENERATOR 🌱\n', 'success');
+      log(`Creating ${TEST_ACCOUNTS.length} test accounts...\n`, 'info');
+      
+      for (const accountConfig of TEST_ACCOUNTS) {
+        try {
+          await createTestAccount(accountConfig);
+        } catch (error) {
+          log(`Failed to create ${accountConfig.email}, continuing...`, 'error');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      log('\n' + '='.repeat(40), 'success');
+      log('🎉 ALL TEST ACCOUNTS CREATED! 🎉', 'success');
+      log('='.repeat(40) + '\n', 'success');
+      
+      // Show credentials
+      credentialsElement.innerHTML = '<h3>✅ Login Credentials</h3>';
+      TEST_ACCOUNTS.forEach(account => {
+        const item = document.createElement('div');
+        item.className = 'credential-item';
+        item.innerHTML = `
+          <div style="margin-bottom: 10px;">
+            <strong>${account.displayName}</strong> - ${account.description}
+          </div>
+          <div class="credential-label">Email</div>
+          <div class="credential-value">${account.email}</div>
+          <div class="credential-label" style="margin-top: 8px;">Password</div>
+          <div class="credential-value">${account.password}</div>
+        `;
+        credentialsElement.appendChild(item);
+      });
+      credentialsElement.classList.add('visible');
+      
+      createBtn.textContent = 'Create Test Accounts';
+      createBtn.disabled = false;
+    }
+
+    createBtn.addEventListener('click', createAllTestAccounts);
+  </script>
+</body>
+</html>

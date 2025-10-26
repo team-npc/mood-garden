@@ -4,8 +4,8 @@
  * Enhanced with massive oak trees for tree and fruitingTree stages
  */
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 
 /**
  * Plant Stage Component

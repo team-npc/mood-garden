@@ -9,6 +9,7 @@ import GardenPage from './pages/GardenPage';
 import JournalPage from './pages/JournalPage';
 import ProfilePage from './pages/ProfilePage';
 import FocusModePage from './pages/FocusModePage';
+import TestAccountsPage from './pages/TestAccountsPage';
 
 /**
  * Error Boundary Component for debugging
@@ -88,6 +89,9 @@ function App() {
                   <ProfilePage />
                 </ProtectedRoute>
               } />
+
+              {/* Test Accounts Generator (public for ease of use) */}
+              <Route path="/test-accounts" element={<TestAccountsPage />} />
 
               {/* Catch all route - redirect to welcome */}
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -732,24 +732,7 @@ const FocusModePage = () => {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          <div className="card text-center">
-            <div className="text-3xl mb-2">🏆</div>
-            <div className="text-2xl font-bold text-sage-600 dark:text-sage-400">{sessionsCompleted}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Sessions</div>
-          </div>
-          <div className="card text-center">
-            <div className="text-3xl mb-2">🌱</div>
-            <div className="text-2xl font-bold text-sage-600 dark:text-sage-400">{Math.round(getProgress())}%</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Growth</div>
-          </div>
-          <div className="card text-center col-span-2 md:col-span-1">
-            <div className="text-3xl mb-2">⏱️</div>
-            <div className="text-2xl font-bold text-sage-600 dark:text-sage-400">{duration}m</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Duration</div>
-          </div>
-        </div>
+
 
         {/* Main Focus Area */}
         <div className="card mb-8">
@@ -757,54 +740,29 @@ const FocusModePage = () => {
           <div className="flex justify-center mb-8">
             <div className={`relative ${isPlantDead ? 'plant-dead' : 'plant-healthy'}`}>
               {renderFocusPlant()}
-              
-              {/* Progress Ring */}
-              {isActive && !isPlantDead && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <svg width="320" height="320" className="transform -rotate-90">
-                    <circle
-                      cx="160"
-                      cy="160"
-                      r="140"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="8"
-                      className="dark:stroke-gray-700"
-                    />
-                    <circle
-                      cx="160"
-                      cy="160"
-                      r="140"
-                      fill="none"
-                      stroke="#22c55e"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 140}`}
-                      strokeDashoffset={`${2 * Math.PI * 140 * (1 - getProgress() / 100)}`}
-                      strokeLinecap="round"
-                      className="transition-all duration-1000"
-                    />
-                  </svg>
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Timer Display */}
-          <div className="text-center mb-8">
-            <div className="text-7xl font-mono font-bold text-gray-900 dark:text-gray-100 mb-4">
-              {formatTime(timeLeft)}
+          {/* Timer Display - Only show when not active */}
+          {!isActive && !isPlantDead && (
+            <div className="text-center mb-8">
+              <div className="text-7xl font-mono font-bold text-gray-900 dark:text-gray-100">
+                {formatTime(timeLeft)}
+              </div>
             </div>
-            
-            {/* Progress Bar */}
-            <div className="w-full max-w-md mx-auto h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-sage-500 to-sage-600"
-                initial={{ width: 0 }}
-                animate={{ width: `${getProgress()}%` }}
-                transition={{ duration: 0.5 }}
-              />
+          )}
+
+          {/* Qualitative Status - Show when active */}
+          {isActive && !isPlantDead && (
+            <div className="text-center mb-8">
+              <div className="text-2xl font-serif text-sage-600 dark:text-sage-400">
+                🌱 Your plant is growing...
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Stay focused and watch it bloom
+              </p>
             </div>
-          </div>
+          )}
 
           {/* Duration Selector (only show when not active) */}
           {!isActive && !isPlantDead && (
@@ -956,10 +914,10 @@ const FocusModePage = () => {
             <li>⏱️ Set your focus duration (1-120 minutes)</li>
             <li>🌱 Watch your plant grow as you stay focused</li>
             <li>🚫 Don't switch tabs, windows, or minimize the browser</li>
-            <li>⚠️ Switching away triggers a 3-second warning</li>
-            <li>💀 If you don't return within 3 seconds, your plant dies</li>
+            <li>⚠️ Switching away triggers a warning</li>
+            <li>💀 If you don't return quickly, your plant dies</li>
             <li>🔒 Browser will warn you if you try to close the tab</li>
-            <li>🏆 Complete sessions to build your focus streak</li>
+            <li>🏆 Complete sessions to grow beautiful plants</li>
             <li>🎯 Use presets or set custom time with slider</li>
           </ul>
         </div>
@@ -986,10 +944,10 @@ const FocusModePage = () => {
                   Focus Broken!
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300 mb-4">
-                  You switched away from the tab/window! Return immediately or your plant will die in 3 seconds!
+                  You switched away from the tab/window! Return immediately or your plant will die!
                 </p>
                 <div className="text-4xl font-bold text-red-600 dark:text-red-400 animate-pulse">
-                  3...
+                  ⚠️
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
                   Click back to this tab/window NOW!

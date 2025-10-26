@@ -8,6 +8,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  setDoc,
   getDoc,
   getDocs,
   query,
@@ -274,11 +275,10 @@ export const checkPlantHealth = async (uid) => {
  */
 const calculateNewStage = (currentStage, growthPoints, streak) => {
   const stages = ['seed', 'sprout', 'plant', 'blooming', 'tree', 'fruitingTree'];
-  const currentIndex = stages.indexOf(currentStage);
   
-  // Define growth requirements for each stage
+  // Define growth requirements for each stage (cumulative)
   const requirements = {
-    seed: { points: 1, streak: 1 },
+    seed: { points: 0, streak: 0 },      // Starting stage
     sprout: { points: 3, streak: 2 },
     plant: { points: 7, streak: 3 },
     blooming: { points: 15, streak: 5 },
@@ -286,18 +286,16 @@ const calculateNewStage = (currentStage, growthPoints, streak) => {
     fruitingTree: { points: 40, streak: 10 }
   };
   
-  for (let i = currentIndex + 1; i < stages.length; i++) {
-    const stage = stages[i];
+  // Find the highest stage that meets requirements
+  let newStage = 'seed';
+  for (const stage of stages) {
     const req = requirements[stage];
-    
     if (growthPoints >= req.points && streak >= req.streak) {
-      return stage;
-    } else {
-      break;
+      newStage = stage;
     }
   }
   
-  return currentStage;
+  return newStage;
 };
 
 /**
@@ -349,4 +347,154 @@ const generateRewards = (streak, newStage, oldStage) => {
   }
   
   return rewards;
+};
+
+/**
+ * Recalculate plant stage based on current data
+ * Call this function to fix plants that are stuck in wrong stage
+ * @param {string} uid - User ID
+ * @returns {Promise<string>} New stage
+ */
+export const recalculatePlantStage = async (uid) => {
+  try {
+    console.log('🔄 Recalculating plant stage for user:', uid);
+    
+    // Get plant data
+    const plantRef = doc(db, 'users', uid, 'plant', 'current');
+    const plantSnap = await getDoc(plantRef);
+    
+    let currentPlant;
+    
+    if (!plantSnap.exists()) {
+      console.log('⚠️ Plant not found, creating new plant...');
+      // Create a new plant document
+      const newPlantData = {
+        stage: 'seed',
+        health: 100,
+        lastWatered: serverTimestamp(),
+        lastEntryDate: null,
+        daysSinceLastEntry: 0,
+        totalEntries: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        flowers: [],
+        fruits: [],
+        specialEffects: [],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        metadata: {
+          timeToNextStage: 1,
+          growthPoints: 0,
+          wiltingStarted: false,
+          lastGrowthCheck: serverTimestamp()
+        }
+      };
+      
+      await setDoc(plantRef, newPlantData);
+      currentPlant = newPlantData;
+      console.log('✅ Plant created');
+    } else {
+      currentPlant = plantSnap.data();
+      console.log('Current plant data:', currentPlant);
+    }
+    
+    // Get all entries to calculate proper streak
+    console.log('Fetching entries...');
+    const entriesRef = collection(db, 'users', uid, 'entries');
+    const entriesQuery = query(entriesRef, orderBy('createdAt', 'desc'));
+    const entriesSnap = await getDocs(entriesQuery);
+    
+    console.log('Entries fetched:', entriesSnap.size);
+    
+    const totalEntries = entriesSnap.size;
+    
+    if (totalEntries === 0) {
+      console.log('No entries found, keeping seed stage');
+      return 'seed';
+    }
+    
+    // Calculate current streak from entries
+    let currentStreak = 0;
+    let previousDate = null;
+    const entries = [];
+    
+    entriesSnap.forEach((doc) => {
+      const entry = doc.data();
+      entries.push(entry);
+      const entryDate = entry.createdAt?.toDate();
+      
+      if (!entryDate) {
+        console.log('Entry without date:', doc.id);
+        return;
+      }
+      
+      const entryDay = new Date(entryDate.getFullYear(), entryDate.getMonth(), entryDate.getDate());
+      
+      if (!previousDate) {
+        // First entry (most recent)
+        currentStreak = 1;
+        previousDate = entryDay;
+      } else {
+        const daysDiff = Math.floor((previousDate - entryDay) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff === 0) {
+          // Same day, don't change streak
+        } else if (daysDiff === 1) {
+          // Consecutive day
+          currentStreak++;
+          previousDate = entryDay;
+        } else {
+          // Streak broken, stop counting
+          return;
+        }
+      }
+    });
+    
+    console.log('Calculated from entries:', { 
+      totalEntries,
+      currentStreak,
+      firstEntryDate: entries[0]?.createdAt?.toDate(),
+      lastEntryDate: entries[entries.length - 1]?.createdAt?.toDate()
+    });
+    
+    // Use totalEntries as growth points
+    const growthPoints = totalEntries;
+    
+    console.log('Growth calculation:', { 
+      currentStage: currentPlant.stage, 
+      storedGrowthPoints: currentPlant.metadata?.growthPoints,
+      storedStreak: currentPlant.currentStreak,
+      calculatedGrowthPoints: growthPoints,
+      calculatedStreak: currentStreak
+    });
+    
+    // Recalculate stage
+    const newStage = calculateNewStage(currentPlant.stage || 'seed', growthPoints, currentStreak);
+    
+    console.log('New stage calculated:', newStage);
+    
+    // Update plant with correct data
+    console.log('Updating plant document...');
+    await updateDoc(plantRef, {
+      stage: newStage,
+      totalEntries: totalEntries,
+      currentStreak: currentStreak,
+      longestStreak: Math.max(currentPlant.longestStreak || 0, currentStreak),
+      lastEntryDate: entries[0]?.createdAt || serverTimestamp(),
+      'metadata.growthPoints': growthPoints,
+      updatedAt: serverTimestamp()
+    });
+    
+    console.log('✅ Plant stage updated to:', newStage);
+    
+    return newStage;
+  } catch (error) {
+    console.error('❌ Error in recalculatePlantStage:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      name: error.name
+    });
+    throw error;
+  }
 };
