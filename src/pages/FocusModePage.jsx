@@ -35,7 +35,8 @@ const FocusModePage = () => {
     const handleVisibilityChange = () => {
       if (isActive && !isPaused) {
         if (document.hidden) {
-          // User switched tab/minimized window
+          // User switched tab/minimized window - PAUSE IMMEDIATELY
+          setIsPaused(true);
           setShowWarning(true);
           lastVisibilityRef.current = false;
           
@@ -52,6 +53,7 @@ const FocusModePage = () => {
           if (!lastVisibilityRef.current && warningTimeoutRef.current) {
             clearTimeout(warningTimeoutRef.current);
             setShowWarning(false);
+            setIsPaused(false); // Resume timer
             lastVisibilityRef.current = true;
           }
         }
@@ -59,8 +61,9 @@ const FocusModePage = () => {
     };
 
     const handleBlur = () => {
-      // Window lost focus (switched to another app/window)
+      // Window lost focus (switched to another app/window) - PAUSE IMMEDIATELY
       if (isActive && !isPaused && !document.hidden) {
+        setIsPaused(true);
         setShowWarning(true);
         lastVisibilityRef.current = false;
         
@@ -79,6 +82,7 @@ const FocusModePage = () => {
       if (!lastVisibilityRef.current && warningTimeoutRef.current) {
         clearTimeout(warningTimeoutRef.current);
         setShowWarning(false);
+        setIsPaused(false); // Resume timer
         lastVisibilityRef.current = true;
       }
     };
@@ -777,8 +781,8 @@ const FocusModePage = () => {
             </motion.div>
           </div>
 
-          {/* Progress Bar - Qualitative only */}
-          {isActive && !isPlantDead && (
+          {/* Progress Bar - Qualitative only (hide at start until progress > 0) */}
+          {isActive && !isPlantDead && progress > 0 && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
