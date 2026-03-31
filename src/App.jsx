@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
 import WelcomePage from './pages/WelcomePage';
@@ -10,7 +11,8 @@ import JournalPage from './pages/JournalPage';
 import ProfilePage from './pages/ProfilePage';
 import FocusModePage from './pages/FocusModePage';
 import HelpPage from './pages/HelpPage';
-import TestAccountsPage from './pages/TestAccountsPage';
+import EnhancedDashboard from './pages/EnhancedDashboard';
+import EnhancedJournalEntry from './pages/EnhancedJournalEntry';
 
 /**
  * Error Boundary Component for debugging
@@ -55,10 +57,11 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <AuthProvider>
-          <Router>
-            <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-              <Routes>
+        <ToastProvider>
+          <AuthProvider>
+            <Router>
+              <div className="min-h-screen nature-gradient transition-colors duration-300">
+                <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<WelcomePage />} />
               
@@ -97,16 +100,27 @@ function App() {
                   <HelpPage />
                 </ProtectedRoute>
               } />
-
-              {/* Test Accounts Generator (public for ease of use) */}
-              <Route path="/test-accounts" element={<TestAccountsPage />} />
+              
+              {/* Enhanced elegant pages */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <EnhancedDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/write" element={
+                <ProtectedRoute>
+                  <EnhancedJournalEntry />
+                </ProtectedRoute>
+              } />
 
               {/* Catch all route - redirect to welcome */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-        </Router>
-      </AuthProvider>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
+          </Router>
+        </AuthProvider>
+      </ToastProvider>
     </ThemeProvider>
     </ErrorBoundary>
   );

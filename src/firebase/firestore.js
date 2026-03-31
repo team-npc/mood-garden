@@ -7,6 +7,7 @@ import {
   collection,
   doc,
   addDoc,
+  deleteDoc,
   updateDoc,
   setDoc,
   getDoc,
@@ -14,20 +15,32 @@ import {
   query,
   orderBy,
   limit,
-  where,
+  startAfter,
+  writeBatch,
   serverTimestamp,
   Timestamp 
 } from 'firebase/firestore';
 import { db } from './config';
+
+const DEFAULT_ENTRY_PAGE_SIZE = 20;
+
+const normalizeTags = (tags = []) => {
+  return [...new Set(
+    tags
+      .map((tag) => String(tag || '').trim().toLowerCase())
+      .filter(Boolean)
+  )].slice(0, 8);
+};
 
 /**
  * Add a new journal entry for a user
  * @param {string} uid - User ID
  * @param {string} content - Journal entry content
  * @param {string} mood - Optional mood/emoji
+ * @param {Array<string>} tags - Optional tags
  * @returns {Promise<string>} Entry ID
  */
-export const addJournalEntry = async (uid, content, mood = null) => {
+export const addJournalEntry = async (uid, content, mood = null, tags = []) => {
   try {
     console.log('🔄 Starting journal entry save for user:', uid);
     console.log('📝 Entry content length:', content.length);
@@ -39,6 +52,7 @@ export const addJournalEntry = async (uid, content, mood = null) => {
     const entryData = {
       content: content.trim(),
       mood,
+      tags: normalizeTags(tags),
       createdAt: serverTimestamp(),
       wordCount: content.trim().split(/\s+/).length,
       characterCount: content.length
@@ -74,13 +88,26 @@ export const addJournalEntry = async (uid, content, mood = null) => {
 /**
  * Get user's journal entries
  * @param {string} uid - User ID
- * @param {number} limitCount - Number of entries to fetch
- * @returns {Promise<Array>} Array of journal entries
+ * @param {Object|number} options - Query options or legacy limit number
+ * @param {number} options.limitCount - Number of entries to fetch
+ * @param {Date|Timestamp|null} options.startAfterDate - Cursor date for pagination
+ * @returns {Promise<Object>} Paged journal entries and pagination metadata
  */
-export const getJournalEntries = async (uid, limitCount = 20) => {
+export const getJournalEntries = async (uid, options = {}) => {
   try {
+    const normalizedOptions = typeof options === 'number'
+      ? { limitCount: options, startAfterDate: null }
+      : options;
+    const limitCount = normalizedOptions.limitCount || DEFAULT_ENTRY_PAGE_SIZE;
+    const startAfterDate = normalizedOptions.startAfterDate || null;
+
     const entriesRef = collection(db, 'users', uid, 'entries');
-    const q = query(entriesRef, orderBy('createdAt', 'desc'), limit(limitCount));
+    const cursorTimestamp = startAfterDate
+      ? (startAfterDate instanceof Date ? Timestamp.fromDate(startAfterDate) : startAfterDate)
+      : null;
+    const q = cursorTimestamp
+      ? query(entriesRef, orderBy('createdAt', 'desc'), startAfter(cursorTimestamp), limit(limitCount))
+      : query(entriesRef, orderBy('createdAt', 'desc'), limit(limitCount));
     
     const querySnapshot = await getDocs(q);
     const entries = [];
@@ -93,7 +120,11 @@ export const getJournalEntries = async (uid, limitCount = 20) => {
       });
     });
     
-    return entries;
+    return {
+      entries,
+      hasMore: entries.length === limitCount,
+      lastVisible: entries.length > 0 ? entries[entries.length - 1].createdAt : null
+    };
   } catch (error) {
     console.error('Error fetching journal entries:', error);
     throw error;
@@ -185,6 +216,8 @@ export const updatePlantAfterEntry = async (uid) => {
         ...currentPlant.metadata,
         growthPoints,
         wiltingStarted: false,
+        inactivityPenaltyApplied: 0,
+        rewardsPrunedForInactivity: false,
         lastGrowthCheck: serverTimestamp()
       }
     };
@@ -228,6 +261,11 @@ export const checkPlantHealth = async (uid) => {
     if (!lastEntry) return currentPlant;
     
     const daysSinceLastEntry = Math.floor((now - lastEntry) / (1000 * 60 * 60 * 24));
+    const previouslyAppliedPenalty = currentPlant.metadata?.inactivityPenaltyApplied || 0;
+    const expectedPenalty = daysSinceLastEntry >= 3
+      ? Math.min(50, (daysSinceLastEntry - 2) * 8)
+      : 0;
+    const penaltyDelta = Math.max(0, expectedPenalty - previouslyAppliedPenalty);
     
     let updateData = {
       daysSinceLastEntry,
@@ -236,8 +274,8 @@ export const checkPlantHealth = async (uid) => {
     
     // Apply wilting logic
     if (daysSinceLastEntry >= 3) {
-      const healthDecrease = Math.min(50, (daysSinceLastEntry - 2) * 8);
-      const newHealth = Math.max(0, currentPlant.health - healthDecrease);
+      const newHealth = Math.max(0, currentPlant.health - penaltyDelta);
+      const hasPrunedRewards = currentPlant.metadata?.rewardsPrunedForInactivity || false;
       
       updateData = {
         ...updateData,
@@ -245,16 +283,29 @@ export const checkPlantHealth = async (uid) => {
         currentStreak: 0, // Reset streak after 3+ days
         metadata: {
           ...currentPlant.metadata,
+          inactivityPenaltyApplied: expectedPenalty,
           wiltingStarted: true,
           lastGrowthCheck: serverTimestamp()
         }
       };
       
-      // If plant is severely neglected (7+ days), remove some rewards
-      if (daysSinceLastEntry >= 7) {
+      // If plant is severely neglected (7+ days), remove some rewards once.
+      if (daysSinceLastEntry >= 7 && !hasPrunedRewards) {
         updateData.flowers = currentPlant.flowers?.slice(0, -1) || [];
         updateData.specialEffects = [];
+        updateData.metadata = {
+          ...updateData.metadata,
+          rewardsPrunedForInactivity: true
+        };
       }
+    } else if (previouslyAppliedPenalty !== 0 || currentPlant.metadata?.wiltingStarted) {
+      updateData.metadata = {
+        ...currentPlant.metadata,
+        inactivityPenaltyApplied: 0,
+        rewardsPrunedForInactivity: false,
+        wiltingStarted: false,
+        lastGrowthCheck: serverTimestamp()
+      };
     }
     
     await updateDoc(plantRef, updateData);
@@ -385,6 +436,8 @@ export const recalculatePlantStage = async (uid) => {
         metadata: {
           timeToNextStage: 1,
           growthPoints: 0,
+          inactivityPenaltyApplied: 0,
+          rewardsPrunedForInactivity: false,
           wiltingStarted: false,
           lastGrowthCheck: serverTimestamp()
         }
@@ -495,6 +548,234 @@ export const recalculatePlantStage = async (uid) => {
       code: error.code,
       name: error.name
     });
+    throw error;
+  }
+};
+
+/**
+ * Delete all user data from Firestore
+ * @param {string} uid - User ID
+ * @returns {Promise<void>}
+ */
+export const deleteUserData = async (uid) => {
+  try {
+    const entriesRef = collection(db, 'users', uid, 'entries');
+    const pageSize = 400;
+
+    // Delete entries in chunks to stay under batch operation limits.
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const snapshot = await getDocs(query(entriesRef, limit(pageSize)));
+      if (snapshot.empty) {
+        break;
+      }
+
+      const batch = writeBatch(db);
+      snapshot.docs.forEach((entryDoc) => {
+        batch.delete(entryDoc.ref);
+      });
+      await batch.commit();
+
+      if (snapshot.size < pageSize) {
+        break;
+      }
+    }
+
+    const plantRef = doc(db, 'users', uid, 'plant', 'current');
+    await deleteDoc(plantRef);
+
+    const userRef = doc(db, 'users', uid);
+    await deleteDoc(userRef);
+  } catch (error) {
+    console.error('Error deleting user data:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update an existing journal entry
+ * @param {string} uid - User ID
+ * @param {string} entryId - Entry ID
+ * @param {string} content - Updated content
+ * @param {string|null} mood - Updated mood
+ * @param {Array<string>} tags - Updated tags
+ * @returns {Promise<void>}
+ */
+export const updateJournalEntry = async (uid, entryId, content, mood = null, tags = []) => {
+  try {
+    const entryRef = doc(db, 'users', uid, 'entries', entryId);
+    await updateDoc(entryRef, {
+      content: content.trim(),
+      mood,
+      tags: normalizeTags(tags),
+      wordCount: content.trim().split(/\s+/).length,
+      characterCount: content.length,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating journal entry:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a journal entry
+ * @param {string} uid - User ID
+ * @param {string} entryId - Entry ID
+ * @returns {Promise<void>}
+ */
+export const deleteJournalEntry = async (uid, entryId) => {
+  try {
+    const entryRef = doc(db, 'users', uid, 'entries', entryId);
+    await deleteDoc(entryRef);
+  } catch (error) {
+    console.error('Error deleting journal entry:', error);
+    throw error;
+  }
+};
+
+/**
+ * Toggle pin status of a journal entry (favorite/pin)
+ * @param {string} uid - User ID
+ * @param {string} entryId - Entry ID
+ * @param {boolean} isPinned - New pin status
+ * @returns {Promise<void>}
+ */
+export const toggleEntryPin = async (uid, entryId, isPinned) => {
+  try {
+    const entryRef = doc(db, 'users', uid, 'entries', entryId);
+    await updateDoc(entryRef, {
+      isPinned: isPinned,
+      pinnedAt: isPinned ? serverTimestamp() : null
+    });
+  } catch (error) {
+    console.error('Error toggling entry pin:', error);
+    throw error;
+  }
+};
+
+/**
+ * Archive a journal entry (soft delete)
+ * @param {string} uid - User ID
+ * @param {string} entryId - Entry ID  
+ * @param {Object} entryData - Full entry data to archive
+ * @returns {Promise<void>}
+ */
+export const archiveEntry = async (uid, entryId, entryData) => {
+  try {
+    const batch = writeBatch(db);
+    
+    // Add to archived collection with archivedAt timestamp
+    const archivedRef = doc(db, 'users', uid, 'archived', entryId);
+    batch.set(archivedRef, {
+      ...entryData,
+      archivedAt: serverTimestamp()
+    });
+    
+    // Delete from active entries
+    const activeRef = doc(db, 'users', uid, 'entries', entryId);
+    batch.delete(activeRef);
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Error archiving entry:', error);
+    throw error;
+  }
+};
+
+/**
+ * Restore an archived entry
+ * @param {string} uid - User ID
+ * @param {string} entryId - Entry ID
+ * @param {Object} entryData - Full archived entry data
+ * @returns {Promise<void>}
+ */
+export const restoreEntry = async (uid, entryId, entryData) => {
+  try {
+    const batch = writeBatch(db);
+    
+    // Add back to entries collection (remove archivedAt field)
+    const { archivedAt, ...activeData } = entryData;
+    const activeRef = doc(db, 'users', uid, 'entries', entryId);
+    batch.set(activeRef, activeData);
+    
+    // Delete from archived
+    const archivedRef = doc(db, 'users', uid, 'archived', entryId);
+    batch.delete(archivedRef);
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Error restoring entry:', error);
+    throw error;
+  }
+};
+
+/**
+ * Bulk delete multiple entries
+ * @param {string} uid - User ID
+ * @param {Array<string>} entryIds - Array of entry IDs to delete
+ * @returns {Promise<void>}
+ */
+export const bulkDeleteEntries = async (uid, entryIds) => {
+  try {
+    const batch = writeBatch(db);
+    entryIds.forEach(entryId => {
+      const entryRef = doc(db, 'users', uid, 'entries', entryId);
+      batch.delete(entryRef);
+    });
+    await batch.commit();
+  } catch (error) {
+    console.error('Error bulk deleting entries:', error);
+    throw error;
+  }
+};
+
+/**
+ * Bulk archive multiple entries
+ * @param {string} uid - User ID
+ * @param {Array<Object>} entries - Array of {id, data} objects to archive
+ * @returns {Promise<void>}
+ */
+export const bulkArchiveEntries = async (uid, entries) => {
+  try {
+    const batch = writeBatch(db);
+    
+    entries.forEach(({ id, data }) => {
+      // Archive the entry
+      const archivedRef = doc(db, 'users', uid, 'archived', id);
+      batch.set(archivedRef, {
+        ...data,
+        archivedAt: serverTimestamp()
+      });
+      
+      // Remove from active
+      const activeRef = doc(db, 'users', uid, 'entries', id);
+      batch.delete(activeRef);
+    });
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Error bulk archiving entries:', error);
+    throw error;
+  }
+};
+
+/**
+ * Toggle privacy status of a journal entry
+ * @param {string} uid - User ID
+ * @param {string} entryId - Entry ID
+ * @param {boolean} isPrivate - New privacy status
+ * @returns {Promise<void>}
+ */
+export const toggleEntryPrivacy = async (uid, entryId, isPrivate) => {
+  try {
+    const entryRef = doc(db, 'users', uid, 'entries', entryId);
+    await updateDoc(entryRef, {
+      isPrivate: isPrivate,
+      privacyToggleAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error toggling entry privacy:', error);
     throw error;
   }
 };

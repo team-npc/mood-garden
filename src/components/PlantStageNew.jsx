@@ -2,9 +2,10 @@
  * Plant Stage Visualization Component - Magical Growing Garden
  * Every element grows smoothly from germination to fruiting tree
  * Inspired by beautiful nighttime garden aesthetic
+ * Now supports mood-themed colors for personalized plant appearance
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import './PlantStageNew.css';
@@ -19,10 +20,51 @@ const PlantStageNew = ({
   // eslint-disable-next-line no-unused-vars
   specialEffects = [],
   // eslint-disable-next-line no-unused-vars
-  health = 100 
+  health = 100,
+  moodTheme = null
 }) => {
   // eslint-disable-next-line no-unused-vars
   const [showGlow, setShowGlow] = useState(false);
+
+  // Get plant colors based on mood theme and visual state
+  const plantColors = useMemo(() => {
+    if (visualState === 'dead') {
+      return {
+        leaf1: '#6b7280',
+        leaf2: '#9ca3af',
+        stem: '#374151',
+        flower: '#9ca3af',
+        glow: '#6b7280'
+      };
+    }
+    if (visualState === 'wilting') {
+      return {
+        leaf1: '#eab308',
+        leaf2: '#fde047',
+        stem: '#a16207',
+        flower: '#fde047',
+        glow: '#eab308'
+      };
+    }
+    // Healthy state - use mood theme if available
+    if (moodTheme) {
+      return {
+        leaf1: moodTheme.primary,
+        leaf2: moodTheme.accent,
+        stem: moodTheme.secondary,
+        flower: moodTheme.accent,
+        glow: moodTheme.glow || moodTheme.accent
+      };
+    }
+    // Default green theme
+    return {
+      leaf1: '#22c55e',
+      leaf2: '#86efac',
+      stem: '#15803d',
+      flower: '#f472b6',
+      glow: '#4ade80'
+    };
+  }, [visualState, moodTheme]);
 
   /**
    * Create a growing animation for any element

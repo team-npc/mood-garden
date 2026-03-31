@@ -63,6 +63,17 @@ const ENTRY_TEMPLATES = [
 ];
 
 const TestAccountsPage = () => {
+  if (!import.meta.env.DEV) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sage-50 to-earth-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+        <div className="card max-w-md text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Not Available</h1>
+          <p className="text-gray-600 dark:text-gray-400">This page is only available in development mode.</p>
+        </div>
+      </div>
+    );
+  }
+
   const [logs, setLogs] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
   const [createdAccounts, setCreatedAccounts] = useState([]);

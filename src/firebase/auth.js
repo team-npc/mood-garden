@@ -69,8 +69,13 @@ export const signInWithGoogle = async () => {
   try {
     const { user } = await signInWithPopup(auth, googleProvider);
     
-    // Create user document if it doesn't exist
-    await createUserDocument(user);
+    // Do not fail the auth flow if profile bootstrap in Firestore fails.
+    // The user is already authenticated at this point.
+    try {
+      await createUserDocument(user);
+    } catch (profileError) {
+      console.warn('Google sign in succeeded, but user document setup failed:', profileError);
+    }
     
     return user;
   } catch (error) {

@@ -3,6 +3,7 @@
  * Renders different plant stages with beautiful SVG graphics and smooth animations
  * Features cute plants from germination to full fruiting trees with magical growing animations
  * Inspired by magical nighttime garden aesthetic
+ * Now supports mood-themed colors for personalized plant appearance
  */
 
 import React, { useState, useEffect } from 'react';
@@ -18,6 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
  * @param {Array} props.fruits - Array of fruit objects
  * @param {Array} props.specialEffects - Array of special effect objects
  * @param {number} props.health - Plant health (0-100)
+ * @param {Object} props.moodTheme - Optional mood theme colors { primary, secondary, accent, glow }
  */
 const PlantStage = ({ 
   stage = 'seed', 
@@ -26,7 +28,8 @@ const PlantStage = ({
   fruits = [], 
   specialEffects = [],
   // eslint-disable-next-line no-unused-vars
-  health = 100 
+  health = 100,
+  moodTheme = null
 }) => {
   const [showGlow, setShowGlow] = useState(false);
   const [fallingFlowers, setFallingFlowers] = useState([]);
@@ -61,11 +64,20 @@ const PlantStage = ({
   }, [flowers, stage]);
 
   /**
-   * Get color scheme based on visual state and health
+   * Get color scheme based on visual state, health, and mood theme
    */
   const getColorScheme = () => {
+    // If mood theme is provided and plant is healthy, use mood colors
+    const moodColors = moodTheme && visualState === 'healthy' ? {
+      primary: moodTheme.primary,
+      secondary: moodTheme.secondary,
+      accent: moodTheme.accent,
+      soil: '#a3a3a3',
+      pot: '#7c2d12'
+    } : null;
+
     const baseColors = {
-      healthy: {
+      healthy: moodColors || {
         primary: '#22c55e', // green-500
         secondary: '#15803d', // green-700
         accent: '#86efac', // green-300

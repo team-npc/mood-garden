@@ -741,36 +741,37 @@ const FocusModePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage-50 via-earth-50 to-sage-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Enhanced Header */}
+      <div className="max-w-3xl mx-auto">
+        {/* Compact Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
-          <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 dark:from-green-400 dark:via-emerald-500 dark:to-teal-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 text-earth-700 dark:text-cream-100">
             Focus Mode 🎯
           </h1>
-          <p className="text-xl text-gray-700 dark:text-slate-300">
-            Stay focused and watch your plant grow. Don't switch tabs or your plant will die! 🌱
+          <p className="text-earth-600 dark:text-slate-400">
+            Stay focused and watch your plant grow
           </p>
         </motion.div>
 
-        {/* Main Focus Area with Glass Effect */}
+        {/* Main Focus Card - Streamlined */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-slate-700/50 shadow-2xl p-8 mb-8"
+          className="bg-white/90 dark:bg-slate-800/70 backdrop-blur-xl rounded-3xl border border-sage-200 dark:border-slate-700/50 shadow-xl p-6 mb-6"
         >
-          {/* Plant Visualization with Enhanced Container */}
-          <div className="flex justify-center mb-8">
+          {/* Plant + Timer Row */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-6">
+            {/* Plant Visualization - Compact */}
             <motion.div 
-              className={`relative rounded-2xl p-6 ${
+              className={`relative rounded-2xl p-4 ${
                 isPlantDead 
-                  ? 'bg-red-100 dark:bg-red-900/20 border-2 border-red-500/50' 
-                  : 'bg-gradient-to-b from-green-50 to-emerald-50 dark:from-slate-700/30 dark:to-slate-800/30 border-2 border-green-500/50 dark:border-green-500/30'
+                  ? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-400/50' 
+                  : 'bg-sage-50 dark:bg-slate-700/40 border-2 border-sage-300 dark:border-sage-600/30'
               }`}
               animate={isPlantDead ? { 
                 borderColor: ['rgba(239, 68, 68, 0.5)', 'rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.5)'] 
@@ -779,348 +780,168 @@ const FocusModePage = () => {
             >
               {renderFocusPlant()}
             </motion.div>
+
+            {/* Timer Display */}
+            <div className="text-center">
+              <div className="text-7xl md:text-8xl font-mono font-bold text-earth-700 dark:text-cream-100 mb-1">
+                {formatTime(timeLeft)}
+              </div>
+              {!isActive && !isPlantDead && (
+                <p className="text-earth-500 dark:text-slate-400">Ready to focus?</p>
+              )}
+              {isActive && !isPlantDead && (
+                <p className="text-leaf-600 dark:text-leaf-400 flex items-center justify-center gap-2">
+                  <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>🌱</motion.span>
+                  Growing...
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Progress Bar - Qualitative only (hide at start until progress > 0) */}
+          {/* Progress Bar - Only when active */}
           {isActive && !isPlantDead && progress > 0 && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-8"
-            >
-              <div className="flex justify-center items-center mb-3">
-                <span className="text-lg font-semibold text-green-600 dark:text-green-400">
-                  {progress < 20 ? '🌱 Sprouting...' :
-                   progress < 40 ? '🌿 Growing...' :
-                   progress < 60 ? '🪴 Flourishing...' :
-                   progress < 80 ? '🌸 Blooming...' :
-                   '🌳 Majestic!'}
-                </span>
-              </div>
-              <div className="h-3 bg-gray-200 dark:bg-slate-700/50 rounded-full overflow-hidden border border-gray-300 dark:border-slate-600/50">
+            <div className="mb-6">
+              <div className="h-2 bg-sage-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-400 relative overflow-hidden"
+                  className="h-full bg-gradient-to-r from-leaf-500 to-sage-500"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.5 }}
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                    animate={{ x: ['-100%', '200%'] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  />
-                </motion.div>
+                />
               </div>
-            </motion.div>
-          )}
-
-          {/* Timer Display - Enhanced */}
-          {!isActive && !isPlantDead && (
-            <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="text-center mb-8"
-            >
-              <div className="text-8xl font-mono font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-500 bg-clip-text text-transparent mb-2">
-                {formatTime(timeLeft)}
-              </div>
-              <p className="text-gray-600 dark:text-slate-400">Ready to focus?</p>
-            </motion.div>
-          )}
-
-          {/* Active Status - Enhanced */}
-          {isActive && !isPlantDead && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center mb-8"
-            >
-              <div className="text-3xl font-serif text-green-600 dark:text-green-400 mb-2 flex items-center justify-center gap-3">
-                <motion.span
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  🌱
-                </motion.span>
-                <span>Your plant is growing...</span>
-              </div>
-              <p className="text-gray-600 dark:text-slate-400 text-lg">
-                Stay focused and watch it bloom
+              <p className="text-center text-sm text-earth-500 dark:text-slate-400 mt-2">
+                {progress < 25 ? '🌱 Sprouting' : progress < 50 ? '🌿 Growing' : progress < 75 ? '🌸 Blooming' : '🌳 Thriving!'}
               </p>
-            </motion.div>
+            </div>
           )}
 
-          {/* Duration Selector - Enhanced (only show when not active) */}
+          {/* Duration Controls - Unified (only when not active) */}
           {!isActive && !isPlantDead && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8 space-y-8"
-            >
-              {/* Custom Duration Input */}
-              <div className="max-w-md mx-auto">
-                <label className="block text-sm font-semibold text-green-600 dark:text-green-400 mb-4 text-center flex items-center justify-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Set Custom Duration
-                </label>
-                <div className="bg-gray-100 dark:bg-slate-700/30 rounded-2xl p-6 border border-gray-200 dark:border-slate-600/30">
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <input
-                      type="number"
-                      min="1"
-                      max="120"
-                      value={customDuration}
-                      onChange={(e) => handleCustomDurationChange(e.target.value)}
-                      onBlur={applyCustomDuration}
-                      className="bg-white dark:bg-slate-800/50 border-2 border-green-500/50 dark:border-green-500/30 rounded-xl w-24 text-center font-bold text-2xl text-green-600 dark:text-green-400 py-3 focus:outline-none focus:border-green-500 transition-colors"
-                      disabled={isActive}
-                    />
-                    <span className="text-gray-700 dark:text-slate-300 font-semibold text-lg">minutes</span>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={applyCustomDuration}
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-lg shadow-green-500/20"
-                    >
-                      Set
-                    </motion.button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type="range"
-                      min="1"
-                      max="120"
-                      value={customDuration}
-                      onChange={(e) => {
-                        setCustomDuration(parseInt(e.target.value));
-                        setDuration(parseInt(e.target.value));
-                        setTimeLeft(parseInt(e.target.value) * 60);
-                      }}
-                      className="w-full h-2 bg-gray-300 dark:bg-slate-600 rounded-full appearance-none cursor-pointer slider-green"
-                      disabled={isActive}
-                      style={{
-                        background: `linear-gradient(to right, rgb(16, 185, 129) 0%, rgb(16, 185, 129) ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(71, 85, 105)' : 'rgb(209, 213, 219)'} ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(71, 85, 105)' : 'rgb(209, 213, 219)'} 100%)`
-                      }}
-                    />
-                    <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 font-semibold mt-2">
-                      <span>1m</span>
-                      <span>60m</span>
-                      <span>120m</span>
-                    </div>
-                  </div>
+            <div className="mb-6">
+              {/* Quick Presets - Primary Selection */}
+              <div className="flex flex-wrap justify-center gap-2 mb-4">
+                {[5, 15, 25, 30, 45, 60, 90, 120].map((mins) => (
+                  <motion.button
+                    key={mins}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setDuration(mins);
+                      setCustomDuration(mins);
+                      setTimeLeft(mins * 60);
+                    }}
+                    className={`px-4 py-2 rounded-full font-semibold transition-all ${
+                      duration === mins
+                        ? 'bg-leaf-500 text-white shadow-lg'
+                        : 'bg-sage-100 dark:bg-slate-700 text-earth-600 dark:text-slate-300 hover:bg-sage-200 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
+                  </motion.button>
+                ))}
+              </div>
+              
+              {/* Custom Slider - Secondary */}
+              <div className="max-w-sm mx-auto">
+                <input
+                  type="range"
+                  min="1"
+                  max="120"
+                  value={customDuration}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setCustomDuration(val);
+                    setDuration(val);
+                    setTimeLeft(val * 60);
+                  }}
+                  className="w-full h-2 bg-sage-200 dark:bg-slate-600 rounded-full appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, rgb(34, 197, 94) 0%, rgb(34, 197, 94) ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(71, 85, 105)' : 'rgb(209, 213, 219)'} ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(71, 85, 105)' : 'rgb(209, 213, 219)'} 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-earth-400 dark:text-slate-500 mt-1">
+                  <span>1m</span>
+                  <span className="font-semibold text-earth-600 dark:text-slate-300">{customDuration} min</span>
+                  <span>2h</span>
                 </div>
               </div>
-
-              {/* Quick Presets - Enhanced */}
-              <div>
-                <label className="block text-sm font-semibold text-green-600 dark:text-green-400 mb-4 text-center flex items-center justify-center gap-2">
-                  <Zap className="w-4 h-4" />
-                  Quick Presets
-                </label>
-                <div className="flex justify-center gap-3 flex-wrap">
-                  {[5, 15, 25, 30, 45, 60, 90, 120].map((mins) => (
-                    <motion.button
-                      key={mins}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setDuration(mins);
-                        setCustomDuration(mins);
-                        setTimeLeft(mins * 60);
-                      }}
-                      className={`px-6 py-3 rounded-xl font-bold text-lg transition-all ${
-                        duration === mins
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-xl shadow-green-500/30 border-2 border-green-400'
-                          : 'bg-gray-200 dark:bg-slate-700/50 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600/50 border-2 border-gray-300 dark:border-slate-600/30 hover:border-gray-400 dark:hover:border-slate-500/50'
-                      }`}
-                    >
-                      {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+            </div>
           )}
 
-          {/* Control Buttons - Enhanced */}
-          <div className="flex justify-center gap-4">
+          {/* Control Buttons */}
+          <div className="flex justify-center gap-3">
             {!isActive || isPaused ? (
               <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(16, 185, 129, 0.4)" }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={startSession}
                 disabled={isPlantDead}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold text-xl px-10 py-5 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-3 shadow-2xl shadow-green-500/30 border-2 border-green-400/50 transition-all"
+                className="bg-leaf-500 hover:bg-leaf-600 disabled:bg-gray-400 text-white font-bold text-lg px-8 py-4 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg"
               >
-                <Play className="w-7 h-7" />
-                <span>{isPaused ? 'Resume Focus' : 'Start Focus'}</span>
+                <Play className="w-6 h-6" />
+                {isPaused ? 'Resume' : 'Start Focus'}
               </motion.button>
             ) : (
-              <>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={pauseSession}
-                  className="bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-bold text-xl px-10 py-5 rounded-2xl flex items-center space-x-3 shadow-xl border-2 border-gray-300 dark:border-slate-600"
-                >
-                  <Pause className="w-7 h-7" />
-                  <span>Pause</span>
-                </motion.button>
-              </>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={pauseSession}
+                className="bg-sage-200 dark:bg-slate-700 hover:bg-sage-300 dark:hover:bg-slate-600 text-earth-700 dark:text-white font-bold text-lg px-8 py-4 rounded-2xl flex items-center gap-2"
+              >
+                <Pause className="w-6 h-6" />
+                Pause
+              </motion.button>
             )}
             
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={resetSession}
-              className="bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-bold text-xl px-10 py-5 rounded-2xl flex items-center space-x-3 shadow-xl border-2 border-gray-300 dark:border-slate-600"
+              className="bg-sage-100 dark:bg-slate-700 hover:bg-sage-200 dark:hover:bg-slate-600 text-earth-600 dark:text-slate-300 font-semibold px-6 py-4 rounded-2xl flex items-center gap-2"
             >
-              <RotateCcw className="w-7 h-7" />
-              <span>Reset</span>
+              <RotateCcw className="w-5 h-5" />
+              Reset
             </motion.button>
           </div>
 
-          {/* Status Messages - Enhanced */}
+          {/* Status Messages */}
           {isPlantDead && (
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="mt-8 p-6 bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-900/40 dark:to-orange-900/40 border-2 border-red-500/50 rounded-2xl text-center backdrop-blur-sm"
+              className="mt-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50 rounded-xl text-center"
             >
-              <motion.div 
-                animate={{ rotate: [0, -10, 10, -10, 0] }}
-                transition={{ duration: 0.5 }}
-                className="text-6xl mb-3"
-              >
-                💀
-              </motion.div>
-              <p className="text-red-700 dark:text-red-300 font-bold text-2xl mb-3">
-                Your focus plant died!
-              </p>
-              <p className="text-red-600 dark:text-red-200 mb-4">
-                You switched tabs or windows during the session. Stay focused to grow your plant!
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={resetSession}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg"
-              >
-                Try Again 🌱
-              </motion.button>
+              <p className="text-red-700 dark:text-red-300 font-bold text-lg mb-2">💀 Your plant died!</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mb-3">You switched away during the session.</p>
+              <button onClick={resetSession} className="text-red-700 dark:text-red-300 underline font-medium">
+                Try Again
+              </button>
             </motion.div>
           )}
           
           {isPaused && !isPlantDead && (
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="mt-8 p-6 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/40 dark:to-orange-900/40 border-2 border-yellow-500/50 rounded-2xl text-center backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-6 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-xl text-center"
             >
-              <p className="text-yellow-700 dark:text-yellow-300 font-bold text-xl mb-2">
-                ⏸️ Session Paused
-              </p>
-              <p className="text-yellow-600 dark:text-yellow-200">
-                Click Resume to continue your focus session
-              </p>
+              <p className="text-amber-700 dark:text-amber-300 font-medium">⏸️ Paused - Click Resume to continue</p>
             </motion.div>
           )}
         </motion.div>
 
-        {/* Instructions - Enhanced */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 backdrop-blur-sm rounded-3xl border border-blue-300 dark:border-blue-500/30 p-8 shadow-xl"
-        >
-          <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-6 flex items-center justify-center gap-3">
-            <AlertTriangle className="w-6 h-6" />
-            How Focus Mode Works
-          </h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">⏱️</span>
-              <div>
-                <p className="text-blue-700 dark:text-blue-200 font-semibold">Set Your Duration</p>
-                <p className="text-blue-600 dark:text-blue-300/70 text-sm">Choose 1-120 minutes of focus time</p>
-              </div>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">🌱</span>
-              <div>
-                <p className="text-blue-700 dark:text-blue-200 font-semibold">Watch It Grow</p>
-                <p className="text-blue-600 dark:text-blue-300/70 text-sm">Your plant grows as you stay focused</p>
-              </div>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">🚫</span>
-              <div>
-                <p className="text-blue-700 dark:text-blue-200 font-semibold">Stay Focused</p>
-                <p className="text-blue-600 dark:text-blue-300/70 text-sm">Don't switch tabs or minimize browser</p>
-              </div>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">⚠️</span>
-              <div>
-                <p className="text-blue-700 dark:text-blue-200 font-semibold">Warning System</p>
-                <p className="text-blue-600 dark:text-blue-300/70 text-sm">Get warned if you lose focus</p>
-              </div>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">💀</span>
-              <div>
-                <p className="text-blue-200 font-semibold">Plant Dies</p>
-                <p className="text-blue-300/70 text-sm">If you don't return quickly enough</p>
-              </div>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">🔒</span>
-              <div>
-                <p className="text-blue-700 dark:text-blue-200 font-semibold">Protected Session</p>
-                <p className="text-blue-600 dark:text-blue-300/70 text-sm">Browser warns if you try to close tab</p>
-              </div>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">🏆</span>
-              <div>
-                <p className="text-blue-700 dark:text-blue-200 font-semibold">Earn Rewards</p>
-                <p className="text-blue-600 dark:text-blue-300/70 text-sm">Complete sessions to grow beautiful plants</p>
-              </div>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(59, 130, 246, 0.1)" }}
-              className="flex items-start gap-3 p-4 rounded-xl transition-all"
-            >
-              <span className="text-3xl">🎯</span>
-              <div>
-                <p className="text-blue-700 dark:text-blue-200 font-semibold">Flexible Options</p>
-                <p className="text-blue-600 dark:text-blue-300/70 text-sm">Use presets or custom duration slider</p>
-              </div>
-            </motion.div>
-          </div>
-        </motion.div>
+        {/* Compact Tips - Inline */}
+        <div className="flex flex-wrap justify-center gap-2 text-sm">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/60 dark:bg-slate-800/40 rounded-full text-earth-600 dark:text-slate-400">
+            <span>⚠️</span> Don't switch tabs
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/60 dark:bg-slate-800/40 rounded-full text-earth-600 dark:text-slate-400">
+            <span>💀</span> Plant dies if you leave
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/60 dark:bg-slate-800/40 rounded-full text-earth-600 dark:text-slate-400">
+            <span>🏆</span> Complete sessions to grow plants
+          </span>
+        </div>
       </div>
 
       {/* Warning Modal */}

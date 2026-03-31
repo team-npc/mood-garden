@@ -24,11 +24,11 @@ const EmojiPicker = ({ onSelect }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-md">
+    <div className="bg-white dark:bg-deep-700 border border-sage-200 dark:border-deep-500 rounded-xl shadow-lg p-4 max-w-md">
       <div className="space-y-3">
         {Object.entries(emojiCategories).map(([category, emojis]) => (
           <div key={category}>
-            <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
+            <h4 className="text-xs font-medium text-earth-500 dark:text-cream-500 mb-2 uppercase tracking-wide">
               {category}
             </h4>
             <div className="grid grid-cols-8 gap-1">
@@ -37,7 +37,7 @@ const EmojiPicker = ({ onSelect }) => {
                   key={`${category}-${index}`}
                   type="button"
                   onClick={() => onSelect(emoji)}
-                  className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 rounded transition-colors"
+                  className="w-8 h-8 flex items-center justify-center text-lg hover:bg-sage-100 dark:hover:bg-deep-600 rounded-lg transition-colors"
                   title={`${category} - ${emoji}`}
                 >
                   {emoji}
@@ -48,8 +48,8 @@ const EmojiPicker = ({ onSelect }) => {
         ))}
       </div>
       
-      <div className="mt-4 pt-3 border-t border-gray-200">
-        <p className="text-xs text-gray-500 text-center">
+      <div className="mt-4 pt-3 border-t border-sage-200 dark:border-deep-500">
+        <p className="text-xs text-earth-500 dark:text-cream-500 text-center">
           Choose an emoji that represents your current mood
         </p>
       </div>

@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { deleteUser } from 'firebase/auth';
 import { 
   User, 
   Settings, 
@@ -20,9 +21,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
 import { useJournal } from '../hooks/useJournal';
+import { auth } from '../firebase/config';
 import { exportAsJSON } from '../utils/exportData';
-import { recalculatePlantStage } from '../firebase/firestore';
+import { recalculatePlantStage, deleteUserData } from '../firebase/firestore';
 
 /**
  * Profile Page Component
@@ -30,6 +33,7 @@ import { recalculatePlantStage } from '../firebase/firestore';
 const ProfilePage = () => {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { addToast } = useToast();
   const { entries } = useJournal();
   
   // Load notification settings from localStorage
@@ -43,6 +47,7 @@ const ProfilePage = () => {
   });
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   /**
    * Handle user logout
@@ -123,13 +128,25 @@ const ProfilePage = () => {
       const success = exportAsJSON(user, entries);
       
       if (success) {
-        alert('✅ Your data has been exported successfully!');
+        addToast({
+          type: 'success',
+          title: 'Export Complete',
+          message: 'Your data has been exported successfully.'
+        });
       } else {
-        alert('❌ Failed to export data. Please try again.');
+        addToast({
+          type: 'error',
+          title: 'Export Failed',
+          message: 'Failed to export data. Please try again.'
+        });
       }
     } catch (error) {
       console.error('Error exporting data:', error);
-      alert('❌ Failed to export data. Please try again.');
+      addToast({
+        type: 'error',
+        title: 'Export Failed',
+        message: 'Failed to export data. Please try again.'
+      });
     }
   };
 
@@ -141,7 +158,11 @@ const ProfilePage = () => {
       console.log('Starting plant recalculation...');
       const newStage = await recalculatePlantStage(user.uid);
       console.log('Recalculation successful, new stage:', newStage);
-      alert(`✅ Plant recalculated! New stage: ${newStage}\n\nPlease refresh the Garden page to see the updated plant.`);
+      addToast({
+        type: 'success',
+        title: 'Plant Recalculated',
+        message: `New stage: ${newStage}. Refreshing now...`
+      });
       // Reload the page after a short delay to see the changes
       setTimeout(() => window.location.reload(), 2000);
     } catch (error) {
@@ -151,7 +172,11 @@ const ProfilePage = () => {
         code: error.code,
         stack: error.stack
       });
-      alert(`❌ Failed to recalculate plant: ${error.message}\n\nCheck the console for details.`);
+      addToast({
+        type: 'error',
+        title: 'Recalculation Failed',
+        message: error.message || 'Failed to recalculate plant.'
+      });
     }
   };
 
@@ -159,10 +184,46 @@ const ProfilePage = () => {
    * Handle account deletion
    */
   const handleDeleteAccount = () => {
-    // In a real app, you would show a proper confirmation flow
-    console.log('Account deletion would be handled here');
-    alert('Account deletion feature would be implemented here');
-    setShowDeleteConfirm(false);
+    const deleteAccount = async () => {
+      if (!user || !auth.currentUser) {
+        addToast({
+          type: 'error',
+          title: 'Delete Failed',
+          message: 'Unable to delete account. Please sign in again.'
+        });
+        return;
+      }
+
+      try {
+        setIsDeletingAccount(true);
+        await deleteUserData(user.uid);
+        await deleteUser(auth.currentUser);
+        setShowDeleteConfirm(false);
+        addToast({
+          type: 'success',
+          title: 'Account Deleted',
+          message: 'Your account and data were deleted successfully.'
+        });
+      } catch (error) {
+        if (error?.code === 'auth/requires-recent-login') {
+          addToast({
+            type: 'warning',
+            title: 'Recent Login Required',
+            message: 'Please sign out and sign in again before deleting your account.'
+          });
+        } else {
+          addToast({
+            type: 'error',
+            title: 'Delete Failed',
+            message: 'Failed to delete account. Please try again.'
+          });
+        }
+      } finally {
+        setIsDeletingAccount(false);
+      }
+    };
+
+    deleteAccount();
   };
 
   return (
@@ -485,15 +546,17 @@ const ProfilePage = () => {
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeletingAccount}
                 className="flex-1 btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAccount}
+                disabled={isDeletingAccount}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
               >
-                Delete Account
+                {isDeletingAccount ? 'Deleting...' : 'Delete Account'}
               </button>
             </div>
           </div>

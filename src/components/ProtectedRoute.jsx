@@ -6,6 +6,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GardenLoader } from './LazyLoading';
 
 /**
  * ProtectedRoute wrapper component
@@ -18,11 +19,7 @@ const ProtectedRoute = ({ children }) => {
 
   // Show loading spinner while checking authentication
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sage-50 to-earth-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sage-600"></div>
-      </div>
-    );
+    return <GardenLoader message="Loading your garden..." size="large" fullScreen={true} />;
   }
 
   // Redirect to login if not authenticated

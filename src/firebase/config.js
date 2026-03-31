@@ -3,16 +3,24 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
+const getRequiredEnv = (key) => {
+  const value = import.meta.env[key];
+  if (!value) {
+    throw new Error(`Missing required Firebase environment variable: ${key}`);
+  }
+  return value;
+};
+
 // Firebase configuration object
 // These values come from your Firebase project settings
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBr1TXhW9dyJAREZ8iQNiowtPQLBVjyLM4",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "mood-garden-a220a.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "mood-garden-a220a",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "mood-garden-a220a.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "364830965701",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:364830965701:web:5f56e56699374936c715ac",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-8HHF4V9EF5"
+  apiKey: getRequiredEnv('VITE_FIREBASE_API_KEY'),
+  authDomain: getRequiredEnv('VITE_FIREBASE_AUTH_DOMAIN'),
+  projectId: getRequiredEnv('VITE_FIREBASE_PROJECT_ID'),
+  storageBucket: getRequiredEnv('VITE_FIREBASE_STORAGE_BUCKET'),
+  messagingSenderId: getRequiredEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+  appId: getRequiredEnv('VITE_FIREBASE_APP_ID'),
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || undefined
 };
 
 // Initialize Firebase

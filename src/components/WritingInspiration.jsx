@@ -5,8 +5,9 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, TrendingUp, TrendingDown, Clock, Heart, Brain, ChevronRight, RefreshCw, Lightbulb } from 'lucide-react';
+import { Sparkles, Heart, RefreshCw, Lightbulb, Feather, MessageCircle, ListChecks, PenLine } from 'lucide-react';
 import useMLInsights from '../hooks/useMLInsights';
+import { GardenLoader } from './LazyLoading';
 
 /**
  * Writing Inspiration Component
@@ -14,11 +15,7 @@ import useMLInsights from '../hooks/useMLInsights';
 const WritingInspiration = ({ onPromptSelect }) => {
   const { insights, prompts, patterns, loading, analyzeEntries } = useMLInsights();
   const [selectedPrompt, setSelectedPrompt] = useState(null);
-  const [showInsights, setShowInsights] = useState(false);
 
-  /**
-   * Handle prompt selection
-   */
   const handleSelectPrompt = (prompt) => {
     setSelectedPrompt(prompt);
     if (onPromptSelect) {
@@ -26,235 +23,157 @@ const WritingInspiration = ({ onPromptSelect }) => {
     }
   };
 
-  /**
-   * Get trend icon
-   */
-  const getTrendIcon = (trend) => {
-    switch (trend) {
-      case 'increasing':
-      case 'improving':
-        return <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />;
-      case 'decreasing':
-      case 'declining':
-        return <TrendingDown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />;
-      default:
-        return <Heart className="w-4 h-4 text-sage-600 dark:text-sage-400" />;
+  const getPromptIcon = (type) => {
+    switch (type) {
+      case 'simple': return Feather;
+      case 'feeling': return MessageCircle;
+      case 'gratitude': return ListChecks;
+      case 'open': return PenLine;
+      default: return Lightbulb;
     }
   };
 
-  /**
-   * Get sentiment color
-   */
-  const getSentimentColor = (sentiment) => {
-    switch (sentiment) {
-      case 'positive':
-        return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
-      case 'negative':
-        return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20';
-      default:
-        return 'text-sage-600 dark:text-sage-400 bg-sage-50 dark:bg-sage-900/20';
+  const getPromptColor = (type) => {
+    switch (type) {
+      case 'simple': return 'bg-sage-100 dark:bg-sage-900/30 text-sage-600 dark:text-sage-400';
+      case 'feeling': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400';
+      case 'gratitude': return 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400';
+      case 'open': return 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400';
+      default: return 'bg-leaf-100 dark:bg-leaf-900/30 text-leaf-600 dark:text-leaf-400';
     }
   };
 
   if (loading) {
-    return (
-      <div className="card">
-        <div className="flex items-center justify-center py-8">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          >
-            <Brain className="w-8 h-8 text-sage-600 dark:text-sage-400" />
-          </motion.div>
-          <span className="ml-3 text-gray-600 dark:text-gray-400">Analyzing your entries...</span>
-        </div>
-      </div>
-    );
+    return <GardenLoader message="Analyzing your entries..." size="small" />;
   }
 
   return (
-    <div className="space-y-6">
-      {/* AI Insights Card */}
+    <div className="space-y-4">
+      {/* Quick Insight Badge */}
       {insights && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800"
+          className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-leaf-50 to-sage-50 dark:from-leaf-900/20 dark:to-sage-900/20"
         >
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center">
-              <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                AI Insights from Your Garden
-              </h3>
-            </div>
-            <button
-              onClick={() => setShowInsights(!showInsights)}
-              className="text-sm text-purple-600 dark:text-purple-400 hover:underline"
-            >
-              {showInsights ? 'Hide' : 'Show'} Details
-            </button>
+          <div className="p-2 rounded-xl bg-white dark:bg-deep-700">
+            <Sparkles className="w-4 h-4 text-leaf-500" />
           </div>
-
-          <AnimatePresence>
-            {showInsights && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="grid grid-cols-2 gap-3 mb-4"
-              >
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Mood Trend</div>
-                  <div className="flex items-center">
-                    {getTrendIcon(insights.emotionalTrend)}
-                    <span className="ml-1 text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
-                      {insights.emotionalTrend}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Writing Time</div>
-                  <div className="flex items-center">
-                    <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400 mr-1" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
-                      {patterns?.preferredTime}
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className={`rounded-lg p-3 ${getSentimentColor(insights.dominantSentiment)}`}>
-            <div className="flex items-start">
-              <Sparkles className="w-5 h-5 mt-0.5 mr-2 flex-shrink-0" />
-              <div className="flex-1">
-                <div className="font-medium mb-1">Your Emotional Landscape</div>
-                <p className="text-sm opacity-90">
-                  {insights.dominantSentiment === 'positive' && 
-                    `Your entries radiate positivity! Your garden is blooming with optimism. Keep nurturing this beautiful energy! `}
-                  {insights.dominantSentiment === 'negative' && 
-                    `I notice you're processing some challenging emotions. Remember, even difficult reflections help your garden grow deeper roots. You're doing important work. `}
-                  {insights.dominantSentiment === 'neutral' && (
-                    insights.totalEntries > 20 
-                      ? `Your entries show thoughtful reflection. You're building a rich inner garden. This consistent practice is powerful! `
-                      : `Your entries show balanced reflection. You're observing life with clarity and mindfulness. This steady approach helps your garden grow strong. `
-                  )}
-                  {insights.emotionalTrend === 'improving' && "Things are looking up! ✨"}
-                  {insights.emotionalTrend === 'declining' && "Be gentle with yourself during this time. 🤗"}
-                  {insights.writingTrend === 'increasing' && "Your entries are getting richer and more detailed! 📝"}
-                </p>
-              </div>
-            </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-earth-700 dark:text-cream-300 truncate">
+              {insights.dominantSentiment === 'positive' && "Your garden is blooming! ✨"}
+              {insights.dominantSentiment === 'negative' && "Processing emotions... 🌱"}
+              {insights.dominantSentiment === 'neutral' && "Steady growth happening 🌿"}
+            </p>
           </div>
-
           <button
             onClick={analyzeEntries}
-            className="mt-3 w-full btn-secondary flex items-center justify-center text-sm"
+            className="p-2 rounded-xl hover:bg-white dark:hover:bg-deep-700 transition-colors"
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh Analysis
+            <RefreshCw className="w-4 h-4 text-earth-500 dark:text-cream-500" />
           </button>
         </motion.div>
       )}
 
-      {/* Writing Prompts */}
-      <div className="card">
-        <div className="flex items-center mb-4">
-          <Lightbulb className="w-6 h-6 text-sage-600 dark:text-sage-400 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Writing Inspiration
-          </h3>
-        </div>
-
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          {insights 
-            ? "Based on your writing patterns, here are prompts chosen just for you:"
-            : "Start your journaling journey with these thoughtful prompts:"}
-        </p>
-
-        <div className="space-y-3">
-          {prompts.map((prompt, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`
-                p-4 rounded-lg border-2 transition-all cursor-pointer
-                ${selectedPrompt?.title === prompt.title
-                  ? 'border-sage-500 dark:border-sage-400 bg-sage-50 dark:bg-sage-900/20'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-sage-300 dark:hover:border-sage-600 bg-white dark:bg-gray-800'
-                }
-              `}
-              onClick={() => handleSelectPrompt(prompt)}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center">
-                  <span className="text-2xl mr-2">{prompt.emoji}</span>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">
-                      {prompt.title}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                      {prompt.type} prompt
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight className={`w-5 h-5 transition-transform ${
-                  selectedPrompt?.title === prompt.title ? 'rotate-90' : ''
-                } text-gray-400`} />
-              </div>
-
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 italic">
-                "{prompt.prompt}"
-              </p>
-
-              <div className="text-xs text-sage-600 dark:text-sage-400 bg-sage-50 dark:bg-sage-900/20 rounded p-2">
-                💚 {prompt.motivation}
-              </div>
-
-              {selectedPrompt?.title === prompt.title && (
-                <motion.button
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-3 w-full btn-primary text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Scroll to journal entry form
-                    document.getElementById('journal-entry-form')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >
-                  Start Writing
-                </motion.button>
-              )}
-            </motion.div>
-          ))}
-        </div>
+      {/* Section Header */}
+      <div className="flex items-center gap-2">
+        <Lightbulb className="w-4 h-4 text-leaf-500" />
+        <h3 className="text-sm font-semibold text-earth-700 dark:text-cream-300">
+          Writing Prompts
+        </h3>
       </div>
 
-      {/* Daily Motivation */}
+      {/* Clean Prompt Cards */}
+      <div className="space-y-2">
+        {prompts.slice(0, 4).map((prompt, index) => {
+          const Icon = getPromptIcon(prompt.type);
+          const isSelected = selectedPrompt?.title === prompt.title;
+          
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              onClick={() => handleSelectPrompt(prompt)}
+              className={`
+                p-4 rounded-2xl cursor-pointer transition-all duration-200
+                ${isSelected
+                  ? 'bg-leaf-50 dark:bg-leaf-900/30 ring-2 ring-leaf-400 dark:ring-leaf-600'
+                  : 'bg-white dark:bg-deep-800/50 hover:bg-sage-50 dark:hover:bg-deep-700/50'
+                }
+              `}
+            >
+              <div className="flex items-start gap-3">
+                {/* Icon */}
+                <div className={`p-2 rounded-xl ${getPromptColor(prompt.type)}`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium text-earth-800 dark:text-cream-100">
+                      {prompt.title}
+                    </span>
+                    <span className="text-xs text-earth-500 dark:text-cream-500 capitalize">
+                      {prompt.type}
+                    </span>
+                  </div>
+                  
+                  <p className="text-sm text-earth-600 dark:text-cream-400 line-clamp-2">
+                    {prompt.prompt}
+                  </p>
+                  
+                  {/* Expanded state */}
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="mt-3 pt-3 border-t border-leaf-200 dark:border-leaf-800"
+                      >
+                        <p className="text-xs text-leaf-600 dark:text-leaf-400 mb-3">
+                          💚 {prompt.motivation}
+                        </p>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            document.getElementById('journal-entry-form')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="w-full py-2 bg-leaf-500 hover:bg-leaf-600 text-white text-sm font-medium rounded-xl transition-colors"
+                        >
+                          Start Writing
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Today's Motivation */}
       {patterns && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="card bg-gradient-to-br from-sage-50 to-earth-50 dark:from-sage-900/20 dark:to-earth-900/20 border-sage-200 dark:border-sage-800"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20"
         >
-          <div className="flex items-center mb-3">
-            <Heart className="w-5 h-5 text-sage-600 dark:text-sage-400 mr-2" />
-            <h4 className="font-semibold text-gray-900 dark:text-gray-100">Today's Motivation</h4>
+          <div className="flex items-start gap-3">
+            <Heart className="w-4 h-4 text-amber-500 mt-0.5" />
+            <p className="text-sm text-earth-700 dark:text-cream-300">
+              {patterns.writingTrend === 'increasing' && 
+                "Your writing is flourishing! Keep nurturing your inner garden. 🌟"}
+              {patterns.writingTrend === 'decreasing' && 
+                "Small seeds grow mighty trees. Every word matters. 🌱"}
+              {patterns.writingTrend === 'stable' && 
+                "Consistency is your superpower! Your garden grows strong. ✨"}
+            </p>
           </div>
-          
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            {patterns.writingTrend === 'increasing' && 
-              "You've been writing more deeply lately! Your dedication to self-reflection is helping your garden flourish beautifully. 🌟"}
-            {patterns.writingTrend === 'decreasing' && 
-              "Even short entries count! Remember, every word you write waters your inner garden. Small seeds grow into mighty trees. 🌱"}
-            {patterns.writingTrend === 'stable' && 
-              "Your consistent journaling habit is remarkable! Like steady sunlight, your regular reflection helps your garden grow strong and resilient. ✨"}
-          </p>
         </motion.div>
       )}
     </div>

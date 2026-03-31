@@ -58,13 +58,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, displayName) => {
     try {
       setError(null);
-      setLoading(true);
       await registerWithEmail(email, password, displayName);
     } catch (error) {
       setError(error.message);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -76,13 +73,10 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     try {
       setError(null);
-      setLoading(true);
       await signInWithEmail(email, password);
     } catch (error) {
       setError(error.message);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -92,13 +86,10 @@ export const AuthProvider = ({ children }) => {
   const signInGoogle = async () => {
     try {
       setError(null);
-      setLoading(true);
       await signInWithGoogle();
     } catch (error) {
       setError(error.message);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
