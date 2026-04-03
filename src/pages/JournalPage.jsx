@@ -3,8 +3,8 @@
  * Displays journal entries history and statistics
  */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Plus, Search, Calendar, BarChart3, Download, Sliders, HelpCircle, Heart, Folder, Upload, SortAsc, BookOpen, Bell, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
+import { Plus, Search, Calendar, BarChart3, Download, Sliders, HelpCircle, Heart, Folder, Upload, SortAsc, BookOpen, Bell, Lightbulb, Database, Compass, Settings2, TrendingUp, Tag, Flame } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
 import { useGlobalKeyboardShortcuts } from '../hooks/useGlobalKeyboardShortcuts';
 import JournalEntryItem from '../components/JournalEntryItem';
@@ -12,22 +12,37 @@ import JournalEntryForm from '../components/JournalEntryForm';
 import WritingInspiration from '../components/WritingInspiration';
 import AdvancedFilterPanel from '../components/AdvancedFilterPanel';
 import KeyboardShortcutsModal from '../components/KeyboardShortcutsModal';
-import CalendarView from '../components/CalendarView';
-import WellnessInsights from '../components/WellnessInsights';
-import MoodStatsDashboard from '../components/MoodStatsDashboard';
-import SmartCollections from '../components/SmartCollections';
-import ImportEntries from '../components/ImportEntries';
-import ReflectionMode from '../components/ReflectionMode';
-import ScheduledReminders from '../components/ScheduledReminders';
-import EntryRecommendations from '../components/EntryRecommendations';
-import ShareEntryModal from '../components/ShareEntryModal';
+import JournalEmptyState from '../components/JournalEmptyState';
 import { GardenLoader } from '../components/LazyLoading';
+import { DropdownMenu } from '../components/ui';
+import { SkeletonJournalEntry, SkeletonSidebar } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { exportAsJSON, exportAsCSV, exportAsText } from '../utils/exportData';
 import { fullTextSearch, applyAdvancedFilters, getHashtagSuggestions } from '../utils/searchUtils';
 import { generateWellnessSummary } from '../utils/wellnessUtils';
 import { sortEntries, SORT_OPTIONS, detectDuplicateEntry } from '../utils/collectionsUtils';
+
+// Lazy load heavy modal components
+const CalendarView = lazy(() => import('../components/CalendarView'));
+const WellnessInsights = lazy(() => import('../components/WellnessInsights'));
+const MoodStatsDashboard = lazy(() => import('../components/MoodStatsDashboard'));
+const SmartCollections = lazy(() => import('../components/SmartCollections'));
+const ImportEntries = lazy(() => import('../components/ImportEntries'));
+const ReflectionMode = lazy(() => import('../components/ReflectionMode'));
+const ScheduledReminders = lazy(() => import('../components/ScheduledReminders'));
+const EntryRecommendations = lazy(() => import('../components/EntryRecommendations'));
+const ShareEntryModal = lazy(() => import('../components/ShareEntryModal'));
+
+// Loading fallback for lazy components
+const ModalLoader = () => (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white dark:bg-deep-700 rounded-2xl p-8">
+      <div className="animate-spin w-8 h-8 border-4 border-leaf-500 border-t-transparent rounded-full mx-auto" />
+      <p className="text-earth-600 dark:text-cream-400 mt-4">Loading...</p>
+    </div>
+  </div>
+);
 
 /**
  * Journal Page Component
@@ -539,48 +554,52 @@ const JournalPage = () => {
 
   /**
    * Filter entries based on search term, tags, pin status, and view mode
-   * @param {Array} entries - Journal entries
-   * @returns {Array} Filtered entries
+   * Memoized for performance with large entry lists
    */
   const entriesToDisplay = viewMode === 'archived' ? archivedEntries : entries;
   
-  // Apply all filters in sequence
-  let filteredEntries = entriesToDisplay
-    .filter(entry =>
-      entry.content.toLowerCase().includes(searchTerm.toLowerCase())
-      && (selectedTag === 'all' || (entry.tags || []).includes(selectedTag))
-      && (viewMode !== 'pinned' || entry.isPinned)
-    );
+  // Memoize expensive filtering operations
+  const filteredEntries = useMemo(() => {
+    // Apply all filters in sequence
+    let filtered = entriesToDisplay
+      .filter(entry =>
+        entry.content.toLowerCase().includes(searchTerm.toLowerCase())
+        && (selectedTag === 'all' || (entry.tags || []).includes(selectedTag))
+        && (viewMode !== 'pinned' || entry.isPinned)
+      );
 
-  // Apply full-text search
-  if (searchTerm.trim()) {
-    filteredEntries = fullTextSearch(filteredEntries, searchTerm);
-  }
+    // Apply full-text search
+    if (searchTerm.trim()) {
+      filtered = fullTextSearch(filtered, searchTerm);
+    }
 
-  // Apply advanced filters
-  if (Object.keys(advancedFilters).length > 0) {
-    filteredEntries = applyAdvancedFilters(filteredEntries, advancedFilters);
-  }
+    // Apply advanced filters
+    if (Object.keys(advancedFilters).length > 0) {
+      filtered = applyAdvancedFilters(filtered, advancedFilters);
+    }
 
-  // Apply sorting
-  filteredEntries = sortEntries(filteredEntries, currentSort);
+    // Apply sorting
+    return sortEntries(filtered, currentSort);
+  }, [entriesToDisplay, searchTerm, selectedTag, viewMode, advancedFilters, currentSort]);
 
-  const availableTags = [...new Set(
-    entries.flatMap((entry) => entry.tags || [])
-  )].sort();
+  const availableTags = useMemo(() => 
+    [...new Set(entries.flatMap((entry) => entry.tags || []))].sort(),
+    [entries]
+  );
 
-  const availableMoods = [...new Set(
-    entries.filter((entry) => entry.mood).map((entry) => entry.mood)
-  )].sort();
+  const availableMoods = useMemo(() => 
+    [...new Set(entries.filter((entry) => entry.mood).map((entry) => entry.mood))].sort(),
+    [entries]
+  );
 
-  const plantInsights = getPlantInsights();
-  const moodGarden = getMoodGarden();
+  const plantInsights = useMemo(() => getPlantInsights(), [entries]);
+  const moodGarden = useMemo(() => getMoodGarden(), [entries]);
   
-  // Generate wellness summary
-  const wellnessSummary = generateWellnessSummary(entries);
+  // Generate wellness summary - memoized
+  const wellnessSummary = useMemo(() => generateWellnessSummary(entries), [entries]);
   
-  // Recompute entriesByDate based on filtered entries
-  const entriesByDateForView = () => {
+  // Recompute entriesByDate based on filtered entries - memoized
+  const entriesByDate = useMemo(() => {
     const grouped = {};
     filteredEntries.forEach(entry => {
       const date = new Date(entry.createdAt);
@@ -591,9 +610,7 @@ const JournalPage = () => {
       grouped[dateKey].push(entry);
     });
     return grouped;
-  };
-  
-  const entriesByDate = entriesByDateForView();
+  }, [filteredEntries]);
 
   if (loading) {
     return <GardenLoader message="Loading your journal..." size="large" fullScreen={true} />;
@@ -628,170 +645,127 @@ const JournalPage = () => {
             </button>
           </div>
           
-          {/* Toolbar - Organized in Categories */}
-          <div className="mt-6 flex flex-wrap gap-2">
-            {/* Data & Export */}
-            <div className="relative" ref={exportMenuRef}>
-              <button
-                onClick={() => setShowExportMenu(!showExportMenu)}
-                className="btn-secondary inline-flex items-center space-x-2 text-sm"
-                title="Export your journal data"
-                disabled={isExporting}
-              >
-                <Download className="w-4 h-4" />
-                <span>{isExporting ? 'Exporting...' : 'Export Data'}</span>
-              </button>
-              
-              {showExportMenu && (
-                <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-deep-700 rounded-xl shadow-xl border border-sage-200 dark:border-deep-500 z-50">
-                  <div className="py-1">
-                    <div className="px-4 py-2 border-b border-sage-200 dark:border-deep-500">
-                      <p className="text-xs font-semibold text-earth-600 dark:text-cream-500 mb-2">Date Range</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setExportRange('all')}
-                          className={`text-xs px-2 py-1 rounded ${exportRange === 'all' ? 'bg-leaf-100 dark:bg-leaf-600/40 text-leaf-700 dark:text-leaf-300' : 'bg-sage-100 dark:bg-deep-600 text-earth-600 dark:text-cream-400'}`}
-                        >
-                          All
-                        </button>
-                        <button
-                          onClick={() => setExportRange('30d')}
-                          className={`text-xs px-2 py-1 rounded ${exportRange === '30d' ? 'bg-leaf-100 dark:bg-leaf-600/40 text-leaf-700 dark:text-leaf-300' : 'bg-sage-100 dark:bg-deep-600 text-earth-600 dark:text-cream-400'}`}
-                        >
-                          30d
-                        </button>
-                        <button
-                          onClick={() => setExportRange('7d')}
-                          className={`text-xs px-2 py-1 rounded ${exportRange === '7d' ? 'bg-leaf-100 dark:bg-leaf-600/40 text-leaf-700 dark:text-leaf-300' : 'bg-sage-100 dark:bg-deep-600 text-earth-600 dark:text-cream-400'}`}
-                        >
-                          7d
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="px-4 py-2 border-b border-sage-200 dark:border-deep-500">
-                      <p className="text-xs font-semibold text-earth-600 dark:text-cream-500 mb-2">Mood Filter</p>
-                      <select
-                        value={selectedExportMood}
-                        onChange={(e) => setSelectedExportMood(e.target.value)}
-                        className="w-full text-xs px-2 py-1 border border-sage-200 dark:border-deep-500 rounded bg-white dark:bg-deep-600 text-earth-700 dark:text-cream-200"
-                      >
-                        <option value="all">All Moods</option>
-                        {availableMoods && availableMoods.length > 0 ? (
-                          availableMoods.map((mood) => (
-                            <option key={mood} value={mood}>{mood} Entries</option>
-                          ))
-                        ) : null}
-                      </select>
-                    </div>
+          {/* Toolbar - Clean & Organized with Dropdowns */}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {/* Data Menu (Export, Import, Stats) */}
+            <DropdownMenu
+              label="Data"
+              icon={Database}
+              items={[
+                { 
+                  id: 'export-json', 
+                  label: 'Export as JSON', 
+                  icon: Download,
+                  onClick: () => handleExportData('json')
+                },
+                { 
+                  id: 'export-csv', 
+                  label: 'Export as CSV', 
+                  icon: Download,
+                  onClick: () => handleExportData('csv')
+                },
+                { 
+                  id: 'export-txt', 
+                  label: 'Export as Text', 
+                  icon: Download,
+                  onClick: () => handleExportData('txt')
+                },
+                { divider: true },
+                { 
+                  id: 'import', 
+                  label: 'Import Entries', 
+                  icon: Upload,
+                  onClick: () => setShowImportModal(true)
+                },
+                { 
+                  id: 'stats', 
+                  label: 'View Statistics', 
+                  icon: BarChart3,
+                  onClick: () => setShowMoodStats(true)
+                }
+              ]}
+            />
 
-                    <button
-                      onClick={() => handleExportData('json')}
-                      className="w-full text-left px-4 py-2 text-sm text-earth-700 dark:text-cream-300 hover:bg-sage-100 dark:hover:bg-deep-600 transition-colors"
-                    >
-                      📄 Export as JSON
-                    </button>
-                    <button
-                      onClick={() => handleExportData('csv')}
-                      className="w-full text-left px-4 py-2 text-sm text-earth-700 dark:text-cream-300 hover:bg-sage-100 dark:hover:bg-deep-600 transition-colors"
-                    >
-                      📊 Export as CSV
-                    </button>
-                    <button
-                      onClick={() => handleExportData('txt')}
-                      className="w-full text-left px-4 py-2 text-sm text-earth-700 dark:text-cream-300 hover:bg-sage-100 dark:hover:bg-deep-600 transition-colors"
-                    >
-                      📝 Export as Text
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            
+            {/* Reflection Menu (Reflect, Ideas, Wellness) */}
+            <DropdownMenu
+              label="Reflect"
+              icon={Compass}
+              items={[
+                { 
+                  id: 'reflection-mode', 
+                  label: 'Reflection Mode', 
+                  icon: BookOpen,
+                  onClick: () => setShowReflectionMode(true)
+                },
+                { 
+                  id: 'ideas', 
+                  label: 'Writing Ideas', 
+                  icon: Lightbulb,
+                  onClick: () => setShowRecommendations(true)
+                },
+                { 
+                  id: 'wellness', 
+                  label: 'Wellness Insights', 
+                  icon: Heart,
+                  onClick: () => setShowWellnessInsights(true)
+                }
+              ]}
+            />
+
+            {/* Planning Menu (Calendar, Reminders) */}
+            <DropdownMenu
+              label="Plan"
+              icon={Calendar}
+              items={[
+                { 
+                  id: 'calendar', 
+                  label: 'Calendar View', 
+                  icon: Calendar,
+                  onClick: () => setShowCalendarView(true)
+                },
+                { 
+                  id: 'reminders', 
+                  label: 'Set Reminders', 
+                  icon: Bell,
+                  onClick: () => setShowReminders(true)
+                }
+              ]}
+            />
+
+            {/* Tools Menu (Shortcuts, Collections) */}
+            <DropdownMenu
+              label="Tools"
+              icon={Settings2}
+              items={[
+                { 
+                  id: 'shortcuts', 
+                  label: 'Keyboard Shortcuts', 
+                  icon: HelpCircle,
+                  onClick: () => setShowKeyboardShortcuts(true)
+                },
+                { 
+                  id: 'collections', 
+                  label: 'Smart Collections', 
+                  icon: Folder,
+                  onClick: () => setShowSmartCollections(true)
+                }
+              ]}
+            />
+
+            {/* Divider */}
+            <div className="hidden md:block w-px h-8 bg-sage-300 dark:bg-deep-500" />
+
+            {/* Quick Toggle: Insights Panel */}
             <button
               onClick={() => setShowStats(!showStats)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all
+                ${showStats 
+                  ? 'bg-leaf-600 text-white' 
+                  : 'bg-sage-100 dark:bg-deep-600 text-earth-700 dark:text-cream-200 hover:bg-sage-200 dark:hover:bg-deep-500 border border-sage-200 dark:border-deep-500'
+                }`}
             >
-              <BarChart3 className="w-4 h-4" />
+              <TrendingUp className="w-4 h-4" />
               <span>{showStats ? 'Hide' : 'Show'} Insights</span>
-            </button>
-
-            <button
-              onClick={() => setShowWellnessInsights(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-            >
-              <Heart className="w-4 h-4" />
-              <span>💚 Wellness</span>
-            </button>
-            
-            <button
-              onClick={() => setShowCalendarView(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>📆 Calendar</span>
-            </button>
-
-            <button
-              onClick={() => setShowKeyboardShortcuts(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-            >
-              <HelpCircle className="w-4 h-4" />
-              <span>⌨️ Shortcuts</span>
-            </button>
-
-            <button
-              onClick={() => setShowMoodStats(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-              title="View mood statistics"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span>📊 Stats</span>
-            </button>
-
-            <button
-              onClick={() => setShowSmartCollections(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-              title="View smart collections"
-            >
-              <Folder className="w-4 h-4" />
-              <span>📁 Collections</span>
-            </button>
-
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-              title="Import entries from file"
-            >
-              <Upload className="w-4 h-4" />
-              <span>📥 Import</span>
-            </button>
-
-            <button
-              onClick={() => setShowReflectionMode(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-              title="Read your entries in reflection mode"
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>📖 Reflect</span>
-            </button>
-
-            <button
-              onClick={() => setShowReminders(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-              title="Set journaling reminders"
-            >
-              <Bell className="w-4 h-4" />
-              <span>🔔 Reminders</span>
-            </button>
-
-            <button
-              onClick={() => setShowRecommendations(true)}
-              className="btn-secondary inline-flex items-center space-x-2 text-sm"
-              title="Get writing recommendations"
-            >
-              <Lightbulb className="w-4 h-4" />
-              <span>💡 Ideas</span>
             </button>
           </div>
         </div>
@@ -852,7 +826,7 @@ const JournalPage = () => {
                 <div className="relative" ref={sortMenuRef}>
                   <button
                     onClick={() => setShowSortMenu(!showSortMenu)}
-                    className="flex items-center space-x-2 btn-secondary"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-full bg-sage-100 hover:bg-sage-200 dark:bg-deep-600 dark:hover:bg-deep-500 text-earth-700 dark:text-cream-200 border border-sage-200 dark:border-deep-500 transition-colors"
                     title="Sort entries"
                   >
                     <SortAsc className="w-4 h-4" />
@@ -922,24 +896,30 @@ const JournalPage = () => {
                   <div>
                     <h3 className="font-semibold text-earth-800 dark:text-cream-100 mb-4 flex items-center text-lg">
                       <span className="mr-2">🔥</span>
-                      Journaling Streak
+                      Journaling Practice
                     </h3>
                     <div className="space-y-4">
                       <div className="bg-gradient-to-br from-sage-100 to-sage-200 dark:from-deep-600 dark:to-deep-700 rounded-xl p-6 border border-sage-300 dark:border-leaf-700/30">
                         <div className="text-center">
                           <div className="text-5xl font-bold text-leaf-600 dark:text-leaf-400 mb-2">
-                            {plantInsights.currentStreak || 0}
+                            {plantInsights.currentStreak >= 30 ? '🌟' : 
+                             plantInsights.currentStreak >= 14 ? '🌸' : 
+                             plantInsights.currentStreak >= 7 ? '🌿' : 
+                             plantInsights.currentStreak >= 3 ? '🌱' : '🌰'}
                           </div>
                           <div className="text-sm text-earth-600 dark:text-cream-400 font-medium">
-                            {plantInsights.currentStreak === 1 ? 'Day streak' : 'Days in a row'}
+                            {plantInsights.currentStreak >= 30 ? 'Flourishing rhythm' : 
+                             plantInsights.currentStreak >= 14 ? 'Beautiful flow' : 
+                             plantInsights.currentStreak >= 7 ? 'Growing momentum' : 
+                             plantInsights.currentStreak >= 3 ? 'Building practice' : 'Just beginning'}
                           </div>
                         </div>
                       </div>
                       
-                      {plantInsights.longestStreak > 1 && (
+                      {plantInsights.longestStreak > plantInsights.currentStreak && plantInsights.longestStreak >= 7 && (
                         <div className="text-sm text-leaf-700 dark:text-leaf-400 bg-leaf-100 dark:bg-leaf-900/30 rounded-lg p-3 text-center border-l-4 border-leaf-500">
-                          <div className="font-medium">Personal Best</div>
-                          <div className="text-lg">{plantInsights.longestStreak} days</div>
+                          <div className="font-medium">You've built beautiful rhythms before</div>
+                          <div className="text-xs text-leaf-600 dark:text-leaf-500">Your garden remembers 🌱</div>
                         </div>
                       )}
                     </div>
@@ -1014,7 +994,7 @@ const JournalPage = () => {
                     : 'bg-deep-700 text-cream-400 hover:bg-deep-600'
                 }`}
               >
-                All Entries ({entries.length})
+                All Entries
               </button>
               <button
                 onClick={() => {
@@ -1098,42 +1078,41 @@ const JournalPage = () => {
             )}
 
             {/* Entries List */}
-            {filteredEntries.length === 0 ? (
-              <div className="bento-item text-center py-12">
-                {searchTerm ? (
-                  <>
-                    <Search className="w-12 h-12 text-earth-400 dark:text-cream-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-earth-800 dark:text-cream-100 mb-2">
-                      No entries found
-                    </h3>
-                    <p className="text-earth-600 dark:text-cream-400 mb-4">
-                      Try adjusting your search term or clear the search to see all entries.
-                    </p>
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="btn-secondary"
-                    >
-                      Clear Search
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Calendar className="w-12 h-12 text-earth-400 dark:text-cream-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-earth-800 dark:text-cream-100 mb-2">
-                      Your journal is waiting
-                    </h3>
-                    <p className="text-earth-600 dark:text-cream-400 mb-4">
-                      Start your mindful journey by writing your first entry.
-                    </p>
-                    <button
-                      onClick={() => setShowEntryForm(true)}
-                      className="btn-primary"
-                    >
-                      Write Your First Entry
-                    </button>
-                  </>
-                )}
+            {loading ? (
+              <div className="space-y-4">
+                <SkeletonJournalEntry />
+                <SkeletonJournalEntry />
+                <SkeletonJournalEntry />
               </div>
+            ) : filteredEntries.length === 0 ? (
+              searchTerm ? (
+                <div className="bento-item text-center py-12">
+                  <Search className="w-12 h-12 text-earth-400 dark:text-cream-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-earth-800 dark:text-cream-100 mb-2">
+                    No entries found
+                  </h3>
+                  <p className="text-earth-600 dark:text-cream-400 mb-4">
+                    Try adjusting your search term or clear the search to see all entries.
+                  </p>
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="btn-secondary"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              ) : (
+                <JournalEmptyState
+                  onStartWriting={() => {
+                    setPrefillContent('');
+                    setShowEntryForm(true);
+                  }}
+                  onSelectPrompt={(prompt) => {
+                    setPrefillContent(prompt);
+                    setShowEntryForm(true);
+                  }}
+                />
+              )
             ) : (
               <div className="space-y-6">
                 {Object.entries(entriesByDate)
@@ -1187,8 +1166,82 @@ const JournalPage = () => {
             )}
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - Dashboard */}
           <div className="space-y-6">
+            {/* Writing Streak Card */}
+            <div className="bento-item">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-earth-800 dark:text-cream-100 flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-orange-500" />
+                  Your Practice
+                </h3>
+              </div>
+              <div className="text-center py-4">
+                <div className="text-4xl mb-2">
+                  {plantInsights.currentStreak >= 30 ? '🌟' : 
+                   plantInsights.currentStreak >= 14 ? '🌸' : 
+                   plantInsights.currentStreak >= 7 ? '🌿' : 
+                   plantInsights.currentStreak >= 3 ? '🌱' : '🌰'}
+                </div>
+                <p className="text-sm font-medium text-earth-700 dark:text-cream-300">
+                  {plantInsights.currentStreak >= 30 ? 'Flourishing' : 
+                   plantInsights.currentStreak >= 14 ? 'Blooming' : 
+                   plantInsights.currentStreak >= 7 ? 'Growing' : 
+                   plantInsights.currentStreak >= 3 ? 'Sprouting' : 'Beginning'}
+                </p>
+                <p className="text-xs text-earth-500 dark:text-cream-500 mt-1">
+                  Keep nurturing your garden
+                </p>
+              </div>
+            </div>
+
+            {/* Mood Summary */}
+            {entries.length > 0 && (
+              <div className="bento-item">
+                <h3 className="text-lg font-semibold text-earth-800 dark:text-cream-100 mb-4 flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-rose-500" />
+                  Recent Moods
+                </h3>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {moodGarden.recentMoods?.slice(0, 5).map((mood, index) => (
+                    <span key={index} className="text-2xl hover:scale-125 transition-transform cursor-default">
+                      {mood}
+                    </span>
+                  ))}
+                </div>
+                {moodGarden.gardenMessage && (
+                  <p className="text-xs text-earth-600 dark:text-cream-400 text-center mt-3 italic">
+                    {moodGarden.gardenMessage}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Top Tags */}
+            {availableTags.length > 0 && (
+              <div className="bento-item">
+                <h3 className="text-lg font-semibold text-earth-800 dark:text-cream-100 mb-4 flex items-center gap-2">
+                  <Tag className="w-5 h-5 text-leaf-500" />
+                  Top Tags
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {availableTags.slice(0, 8).map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => setSelectedTag(tag)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors
+                        ${selectedTag === tag 
+                          ? 'bg-leaf-600 text-white' 
+                          : 'bg-sage-100 dark:bg-deep-600 text-earth-600 dark:text-cream-300 hover:bg-leaf-100 dark:hover:bg-leaf-900/30'
+                        }`}
+                    >
+                      #{tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quick Actions */}
             <div className="bento-item">
               <h3 className="text-lg font-semibold text-earth-800 dark:text-cream-100 mb-4">
@@ -1205,49 +1258,16 @@ const JournalPage = () => {
                   <Plus className="w-4 h-4 inline mr-2" />
                   New Entry
                 </button>
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="w-full btn-secondary text-left"
-                >
-                  <Search className="w-4 h-4 inline mr-2" />
-                  Show All Entries
-                </button>
                 {selectedTag !== 'all' && (
                   <button
                     onClick={() => setSelectedTag('all')}
-                    className="w-full btn-secondary text-left"
+                    className="w-full btn-secondary text-left text-sm"
                   >
                     Clear Tag Filter
                   </button>
                 )}
               </div>
             </div>
-
-            {/* Recent Activity */}
-            {entries.length > 0 && (
-              <div className="bento-item">
-                <h3 className="text-lg font-semibold text-earth-800 dark:text-cream-100 mb-4">
-                  Recent Activity
-                </h3>
-                <div className="space-y-3">
-                  {entries.slice(0, 3).map((entry) => (
-                    <div key={entry.id} className="border-l-4 border-leaf-600 pl-3">
-                      <div className="flex items-center space-x-2 mb-1">
-                        {entry.mood && <span className="text-sm">{entry.mood}</span>}
-                        <span className="text-xs text-earth-500 dark:text-cream-500">
-                          {formatEntryDate(entry.createdAt)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-earth-700 dark:text-cream-300 line-clamp-2">
-                        {entry.content.length > 80 
-                          ? entry.content.substring(0, 80) + '...'
-                          : entry.content}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <WritingInspiration
               onPromptSelect={(prompt) => {
@@ -1287,80 +1307,90 @@ const JournalPage = () => {
         onClose={() => setShowKeyboardShortcuts(false)}
       />
 
-      {/* Calendar View Modal */}
-      <CalendarView
-        entries={entriesToDisplay}
-        isOpen={showCalendarView}
-        onClose={() => setShowCalendarView(false)}
-        onSelectDate={handleCalendarDateSelect}
-      />
+      {/* Lazy-loaded Modals with Suspense */}
+      <Suspense fallback={<ModalLoader />}>
+        {/* Calendar View Modal */}
+        {showCalendarView && (
+          <CalendarView
+            entries={entriesToDisplay}
+            isOpen={showCalendarView}
+            onClose={() => setShowCalendarView(false)}
+            onSelectDate={handleCalendarDateSelect}
+          />
+        )}
 
-      {/* Wellness Insights Modal */}
-      <WellnessInsights
-        wellnessSummary={wellnessSummary}
-        isOpen={showWellnessInsights}
-        onClose={() => setShowWellnessInsights(false)}
-      />
+        {/* Wellness Insights Modal */}
+        {showWellnessInsights && (
+          <WellnessInsights
+            wellnessSummary={wellnessSummary}
+            isOpen={showWellnessInsights}
+            onClose={() => setShowWellnessInsights(false)}
+          />
+        )}
 
-      {/* Mood Statistics Dashboard */}
-      <MoodStatsDashboard
-        entries={entries}
-        plantData={plantInsights}
-        isOpen={showMoodStats}
-        onClose={() => setShowMoodStats(false)}
-      />
+        {/* Mood Statistics Dashboard */}
+        {showMoodStats && (
+          <MoodStatsDashboard
+            entries={entries}
+            plantData={plantInsights}
+            isOpen={showMoodStats}
+            onClose={() => setShowMoodStats(false)}
+          />
+        )}
 
-      {/* Smart Collections Modal */}
-      <SmartCollections
-        entries={entries}
-        isOpen={showSmartCollections}
-        onClose={() => setShowSmartCollections(false)}
-        onSelectCollection={(collection) => {
-          // When a collection is selected, filter to show those entries
-          // For now, just close the modal - could enhance to filter view
-          setShowSmartCollections(false);
-          addToast({
-            type: 'info',
-            title: `${collection.name}`,
-            message: `${collection.count} entries in this collection`
-          });
-        }}
-      />
+        {/* Smart Collections Modal */}
+        {showSmartCollections && (
+          <SmartCollections
+            entries={entries}
+            isOpen={showSmartCollections}
+            onClose={() => setShowSmartCollections(false)}
+            onSelectCollection={(collection) => {
+              setShowSmartCollections(false);
+              addToast({
+                type: 'info',
+                title: `${collection.name}`,
+                message: `Entries in this collection`
+              });
+            }}
+          />
+        )}
 
-      {/* Import Entries Modal */}
-      <ImportEntries
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        onImport={async (importedEntries) => {
-          // Import entries one by one
-          let successCount = 0;
-          let failCount = 0;
-          
-          for (const entry of importedEntries) {
-            try {
-              await addEntry(entry.content, entry.mood, entry.tags);
-              successCount++;
-            } catch (err) {
-              failCount++;
-              console.error('Failed to import entry:', err);
-            }
-          }
-          
-          if (successCount > 0) {
-            addToast({
-              type: 'success',
-              title: 'Import Complete',
-              message: `Successfully imported ${successCount} entries${failCount > 0 ? `, ${failCount} failed` : ''}`
-            });
-          } else {
-            addToast({
-              type: 'error',
-              title: 'Import Failed',
-              message: 'Could not import any entries'
-            });
-          }
-        }}
-      />
+        {/* Import Entries Modal */}
+        {showImportModal && (
+          <ImportEntries
+            isOpen={showImportModal}
+            onClose={() => setShowImportModal(false)}
+            onImport={async (importedEntries) => {
+              let successCount = 0;
+              let failCount = 0;
+              
+              for (const entry of importedEntries) {
+                try {
+                  await addEntry(entry.content, entry.mood, entry.tags);
+                  successCount++;
+                } catch (err) {
+                  failCount++;
+                  console.error('Failed to import entry:', err);
+                }
+              }
+              
+              if (successCount > 0) {
+                addToast({
+                  type: 'success',
+                  title: 'Import Complete',
+                  message: `Successfully imported entries`
+                });
+              } else {
+                addToast({
+                  type: 'error',
+                  title: 'Import Failed',
+                  message: 'Could not import any entries'
+                });
+              }
+            }}
+          />
+        )}
+      </Suspense>
 
       {/* Reflection Mode Modal */}
       <ReflectionMode

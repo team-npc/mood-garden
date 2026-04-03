@@ -106,21 +106,37 @@ const GratitudeEntry = ({ index, value, onChange, suggestion, isComplete }) => {
 };
 
 /**
- * Gratitude Streak Display
+ * Gratitude Practice Display - Qualitative, no numbers
  */
-const GratitudeStreak = ({ streak, bestStreak }) => (
-  <div className="flex items-center justify-center gap-6 py-4">
-    <div className="text-center">
-      <div className="text-2xl font-bold text-pink-400">{streak}</div>
-      <div className="text-xs text-cream-500">Day Streak</div>
+const GratitudeStreak = ({ streak, bestStreak }) => {
+  // Get qualitative descriptions
+  const getPracticeStatus = (s) => {
+    if (s >= 30) return { emoji: '🌟', label: 'Flourishing' };
+    if (s >= 14) return { emoji: '🌸', label: 'Blooming' };
+    if (s >= 7) return { emoji: '🌿', label: 'Growing' };
+    if (s >= 3) return { emoji: '🌱', label: 'Sprouting' };
+    return { emoji: '✨', label: 'Beginning' };
+  };
+  
+  const current = getPracticeStatus(streak);
+  const best = getPracticeStatus(bestStreak);
+  
+  return (
+    <div className="flex items-center justify-center gap-6 py-4">
+      <div className="text-center">
+        <div className="text-2xl">{current.emoji}</div>
+        <div className="text-sm font-medium text-pink-400">{current.label}</div>
+        <div className="text-xs text-cream-500">Your practice</div>
+      </div>
+      <div className="w-px h-8 bg-deep-600" />
+      <div className="text-center">
+        <div className="text-2xl">{best.emoji}</div>
+        <div className="text-sm font-medium text-rose-400">{best.label}</div>
+        <div className="text-xs text-cream-500">Best so far</div>
+      </div>
     </div>
-    <div className="w-px h-8 bg-deep-600" />
-    <div className="text-center">
-      <div className="text-2xl font-bold text-rose-400">{bestStreak}</div>
-      <div className="text-xs text-cream-500">Best Streak</div>
-    </div>
-  </div>
-);
+  );
+};
 
 /**
  * Main Gratitude Prompts Modal

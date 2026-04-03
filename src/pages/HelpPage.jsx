@@ -5,12 +5,12 @@ import { Pencil, Timer, Sparkles, Heart, ArrowRight } from 'lucide-react';
 
 const HelpPage = () => {
   const plantStages = [
-    { stage: 'seed', name: 'Seed', points: '0', time: 'Start' },
-    { stage: 'sprout', name: 'Sprout', points: '1-2', time: '1 day' },
-    { stage: 'plant', name: 'Young Plant', points: '3-6', time: '3 days' },
-    { stage: 'blooming', name: 'Blooming', points: '7-14', time: '1 week' },
-    { stage: 'tree', name: 'Mature Tree', points: '15-24', time: '2 weeks' },
-    { stage: 'fruitingTree', name: 'Fruiting Tree', points: '25+', time: '3+ weeks' }
+    { stage: 'seed', name: 'Seed', description: 'The beginning of your journey' },
+    { stage: 'sprout', name: 'Sprout', description: 'Your first roots are forming' },
+    { stage: 'plant', name: 'Young Plant', description: 'Growing stronger each day' },
+    { stage: 'blooming', name: 'Blooming', description: 'Your practice is flourishing' },
+    { stage: 'tree', name: 'Mature Tree', description: 'Deep roots, strong branches' },
+    { stage: 'fruitingTree', name: 'Fruiting Tree', description: 'Sharing your growth with the world' }
   ];
 
   return (
@@ -32,22 +32,22 @@ const HelpPage = () => {
                 garden
               </h1>
               <p className="text-lg text-earth-600 dark:text-cream-400 mb-8 max-w-md">
-                Journal consistently to watch your plants flourish. Each entry earns points towards beautiful growth stages.
+                Journal at your own pace to watch your plants flourish. Every thought you plant helps your garden grow naturally.
               </p>
               
-              {/* Stats Row */}
+              {/* Philosophy Row */}
               <div className="flex flex-wrap gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-earth-800 dark:text-cream-100">6</div>
-                  <div className="text-sm text-earth-500 dark:text-cream-500">Growth Stages</div>
+                  <div className="text-3xl mb-1">🌱</div>
+                  <div className="text-sm text-earth-500 dark:text-cream-500">Natural Growth</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-earth-800 dark:text-cream-100">25+</div>
-                  <div className="text-sm text-earth-500 dark:text-cream-500">Max Points</div>
+                  <div className="text-3xl mb-1">🌿</div>
+                  <div className="text-sm text-earth-500 dark:text-cream-500">Your Own Pace</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-earth-800 dark:text-cream-100">∞</div>
-                  <div className="text-sm text-earth-500 dark:text-cream-500">Plants to Grow</div>
+                  <div className="text-3xl mb-1">💚</div>
+                  <div className="text-sm text-earth-500 dark:text-cream-500">No Pressure</div>
                 </div>
               </div>
             </motion.div>
@@ -73,15 +73,15 @@ const HelpPage = () => {
         </div>
       </section>
 
-      {/* How to Earn - Simple Icons Row */}
+      {/* How Plants Grow - Simple Icons Row */}
       <section className="py-12 border-y border-earth-200/50 dark:border-deep-700/50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { icon: '✍️', title: 'Write Entries', sub: '+1 point each' },
-              { icon: '⏱️', title: 'Focus Sessions', sub: 'Bonus points' },
-              { icon: '🌟', title: 'Be Consistent', sub: 'Daily streaks' },
-              { icon: '💚', title: 'Quality Writing', sub: 'Faster growth' }
+              { icon: '✍️', title: 'Write Freely', sub: 'Express yourself' },
+              { icon: '🌱', title: 'Watch Growth', sub: 'Natural progress' },
+              { icon: '🌟', title: 'Feel Good', sub: 'No pressure' },
+              { icon: '💚', title: 'Enjoy the Journey', sub: 'At your pace' }
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -107,10 +107,10 @@ const HelpPage = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold text-earth-800 dark:text-cream-100 mb-2">
-              Growth Stages
+              Your Growth Journey
             </h2>
             <p className="text-earth-600 dark:text-cream-400">
-              Watch your plants evolve through each beautiful stage
+              Watch your plants evolve naturally as you write
             </p>
           </motion.div>
 
@@ -140,32 +140,22 @@ const HelpPage = () => {
 
                   {/* Plant Info */}
                   <div className={`flex-1 text-center md:text-left ${index % 2 === 1 ? 'md:text-right' : ''}`}>
-                    <div className={`flex items-center gap-2 justify-center ${index % 2 === 1 ? 'md:justify-end' : 'md:justify-start'} mb-1`}>
-                      <span className="text-xs font-semibold text-earth-500 dark:text-earth-400 uppercase tracking-wide">
-                        Stage {index + 1}
-                      </span>
-                      <span className="text-xs text-sage-600 dark:text-sage-400">• {plant.time}</span>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-earth-800 dark:text-cream-100 mb-1">
+                    <h3 className="text-2xl font-bold text-earth-800 dark:text-cream-100 mb-2">
                       {plant.name}
                     </h3>
                     
-                    <div className={`flex items-center gap-1.5 justify-center ${index % 2 === 1 ? 'md:justify-end' : 'md:justify-start'} mb-2`}>
-                      <span className="text-amber-500">⭐</span>
-                      <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                        {plant.points} points
-                      </span>
-                    </div>
+                    <p className="text-earth-600 dark:text-cream-400 text-sm">
+                      {plant.description}
+                    </p>
                     
-                    {/* Mini progress bar */}
-                    <div className={`mt-3 h-1.5 w-28 bg-earth-200 dark:bg-deep-700 rounded-full overflow-hidden mx-auto ${index % 2 === 1 ? 'md:ml-auto md:mr-0' : 'md:mr-auto md:ml-0'}`}>
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${((index + 1) / plantStages.length) * 100}%` }}
-                        transition={{ duration: 1, delay: 0.3 + index * 0.1 }}
-                        className="h-full bg-gradient-to-r from-leaf-500 to-sage-400"
-                      />
+                    {/* Visual growth indicator */}
+                    <div className={`mt-3 flex gap-1 justify-center ${index % 2 === 1 ? 'md:justify-end' : 'md:justify-start'}`}>
+                      {[...Array(6)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-3 h-3 rounded-full ${i <= index ? 'bg-leaf-500' : 'bg-earth-200 dark:bg-deep-700'}`}
+                        />
+                      ))}
                     </div>
                   </div>
                 </motion.div>

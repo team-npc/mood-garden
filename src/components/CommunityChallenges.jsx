@@ -1,15 +1,16 @@
 /**
- * Community Challenges Component
- * Group challenges like "30 Days of Gratitude"
+ * Community Journeys Component
+ * Mindful practices like "Gratitude Practice" - following No Quantification philosophy
+ * Numbers are kept internally for tracking but hidden from user-facing UI
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
-  Trophy, 
+  Compass, 
   Users,
-  Calendar,
+  Leaf,
   Target,
   CheckCircle,
   Clock,
@@ -25,18 +26,20 @@ import {
 } from 'lucide-react';
 
 /**
- * Available challenges
+ * Available journeys/practices
+ * Internal duration values are kept for tracking but not displayed to users
  */
-const CHALLENGES = [
+const JOURNEYS = [
   {
     id: 'gratitude-30',
-    name: '30 Days of Gratitude',
-    description: 'Write one thing you\'re grateful for each day for 30 days',
+    name: 'Gratitude Practice',
+    description: 'Cultivate appreciation by noticing the good in your life',
     icon: Heart,
     color: 'pink',
-    duration: 30,
-    requirement: 'Write at least one gratitude entry per day',
-    rewards: ['Gratitude Master badge', '300 XP', 'Special plant decoration'],
+    duration: 30, // Internal tracking only
+    displayDescription: 'An ongoing journey of thankfulness',
+    requirement: 'Reflect on something you\'re grateful for',
+    benefits: ['Deepen your appreciation', 'Notice life\'s gifts', 'Grow your gratitude garden'],
     tips: [
       'Start small - even one word counts',
       'Be specific about what you\'re grateful for',
@@ -47,15 +50,16 @@ const CHALLENGES = [
   },
   {
     id: 'morning-pages',
-    name: '21 Day Morning Pages',
-    description: 'Write 3 pages every morning for 21 days',
+    name: 'Morning Pages Practice',
+    description: 'Start your day with reflective writing',
     icon: Sun,
     color: 'amber',
-    duration: 21,
-    requirement: 'Write at least 500 words each morning (before noon)',
-    rewards: ['Early Bird badge', '210 XP', 'Sunrise plant theme'],
+    duration: 21, // Internal tracking only
+    displayDescription: 'A morning ritual of free-flowing thoughts',
+    requirement: 'Write freely each morning',
+    benefits: ['Clear your mind', 'Start fresh each day', 'Unlock creativity'],
     tips: [
-      'Write immediately after waking',
+      'Write soon after waking',
       'Don\'t edit or censor yourself',
       'Let thoughts flow freely',
       'Keep your journal by your bed'
@@ -64,15 +68,16 @@ const CHALLENGES = [
   },
   {
     id: 'mood-tracker-14',
-    name: '14 Day Mood Journey',
-    description: 'Track your mood consistently for 2 weeks',
+    name: 'Mood Awareness Journey',
+    description: 'Develop deeper awareness of your emotional landscape',
     icon: Sparkles,
     color: 'violet',
-    duration: 14,
-    requirement: 'Log an entry with mood tag every day',
-    rewards: ['Mood Explorer badge', '140 XP', 'Mood insights unlock'],
+    duration: 14, // Internal tracking only
+    displayDescription: 'Building emotional self-awareness',
+    requirement: 'Check in with how you\'re feeling',
+    benefits: ['Understand yourself better', 'Recognize patterns', 'Honor your feelings'],
     tips: [
-      'Check in at the same time daily',
+      'Check in at a consistent time',
       'Note what influenced your mood',
       'Look for patterns',
       'Be honest with yourself'
@@ -81,13 +86,14 @@ const CHALLENGES = [
   },
   {
     id: 'night-reflection',
-    name: '7 Day Evening Reflection',
-    description: 'Reflect on your day every evening for a week',
+    name: 'Evening Reflection Practice',
+    description: 'Close each day with mindful reflection',
     icon: Moon,
     color: 'indigo',
-    duration: 7,
-    requirement: 'Write an evening reflection (after 6 PM) each day',
-    rewards: ['Night Owl badge', '70 XP', 'Moonlit garden theme'],
+    duration: 7, // Internal tracking only
+    displayDescription: 'A peaceful evening ritual',
+    requirement: 'Reflect on your day each evening',
+    benefits: ['Find closure', 'Process your experiences', 'Rest more peacefully'],
     tips: [
       'Review your day\'s highlights',
       'Note what you learned',
@@ -98,13 +104,14 @@ const CHALLENGES = [
   },
   {
     id: 'word-warrior',
-    name: '10 Day Word Warrior',
-    description: 'Write at least 300 words every day for 10 days',
+    name: 'Expressive Writing Practice',
+    description: 'Express yourself fully through writing',
     icon: Target,
     color: 'emerald',
-    duration: 10,
-    requirement: 'Reach 300+ words in each daily entry',
-    rewards: ['Word Warrior badge', '100 XP', 'Writing streak bonus'],
+    duration: 10, // Internal tracking only
+    displayDescription: 'Let your words flow without limits',
+    requirement: 'Write freely and expressively',
+    benefits: ['Find your voice', 'Express yourself fully', 'Build a writing habit'],
     tips: [
       'Don\'t worry about quality',
       'Use prompts if stuck',
@@ -115,13 +122,14 @@ const CHALLENGES = [
   },
   {
     id: 'self-care-week',
-    name: 'Self-Care Week',
-    description: 'Document one self-care activity each day for 7 days',
+    name: 'Self-Care Practice',
+    description: 'Nurture yourself with intentional self-care',
     icon: Heart,
     color: 'rose',
-    duration: 7,
-    requirement: 'Log a self-care activity with details',
-    rewards: ['Self-Care Champion badge', '70 XP', 'Special heart flower'],
+    duration: 7, // Internal tracking only
+    displayDescription: 'An ongoing commitment to your wellbeing',
+    requirement: 'Practice one act of self-care',
+    benefits: ['Prioritize your wellbeing', 'Build healthy habits', 'Show yourself love'],
     tips: [
       'Include physical, mental, and emotional care',
       'Small acts count too',
@@ -133,74 +141,70 @@ const CHALLENGES = [
 ];
 
 /**
- * Challenge Card Component
+ * Journey Card Component
+ * Shows journey info without numerical targets or XP
  */
-const ChallengeCard = ({ challenge, status, onJoin, onContinue }) => {
-  const Icon = challenge.icon;
+const JourneyCard = ({ journey, status, onJoin, onContinue }) => {
+  const Icon = journey.icon;
   const isActive = status?.isActive;
-  const progress = status?.progress || 0;
   const completedDays = status?.completedDays || [];
+  
+  // Calculate progress internally but display as visual indicator only
+  const progressPercent = journey.duration > 0 
+    ? Math.min((completedDays.length / journey.duration) * 100, 100)
+    : 0;
   
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={`bg-deep-700/50 rounded-xl p-4 border ${
-        isActive ? `border-${challenge.color}-500/50` : 'border-deep-600'
+        isActive ? `border-${journey.color}-500/50` : 'border-deep-600'
       }`}
     >
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
-        <div className={`p-2 bg-${challenge.color}-500/20 rounded-xl`}>
-          <Icon className={`w-6 h-6 text-${challenge.color}-400`} />
+        <div className={`p-2 bg-${journey.color}-500/20 rounded-xl`}>
+          <Icon className={`w-6 h-6 text-${journey.color}-400`} />
         </div>
         <div className="flex-1">
-          <h3 className="text-cream-100 font-bold">{challenge.name}</h3>
-          <p className="text-cream-400 text-sm">{challenge.description}</p>
+          <h3 className="text-cream-100 font-bold">{journey.name}</h3>
+          <p className="text-cream-400 text-sm">{journey.displayDescription || journey.description}</p>
         </div>
         {isActive && (
-          <span className={`text-xs px-2 py-1 rounded-full bg-${challenge.color}-500/20 text-${challenge.color}-400`}>
+          <span className={`text-xs px-2 py-1 rounded-full bg-${journey.color}-500/20 text-${journey.color}-400`}>
             Active
           </span>
         )}
       </div>
       
-      {/* Details */}
-      <div className="flex items-center gap-4 text-sm text-cream-500 mb-3">
-        <span className="flex items-center gap-1">
-          <Calendar className="w-4 h-4" />
-          {challenge.duration} days
-        </span>
-        <span className="flex items-center gap-1">
-          <Star className="w-4 h-4" />
-          {challenge.duration * 10} XP
-        </span>
-      </div>
-      
-      {/* Progress */}
+      {/* Visual Progress Indicator (no numbers) */}
       {isActive && (
         <div className="mb-3">
           <div className="flex justify-between text-xs text-cream-400 mb-1">
-            <span>Progress</span>
-            <span>{completedDays.length}/{challenge.duration} days</span>
+            <span>Your Journey</span>
+            <span className="flex items-center gap-1">
+              <Leaf className="w-3 h-3" />
+              Growing
+            </span>
           </div>
           <div className="h-2 bg-deep-600 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${(completedDays.length / challenge.duration) * 100}%` }}
-              className={`h-full bg-gradient-to-r from-${challenge.color}-500 to-${challenge.color}-400`}
+              animate={{ width: `${progressPercent}%` }}
+              className={`h-full bg-gradient-to-r from-${journey.color}-500 to-${journey.color}-400`}
             />
           </div>
         </div>
       )}
       
-      {/* Rewards Preview */}
+      {/* Benefits Preview (replaces rewards) */}
       <div className="bg-deep-600/50 rounded-lg p-3 mb-3">
-        <span className="text-xs text-cream-500 block mb-1">Rewards:</span>
+        <span className="text-xs text-cream-500 block mb-1">What you'll cultivate:</span>
         <div className="flex flex-wrap gap-1">
-          {challenge.rewards.map((reward, i) => (
+          {journey.benefits.map((benefit, i) => (
             <span key={i} className="text-xs bg-deep-500/50 px-2 py-0.5 rounded text-cream-300">
-              {reward}
+              {benefit}
             </span>
           ))}
         </div>
@@ -213,19 +217,19 @@ const ChallengeCard = ({ challenge, status, onJoin, onContinue }) => {
         onClick={isActive ? onContinue : onJoin}
         className={`w-full py-2 rounded-xl font-medium flex items-center justify-center gap-2 ${
           isActive
-            ? `bg-${challenge.color}-500/20 text-${challenge.color}-400 hover:bg-${challenge.color}-500/30`
-            : `bg-gradient-to-r from-${challenge.color}-500 to-${challenge.color}-600 text-white`
+            ? `bg-${journey.color}-500/20 text-${journey.color}-400 hover:bg-${journey.color}-500/30`
+            : `bg-gradient-to-r from-${journey.color}-500 to-${journey.color}-600 text-white`
         }`}
       >
         {isActive ? (
           <>
             <Play className="w-4 h-4" />
-            Continue Challenge
+            Continue Practice
           </>
         ) : (
           <>
-            <Trophy className="w-4 h-4" />
-            Start Challenge
+            <Compass className="w-4 h-4" />
+            Begin Journey
           </>
         )}
       </motion.button>
@@ -234,17 +238,18 @@ const ChallengeCard = ({ challenge, status, onJoin, onContinue }) => {
 };
 
 /**
- * Active Challenge Detail View
+ * Active Journey Detail View
+ * Shows progress visually without numerical stats
  */
-const ChallengeDetail = ({ challenge, status, onClose, onLogDay }) => {
-  const Icon = challenge.icon;
+const JourneyDetail = ({ journey, status, onClose, onLogDay }) => {
+  const Icon = journey.icon;
   const completedDays = status?.completedDays || [];
   const todayKey = new Date().toISOString().split('T')[0];
   const isTodayCompleted = completedDays.includes(todayKey);
   
-  // Generate calendar grid
+  // Generate calendar grid (internal tracking, displayed visually)
   const startDate = status?.startDate ? new Date(status.startDate) : new Date();
-  const calendarDays = Array.from({ length: challenge.duration }, (_, i) => {
+  const calendarDays = Array.from({ length: journey.duration }, (_, i) => {
     const date = new Date(startDate);
     date.setDate(date.getDate() + i);
     const dateKey = date.toISOString().split('T')[0];
@@ -255,6 +260,18 @@ const ChallengeDetail = ({ challenge, status, onClose, onLogDay }) => {
     
     return { day: i + 1, date, dateKey, isCompleted, isPast, isToday, isFuture };
   });
+  
+  // Calculate visual progress stages
+  const progressPercent = journey.duration > 0 
+    ? Math.min((completedDays.length / journey.duration) * 100, 100)
+    : 0;
+  const getProgressStage = () => {
+    if (progressPercent >= 100) return 'Blooming';
+    if (progressPercent >= 75) return 'Flourishing';
+    if (progressPercent >= 50) return 'Growing Strong';
+    if (progressPercent >= 25) return 'Taking Root';
+    return 'Just Planted';
+  };
   
   return (
     <motion.div
@@ -270,80 +287,79 @@ const ChallengeDetail = ({ challenge, status, onClose, onLogDay }) => {
         >
           <X className="w-5 h-5 text-cream-400" />
         </button>
-        <div className={`p-2 bg-${challenge.color}-500/20 rounded-xl`}>
-          <Icon className={`w-6 h-6 text-${challenge.color}-400`} />
+        <div className={`p-2 bg-${journey.color}-500/20 rounded-xl`}>
+          <Icon className={`w-6 h-6 text-${journey.color}-400`} />
         </div>
-        <h2 className="text-xl font-bold text-cream-100">{challenge.name}</h2>
+        <h2 className="text-xl font-bold text-cream-100">{journey.name}</h2>
       </div>
       
-      {/* Progress Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-deep-700/50 rounded-xl p-3 text-center">
-          <span className={`text-2xl font-bold text-${challenge.color}-400`}>
-            {completedDays.length}
-          </span>
-          <span className="text-xs text-cream-500 block">Days Done</span>
-        </div>
-        <div className="bg-deep-700/50 rounded-xl p-3 text-center">
-          <span className="text-2xl font-bold text-cream-200">
-            {challenge.duration - completedDays.length}
-          </span>
-          <span className="text-xs text-cream-500 block">Days Left</span>
-        </div>
-        <div className="bg-deep-700/50 rounded-xl p-3 text-center">
-          <span className="text-2xl font-bold text-amber-400">
-            {Math.round((completedDays.length / challenge.duration) * 100)}%
-          </span>
-          <span className="text-xs text-cream-500 block">Complete</span>
-        </div>
-      </div>
-      
-      {/* Calendar Grid */}
+      {/* Journey Progress - Visual Only */}
       <div className="bg-deep-700/50 rounded-xl p-4">
-        <h3 className="text-cream-200 font-medium mb-3">Your Progress</h3>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-cream-200 font-medium">Your Growth</span>
+          <span className={`text-${journey.color}-400 text-sm flex items-center gap-1`}>
+            <Leaf className="w-4 h-4" />
+            {getProgressStage()}
+          </span>
+        </div>
+        <div className="h-3 bg-deep-600 rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            className={`h-full bg-gradient-to-r from-${journey.color}-500 to-${journey.color}-400`}
+          />
+        </div>
+      </div>
+      
+      {/* Practice Garden Grid - Visual Progress */}
+      <div className="bg-deep-700/50 rounded-xl p-4">
+        <h3 className="text-cream-200 font-medium mb-3">Your Practice Garden</h3>
         <div className="grid grid-cols-7 gap-2">
           {calendarDays.map(day => (
             <div
               key={day.day}
               className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm ${
                 day.isCompleted
-                  ? `bg-${challenge.color}-500/30 text-${challenge.color}-400`
+                  ? `bg-${journey.color}-500/30 text-${journey.color}-400`
                   : day.isToday
                   ? 'bg-deep-500 text-cream-200 ring-2 ring-cream-400'
                   : day.isPast
-                  ? 'bg-red-500/10 text-red-400'
+                  ? 'bg-deep-600/30 text-cream-600'
                   : 'bg-deep-600/50 text-cream-500'
               }`}
+              title={day.isCompleted ? 'Practice completed' : day.isToday ? 'Today' : ''}
             >
               {day.isCompleted ? (
-                <CheckCircle className="w-4 h-4" />
+                <Sparkles className="w-4 h-4" />
+              ) : day.isToday ? (
+                <Sun className="w-4 h-4" />
               ) : (
-                <span>{day.day}</span>
+                <span className="w-2 h-2 rounded-full bg-current opacity-30" />
               )}
             </div>
           ))}
         </div>
       </div>
       
-      {/* Today's Action */}
+      {/* Today's Practice */}
       <div className="bg-deep-700/50 rounded-xl p-4">
-        <h3 className="text-cream-200 font-medium mb-2">Today</h3>
+        <h3 className="text-cream-200 font-medium mb-2">Today's Practice</h3>
         {isTodayCompleted ? (
           <div className="flex items-center gap-2 text-emerald-400">
             <CheckCircle className="w-5 h-5" />
-            <span>You've completed today's challenge!</span>
+            <span>You've practiced today — well done!</span>
           </div>
         ) : (
           <>
-            <p className="text-cream-400 text-sm mb-3">{challenge.requirement}</p>
+            <p className="text-cream-400 text-sm mb-3">{journey.requirement}</p>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onLogDay(todayKey)}
-              className={`w-full py-3 rounded-xl font-medium bg-gradient-to-r from-${challenge.color}-500 to-${challenge.color}-600 text-white flex items-center justify-center gap-2`}
+              className={`w-full py-3 rounded-xl font-medium bg-gradient-to-r from-${journey.color}-500 to-${journey.color}-600 text-white flex items-center justify-center gap-2`}
             >
               <CheckCircle className="w-5 h-5" />
-              Mark Today as Complete
+              I Practiced Today
             </motion.button>
           </>
         )}
@@ -353,10 +369,10 @@ const ChallengeDetail = ({ challenge, status, onClose, onLogDay }) => {
       <div className="bg-deep-700/50 rounded-xl p-4">
         <h3 className="text-cream-200 font-medium mb-2 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-400" />
-          Tips for Success
+          Guidance for Your Journey
         </h3>
         <ul className="space-y-2">
-          {challenge.tips.map((tip, i) => (
+          {journey.tips.map((tip, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-cream-400">
               <span className="text-amber-400">•</span>
               {tip}
@@ -369,25 +385,26 @@ const ChallengeDetail = ({ challenge, status, onClose, onLogDay }) => {
 };
 
 /**
- * Main Community Challenges Component
+ * Main Community Journeys Component
+ * Renamed from Challenges to Journeys for gentler framing
  */
 const CommunityChallenges = ({ isOpen, onClose, entries = [] }) => {
   const [activeView, setActiveView] = useState('list'); // 'list' or 'detail'
-  const [selectedChallenge, setSelectedChallenge] = useState(null);
-  const [challengeStatuses, setChallengeStatuses] = useState({});
-  const [completedChallenges, setCompletedChallenges] = useState([]);
+  const [selectedJourney, setSelectedJourney] = useState(null);
+  const [journeyStatuses, setJourneyStatuses] = useState({});
+  const [completedJourneys, setCompletedJourneys] = useState([]);
 
-  // Load saved challenge data
+  // Load saved journey data
   useEffect(() => {
     const saved = localStorage.getItem('communityChallenges');
     if (saved) {
       const data = JSON.parse(saved);
-      setChallengeStatuses(data.statuses || {});
-      setCompletedChallenges(data.completed || []);
+      setJourneyStatuses(data.statuses || {});
+      setCompletedJourneys(data.completed || []);
     }
   }, []);
 
-  // Save challenge data
+  // Save journey data
   const saveData = (statuses, completed) => {
     localStorage.setItem('communityChallenges', JSON.stringify({
       statuses,
@@ -395,54 +412,54 @@ const CommunityChallenges = ({ isOpen, onClose, entries = [] }) => {
     }));
   };
 
-  const handleJoinChallenge = (challenge) => {
+  const handleJoinJourney = (journey) => {
     const newStatuses = {
-      ...challengeStatuses,
-      [challenge.id]: {
+      ...journeyStatuses,
+      [journey.id]: {
         isActive: true,
         startDate: new Date().toISOString(),
         completedDays: []
       }
     };
-    setChallengeStatuses(newStatuses);
-    saveData(newStatuses, completedChallenges);
-    setSelectedChallenge(challenge);
+    setJourneyStatuses(newStatuses);
+    saveData(newStatuses, completedJourneys);
+    setSelectedJourney(journey);
     setActiveView('detail');
   };
 
-  const handleLogDay = (challengeId, dateKey) => {
-    const status = challengeStatuses[challengeId];
+  const handleLogDay = (journeyId, dateKey) => {
+    const status = journeyStatuses[journeyId];
     if (!status) return;
     
-    const challenge = CHALLENGES.find(c => c.id === challengeId);
+    const journey = JOURNEYS.find(j => j.id === journeyId);
     const newCompletedDays = [...status.completedDays, dateKey];
     
     const newStatuses = {
-      ...challengeStatuses,
-      [challengeId]: {
+      ...journeyStatuses,
+      [journeyId]: {
         ...status,
         completedDays: newCompletedDays
       }
     };
     
-    // Check if challenge is complete
-    let newCompleted = completedChallenges;
-    if (newCompletedDays.length >= challenge.duration) {
-      newCompleted = [...completedChallenges, {
-        challengeId,
+    // Check if journey is complete (internal tracking)
+    let newCompleted = completedJourneys;
+    if (newCompletedDays.length >= journey.duration) {
+      newCompleted = [...completedJourneys, {
+        journeyId: journeyId,
         completedAt: new Date().toISOString()
       }];
       // Remove from active
-      delete newStatuses[challengeId];
-      setCompletedChallenges(newCompleted);
+      delete newStatuses[journeyId];
+      setCompletedJourneys(newCompleted);
     }
     
-    setChallengeStatuses(newStatuses);
+    setJourneyStatuses(newStatuses);
     saveData(newStatuses, newCompleted);
   };
 
-  const activeChallenges = CHALLENGES.filter(c => challengeStatuses[c.id]?.isActive);
-  const availableChallenges = CHALLENGES.filter(c => !challengeStatuses[c.id]?.isActive);
+  const activeJourneys = JOURNEYS.filter(j => journeyStatuses[j.id]?.isActive);
+  const availableJourneys = JOURNEYS.filter(j => !journeyStatuses[j.id]?.isActive);
 
   if (!isOpen) return null;
 
@@ -463,13 +480,13 @@ const CommunityChallenges = ({ isOpen, onClose, entries = [] }) => {
           className="bg-deep-800 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-amber-600 to-orange-600 p-4">
+          <div className="bg-gradient-to-r from-sage-600 to-emerald-600 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Trophy className="w-6 h-6 text-white" />
+                <Compass className="w-6 h-6 text-white" />
                 <div>
-                  <h2 className="text-xl font-bold text-white">Community Challenges</h2>
-                  <p className="text-sm text-amber-200">Join challenges & earn rewards</p>
+                  <h2 className="text-xl font-bold text-white">Mindful Journeys</h2>
+                  <p className="text-sm text-sage-200">Explore practices for your wellbeing</p>
                 </div>
               </div>
               <button
@@ -484,22 +501,22 @@ const CommunityChallenges = ({ isOpen, onClose, entries = [] }) => {
           <div className="p-4 overflow-y-auto max-h-[70vh]">
             {activeView === 'list' ? (
               <div className="space-y-6">
-                {/* Active Challenges */}
-                {activeChallenges.length > 0 && (
+                {/* Active Journeys */}
+                {activeJourneys.length > 0 && (
                   <div>
                     <h3 className="text-cream-200 font-medium mb-3 flex items-center gap-2">
                       <Flame className="w-4 h-4 text-orange-400" />
-                      Your Active Challenges
+                      Your Active Practices
                     </h3>
                     <div className="space-y-3">
-                      {activeChallenges.map(challenge => (
-                        <ChallengeCard
-                          key={challenge.id}
-                          challenge={challenge}
-                          status={challengeStatuses[challenge.id]}
-                          onJoin={() => handleJoinChallenge(challenge)}
+                      {activeJourneys.map(journey => (
+                        <JourneyCard
+                          key={journey.id}
+                          journey={journey}
+                          status={journeyStatuses[journey.id]}
+                          onJoin={() => handleJoinJourney(journey)}
                           onContinue={() => {
-                            setSelectedChallenge(challenge);
+                            setSelectedJourney(journey);
                             setActiveView('detail');
                           }}
                         />
@@ -508,20 +525,20 @@ const CommunityChallenges = ({ isOpen, onClose, entries = [] }) => {
                   </div>
                 )}
                 
-                {/* Completed Challenges */}
-                {completedChallenges.length > 0 && (
+                {/* Completed Journeys */}
+                {completedJourneys.length > 0 && (
                   <div>
                     <h3 className="text-cream-200 font-medium mb-3 flex items-center gap-2">
                       <Award className="w-4 h-4 text-amber-400" />
-                      Completed ({completedChallenges.length})
+                      Journeys Completed
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {completedChallenges.map((completed, i) => {
-                        const challenge = CHALLENGES.find(c => c.id === completed.challengeId);
+                      {completedJourneys.map((completed, i) => {
+                        const journey = JOURNEYS.find(j => j.id === completed.journeyId || j.id === completed.challengeId);
                         return (
-                          <span key={i} className={`px-3 py-1 bg-${challenge?.color || 'amber'}-500/20 text-${challenge?.color || 'amber'}-400 rounded-full text-sm flex items-center gap-1`}>
+                          <span key={i} className={`px-3 py-1 bg-${journey?.color || 'amber'}-500/20 text-${journey?.color || 'amber'}-400 rounded-full text-sm flex items-center gap-1`}>
                             <CheckCircle className="w-3 h-3" />
-                            {challenge?.name}
+                            {journey?.name}
                           </span>
                         );
                       })}
@@ -529,19 +546,19 @@ const CommunityChallenges = ({ isOpen, onClose, entries = [] }) => {
                   </div>
                 )}
                 
-                {/* Available Challenges */}
+                {/* Available Journeys */}
                 <div>
                   <h3 className="text-cream-200 font-medium mb-3 flex items-center gap-2">
-                    <Target className="w-4 h-4 text-sage-400" />
-                    Available Challenges
+                    <Leaf className="w-4 h-4 text-sage-400" />
+                    Begin a New Journey
                   </h3>
                   <div className="grid gap-3">
-                    {availableChallenges.map(challenge => (
-                      <ChallengeCard
-                        key={challenge.id}
-                        challenge={challenge}
+                    {availableJourneys.map(journey => (
+                      <JourneyCard
+                        key={journey.id}
+                        journey={journey}
                         status={null}
-                        onJoin={() => handleJoinChallenge(challenge)}
+                        onJoin={() => handleJoinJourney(journey)}
                         onContinue={() => {}}
                       />
                     ))}
@@ -549,11 +566,11 @@ const CommunityChallenges = ({ isOpen, onClose, entries = [] }) => {
                 </div>
               </div>
             ) : (
-              <ChallengeDetail
-                challenge={selectedChallenge}
-                status={challengeStatuses[selectedChallenge?.id]}
+              <JourneyDetail
+                journey={selectedJourney}
+                status={journeyStatuses[selectedJourney?.id]}
                 onClose={() => setActiveView('list')}
-                onLogDay={(dateKey) => handleLogDay(selectedChallenge.id, dateKey)}
+                onLogDay={(dateKey) => handleLogDay(selectedJourney.id, dateKey)}
               />
             )}
           </div>

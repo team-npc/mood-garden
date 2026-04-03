@@ -8,6 +8,40 @@ import { motion } from 'framer-motion';
 import { Camera, Download, Share2, X, Loader2 } from 'lucide-react';
 
 /**
+ * Get qualitative garden status based on internal metrics
+ */
+const getGardenStatus = (streak, health) => {
+  if (streak >= 30 && health >= 80) return 'Flourishing beautifully';
+  if (streak >= 14 && health >= 60) return 'Growing strong';
+  if (streak >= 7 && health >= 40) return 'Finding rhythm';
+  if (streak >= 3) return 'Taking root';
+  if (streak >= 1) return 'Just planted';
+  return 'Ready to grow';
+};
+
+/**
+ * Get qualitative health description
+ */
+const getHealthStatus = (health) => {
+  if (health >= 90) return 'Thriving';
+  if (health >= 70) return 'Healthy';
+  if (health >= 50) return 'Growing';
+  if (health >= 30) return 'Needs care';
+  return 'Nurturing';
+};
+
+/**
+ * Get qualitative rhythm description  
+ */
+const getRhythmStatus = (streak) => {
+  if (streak >= 30) return 'Strong rhythm';
+  if (streak >= 14) return 'Good flow';
+  if (streak >= 7) return 'Building';
+  if (streak >= 3) return 'Starting';
+  return 'New';
+};
+
+/**
  * Generate plant SVG based on stage and health
  */
 const generatePlantSVG = (stage, health, streak) => {
@@ -97,16 +131,10 @@ const generatePlantSVG = (stage, health, streak) => {
       <g transform="translate(0, 10)">
         ${stageSVGs[stage] || stageSVGs.seed}
       </g>
-      <!-- Stats badge -->
-      <rect x="10" y="175" width="80" height="20" rx="5" fill="rgba(0,0,0,0.5)"/>
-      <text x="50" y="188" text-anchor="middle" fill="white" font-size="10" font-family="Arial">
-        🔥 ${streak} day streak
-      </text>
-      <!-- Health bar -->
-      <rect x="110" y="175" width="80" height="20" rx="5" fill="rgba(0,0,0,0.5)"/>
-      <rect x="115" y="180" width="${health * 0.7}" height="10" rx="3" fill="#4ade80"/>
-      <text x="150" y="188" text-anchor="middle" fill="white" font-size="8" font-family="Arial">
-        ${health}% health
+      <!-- Garden status badge - qualitative, no numbers -->
+      <rect x="10" y="175" width="180" height="20" rx="5" fill="rgba(0,0,0,0.5)"/>
+      <text x="100" y="188" text-anchor="middle" fill="white" font-size="10" font-family="Arial">
+        🌱 ${getGardenStatus(streak, health)}
       </text>
     </svg>
   `;
@@ -178,7 +206,7 @@ const GardenSnapshotExport = ({ plantData = {}, isOpen, onClose }) => {
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: 'My Mood Garden',
-          text: `Check out my plant! 🌱 ${currentStreak} day streak, ${health}% health`,
+          text: `Check out my plant! 🌱 ${getGardenStatus(currentStreak, health)}`,
           files: [file]
         });
       } else {
@@ -251,7 +279,7 @@ const GardenSnapshotExport = ({ plantData = {}, isOpen, onClose }) => {
           {/* Hidden canvas for export */}
           <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-          {/* Plant Info */}
+          {/* Plant Info - Qualitative descriptions */}
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="bg-deep-700/30 rounded-xl p-3">
               <div className="text-xl">🌱</div>
@@ -261,12 +289,12 @@ const GardenSnapshotExport = ({ plantData = {}, isOpen, onClose }) => {
             <div className="bg-deep-700/30 rounded-xl p-3">
               <div className="text-xl">❤️</div>
               <div className="text-sm text-cream-400">Health</div>
-              <div className="font-medium text-cream-100">{health}%</div>
+              <div className="font-medium text-cream-100">{getHealthStatus(health)}</div>
             </div>
             <div className="bg-deep-700/30 rounded-xl p-3">
-              <div className="text-xl">🔥</div>
-              <div className="text-sm text-cream-400">Streak</div>
-              <div className="font-medium text-cream-100">{currentStreak} days</div>
+              <div className="text-xl">✨</div>
+              <div className="text-sm text-cream-400">Rhythm</div>
+              <div className="font-medium text-cream-100">{getRhythmStatus(currentStreak)}</div>
             </div>
           </div>
 

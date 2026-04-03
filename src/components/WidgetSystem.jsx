@@ -200,31 +200,42 @@ const MoodCalendarWidget = ({ data = [] }) => {
         ))}
       </div>
       <div className="flex justify-between text-[10px] text-cream-600">
-        <span>90 days ago</span>
+        <span>Earlier</span>
         <span>Today</span>
       </div>
     </div>
   );
 };
 
-// Writing Speed Chart Widget
+// Writing Flow Widget - Qualitative, no numbers
 const WritingSpeedWidget = ({ data = [] }) => {
   const avgSpeed = data.length > 0 
     ? data.reduce((sum, d) => sum + (d.wordCount / d.duration || 0), 0) / data.length 
     : 0;
   
+  // Qualitative flow status
+  const getFlowStatus = (speed) => {
+    if (speed >= 40) return { emoji: '🚀', label: 'Flowing freely' };
+    if (speed >= 25) return { emoji: '✨', label: 'Good rhythm' };
+    if (speed >= 15) return { emoji: '🌿', label: 'Thoughtful pace' };
+    return { emoji: '🌱', label: 'Taking time' };
+  };
+  
+  const flowStatus = getFlowStatus(avgSpeed);
+  
   return (
     <div className="flex flex-col items-center justify-center h-full">
-      <div className="text-4xl font-bold text-sage-400 mb-2">
-        {Math.round(avgSpeed)}
+      <div className="text-4xl mb-2">
+        {flowStatus.emoji}
       </div>
-      <div className="text-sm text-cream-500">words per minute</div>
+      <div className="text-sm text-cream-300 font-medium">{flowStatus.label}</div>
+      <div className="text-xs text-cream-500 mt-1">Your writing flow</div>
       <div className="w-full mt-4 flex gap-1">
         {data.slice(-7).map((d, i) => (
           <div 
             key={i}
             className="flex-1 bg-sage-500/30 rounded-t"
-            style={{ height: `${(d.wordCount / 500) * 60}px` }}
+            style={{ height: `${Math.min((d.wordCount / 500) * 60, 60)}px` }}
           />
         ))}
       </div>
@@ -258,19 +269,30 @@ const QuickNoteWidget = ({ onSave }) => {
   );
 };
 
-// Streak Calendar Widget
+// Streak Calendar Widget - Qualitative rhythm display
 const StreakCalendarWidget = ({ streak = 0, history = [] }) => {
+  // Get qualitative rhythm description
+  const getRhythmStatus = (s) => {
+    if (s >= 30) return { emoji: '🌟', label: 'Flourishing' };
+    if (s >= 14) return { emoji: '🌸', label: 'Blooming' };
+    if (s >= 7) return { emoji: '🌿', label: 'Growing' };
+    if (s >= 3) return { emoji: '🌱', label: 'Sprouting' };
+    return { emoji: '✨', label: 'Beginning' };
+  };
+  
+  const status = getRhythmStatus(streak);
+  
   return (
     <div className="flex flex-col items-center justify-center h-full">
-      <div className="text-5xl mb-2">🔥</div>
-      <div className="text-3xl font-bold text-orange-400 mb-1">{streak}</div>
-      <div className="text-sm text-cream-500">day streak</div>
+      <div className="text-5xl mb-2">{status.emoji}</div>
+      <div className="text-xl font-medium text-cream-200 mb-1">{status.label}</div>
+      <div className="text-sm text-cream-500">Your rhythm</div>
       <div className="flex gap-1 mt-4">
         {history.slice(-7).map((day, i) => (
           <div
             key={i}
             className={`w-2 h-8 rounded-full ${
-              day ? 'bg-orange-400' : 'bg-deep-600'
+              day ? 'bg-sage-400' : 'bg-deep-600'
             }`}
           />
         ))}

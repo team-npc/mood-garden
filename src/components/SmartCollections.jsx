@@ -76,7 +76,7 @@ const SmartCollections = ({ entries = [], isOpen, onClose, onSelectCollection })
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="px-2 py-1 bg-leaf-600/30 text-leaf-300 rounded-full text-sm font-medium">
-                        {collection.count}
+                        {collection.count < 5 ? '🌱' : collection.count < 15 ? '🌿' : '🌳'}
                       </span>
                       <ChevronRight className="w-4 h-4 text-cream-500" />
                     </div>
@@ -108,9 +108,6 @@ const SmartCollections = ({ entries = [], isOpen, onClose, onSelectCollection })
                 <h3 className="font-semibold text-cream-100 flex items-center space-x-2">
                   <span>{selectedCollection.icon}</span>
                   <span>{selectedCollection.name}</span>
-                  <span className="text-sm text-cream-400">
-                    ({selectedCollection.count} entries)
-                  </span>
                 </h3>
                 <button
                   onClick={() => setSelectedCollection(null)}
@@ -143,7 +140,7 @@ const SmartCollections = ({ entries = [], isOpen, onClose, onSelectCollection })
                 ))}
                 {selectedCollection.count > 5 && (
                   <p className="text-center text-sm text-cream-500 py-2">
-                    +{selectedCollection.count - 5} more entries
+                    More entries in this collection
                   </p>
                 )}
               </div>

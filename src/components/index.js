@@ -105,6 +105,8 @@ export { default as ErrorBoundary, withErrorBoundary, AsyncBoundary } from './Er
 
 // Lazy Loading
 export { 
+  GardenLoader,
+  InlineLoader,
   LazyPages,
   LazyComponents,
   SuspenseWrapper,

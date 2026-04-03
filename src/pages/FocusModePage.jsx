@@ -740,7 +740,7 @@ const FocusModePage = () => {
   const progress = getProgress();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sage-50 via-earth-50 to-sage-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-sage-50 via-earth-50 to-sage-100 dark:from-deep-900 dark:via-deep-800 dark:to-deep-900 py-8 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Compact Header */}
         <motion.div 
@@ -752,7 +752,7 @@ const FocusModePage = () => {
           <h1 className="text-4xl font-bold mb-2 text-earth-700 dark:text-cream-100">
             Focus Mode 🎯
           </h1>
-          <p className="text-earth-600 dark:text-slate-400">
+          <p className="text-earth-600 dark:text-cream-400">
             Stay focused and watch your plant grow
           </p>
         </motion.div>
@@ -762,7 +762,7 @@ const FocusModePage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-white/90 dark:bg-slate-800/70 backdrop-blur-xl rounded-3xl border border-sage-200 dark:border-slate-700/50 shadow-xl p-6 mb-6"
+          className="bg-white/90 dark:bg-deep-800/90 backdrop-blur-xl rounded-3xl border border-sage-200 dark:border-deep-600 shadow-xl p-6 mb-6"
         >
           {/* Plant + Timer Row */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-6">
@@ -771,7 +771,7 @@ const FocusModePage = () => {
               className={`relative rounded-2xl p-4 ${
                 isPlantDead 
                   ? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-400/50' 
-                  : 'bg-sage-50 dark:bg-slate-700/40 border-2 border-sage-300 dark:border-sage-600/30'
+                  : 'bg-sage-50 dark:bg-deep-700/50 border-2 border-sage-300 dark:border-deep-600/50'
               }`}
               animate={isPlantDead ? { 
                 borderColor: ['rgba(239, 68, 68, 0.5)', 'rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.5)'] 
@@ -781,27 +781,45 @@ const FocusModePage = () => {
               {renderFocusPlant()}
             </motion.div>
 
-            {/* Timer Display */}
+            {/* Timer Display - Keep timer for user reference */}
             <div className="text-center">
-              <div className="text-7xl md:text-8xl font-mono font-bold text-earth-700 dark:text-cream-100 mb-1">
-                {formatTime(timeLeft)}
-              </div>
-              {!isActive && !isPlantDead && (
-                <p className="text-earth-500 dark:text-slate-400">Ready to focus?</p>
-              )}
-              {isActive && !isPlantDead && (
-                <p className="text-leaf-600 dark:text-leaf-400 flex items-center justify-center gap-2">
-                  <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>🌱</motion.span>
-                  Growing...
-                </p>
-              )}
+              {!isActive && !isPlantDead ? (
+                <>
+                  <div className="text-6xl md:text-7xl font-bold text-earth-700 dark:text-cream-100 mb-3">
+                    Ready to focus?
+                  </div>
+                  <p className="text-xl text-earth-500 dark:text-cream-400">
+                    Choose your focus duration below
+                  </p>
+                </>
+              ) : isActive && !isPlantDead ? (
+                <>
+                  <motion.div 
+                    className="text-8xl md:text-9xl mb-4"
+                    animate={{ scale: [1, 1.1, 1] }} 
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    🌿
+                  </motion.div>
+                  <div className="text-4xl md:text-5xl font-bold text-earth-700 dark:text-cream-100 mb-2">
+                    Focused
+                  </div>
+                  <p className="text-lg text-leaf-600 dark:text-leaf-400 mb-2">
+                    Your plant is growing...
+                  </p>
+                  {/* Keep timer visible but subtle for user awareness */}
+                  <p className="text-sm text-earth-400 dark:text-cream-500 opacity-60">
+                    {Math.floor(timeLeft / 60)}m remaining
+                  </p>
+                </>
+              ) : null}
             </div>
           </div>
 
           {/* Progress Bar - Only when active */}
           {isActive && !isPlantDead && progress > 0 && (
             <div className="mb-6">
-              <div className="h-2 bg-sage-100 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-sage-100 dark:bg-deep-700 rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-gradient-to-r from-leaf-500 to-sage-500"
                   initial={{ width: 0 }}
@@ -809,7 +827,7 @@ const FocusModePage = () => {
                   transition={{ duration: 0.5 }}
                 />
               </div>
-              <p className="text-center text-sm text-earth-500 dark:text-slate-400 mt-2">
+              <p className="text-center text-sm text-earth-500 dark:text-cream-400 mt-2">
                 {progress < 25 ? '🌱 Sprouting' : progress < 50 ? '🌿 Growing' : progress < 75 ? '🌸 Blooming' : '🌳 Thriving!'}
               </p>
             </div>
@@ -833,7 +851,7 @@ const FocusModePage = () => {
                     className={`px-4 py-2 rounded-full font-semibold transition-all ${
                       duration === mins
                         ? 'bg-leaf-500 text-white shadow-lg'
-                        : 'bg-sage-100 dark:bg-slate-700 text-earth-600 dark:text-slate-300 hover:bg-sage-200 dark:hover:bg-slate-600'
+                        : 'bg-sage-100 dark:bg-deep-700 text-earth-600 dark:text-cream-300 hover:bg-sage-200 dark:hover:bg-deep-600'
                     }`}
                   >
                     {mins >= 60 ? `${mins / 60}h` : `${mins}m`}
@@ -854,14 +872,14 @@ const FocusModePage = () => {
                     setDuration(val);
                     setTimeLeft(val * 60);
                   }}
-                  className="w-full h-2 bg-sage-200 dark:bg-slate-600 rounded-full appearance-none cursor-pointer"
+                  className="w-full h-2 bg-sage-200 dark:bg-deep-700 rounded-full appearance-none cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, rgb(34, 197, 94) 0%, rgb(34, 197, 94) ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(71, 85, 105)' : 'rgb(209, 213, 219)'} ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(71, 85, 105)' : 'rgb(209, 213, 219)'} 100%)`
+                    background: `linear-gradient(to right, rgb(34, 197, 94) 0%, rgb(34, 197, 94) ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(55, 65, 81)' : 'rgb(209, 213, 219)'} ${(customDuration / 120) * 100}%, ${document.documentElement.classList.contains('dark') ? 'rgb(55, 65, 81)' : 'rgb(209, 213, 219)'} 100%)`
                   }}
                 />
-                <div className="flex justify-between text-xs text-earth-400 dark:text-slate-500 mt-1">
+                <div className="flex justify-between text-xs text-earth-400 dark:text-cream-500 mt-1">
                   <span>1m</span>
-                  <span className="font-semibold text-earth-600 dark:text-slate-300">{customDuration} min</span>
+                  <span className="font-semibold text-earth-600 dark:text-cream-300">{customDuration} min</span>
                   <span>2h</span>
                 </div>
               </div>

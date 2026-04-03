@@ -8,14 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Target, 
   Trophy, 
-  Flame, 
-  Star, 
-  Gift,
-  Clock,
   CheckCircle,
   ArrowRight,
   Sparkles,
-  Zap,
   X
 } from 'lucide-react';
 
@@ -101,8 +96,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'words-100',
     type: 'wordCount',
-    title: 'Quick Thoughts',
-    description: 'Write at least 100 words today',
+    title: 'Share Your Thoughts',
+    description: 'Write down your thoughts',
     target: 100,
     reward: 10,
     difficulty: 'easy'
@@ -110,8 +105,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'words-300',
     type: 'wordCount',
-    title: 'Deep Dive',
-    description: 'Write at least 300 words in a single entry',
+    title: 'Explore Deeply',
+    description: 'Explore a topic deeply',
     target: 300,
     reward: 25,
     difficulty: 'medium'
@@ -119,8 +114,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'words-500',
     type: 'wordCount',
-    title: 'Storyteller',
-    description: 'Write 500 words or more today',
+    title: 'Tell Your Story',
+    description: 'Tell your story',
     target: 500,
     reward: 50,
     difficulty: 'hard'
@@ -130,8 +125,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'entries-2',
     type: 'entries',
-    title: 'Double Down',
-    description: 'Write 2 journal entries today',
+    title: 'Check In More Often',
+    description: 'Check in more than once',
     target: 2,
     reward: 20,
     difficulty: 'easy'
@@ -139,8 +134,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'entries-3',
     type: 'entries',
-    title: 'Triple Treat',
-    description: 'Write 3 journal entries today',
+    title: 'Garden Visitor',
+    description: 'Visit your garden throughout the day',
     target: 3,
     reward: 40,
     difficulty: 'medium'
@@ -150,7 +145,7 @@ const CHALLENGE_POOL = [
   { 
     id: 'mood-positive',
     type: 'mood',
-    title: 'Positive Vibes',
+    title: 'Share What Lifts You',
     description: 'Log a happy or grateful mood',
     target: 1,
     details: { requiredMood: '😊' },
@@ -160,8 +155,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'mood-variety',
     type: 'emotion',
-    title: 'Emotional Range',
-    description: 'Express 3 different emotions today',
+    title: 'Feel Your Feelings',
+    description: 'Express the full range of your emotions',
     target: 3,
     reward: 30,
     difficulty: 'medium'
@@ -171,7 +166,7 @@ const CHALLENGE_POOL = [
   { 
     id: 'gratitude-1',
     type: 'gratitude',
-    title: 'Grateful Heart',
+    title: 'Notice the Good',
     description: 'Write about something you\'re grateful for',
     target: 1,
     reward: 20,
@@ -180,8 +175,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'gratitude-3',
     type: 'gratitude',
-    title: 'Abundance Mindset',
-    description: 'Write about 3 things you\'re grateful for',
+    title: 'Abundance All Around',
+    description: 'Write about the good things in your life',
     target: 3,
     reward: 35,
     difficulty: 'medium'
@@ -191,8 +186,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'reflection-deep',
     type: 'reflection',
-    title: 'Deep Reflection',
-    description: 'Write a thoughtful entry with 100+ words',
+    title: 'Go Deeper',
+    description: 'Write a thoughtful entry',
     target: 1,
     reward: 25,
     difficulty: 'medium'
@@ -202,8 +197,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'streak-3',
     type: 'streak',
-    title: 'Consistency',
-    description: 'Maintain a 3-day writing streak',
+    title: 'Build a Gentle Rhythm',
+    description: 'Build a gentle rhythm',
     target: 3,
     reward: 30,
     difficulty: 'medium'
@@ -211,8 +206,8 @@ const CHALLENGE_POOL = [
   { 
     id: 'streak-7',
     type: 'streak',
-    title: 'Week Warrior',
-    description: 'Maintain a 7-day writing streak',
+    title: 'Find Your Flow',
+    description: 'Find your flow',
     target: 7,
     reward: 75,
     difficulty: 'hard'
@@ -408,7 +403,6 @@ const ChallengeCard = ({ challenge, entries = [], userData = {}, compact = false
   const { completedChallenges, getChallengeProgress } = useChallenges();
   const isCompleted = completedChallenges.includes(challenge.id);
   const progress = getChallengeProgress(challenge, entries, userData);
-  const progressPercent = Math.min((progress / challenge.target) * 100, 100);
   const config = CHALLENGE_TYPES[challenge.type];
 
   if (compact) {
@@ -429,15 +423,11 @@ const ChallengeCard = ({ challenge, entries = [], userData = {}, compact = false
             {challenge.title}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-            {progress}/{challenge.target}
+            {isCompleted ? '✓ Complete' : 'In progress'}
           </p>
         </div>
-        {isCompleted ? (
+        {isCompleted && (
           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-        ) : (
-          <span className="text-xs font-medium text-sage-600 dark:text-sage-400">
-            +{challenge.reward}
-          </span>
         )}
       </motion.div>
     );
@@ -484,63 +474,44 @@ const ChallengeCard = ({ challenge, entries = [], userData = {}, compact = false
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">
               {challenge.title}
             </h3>
-            <span className={`
-              text-xs px-2 py-0.5 rounded-full
-              ${challenge.difficulty === 'easy' 
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
-                : challenge.difficulty === 'medium'
-                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300'
-                  : 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
-              }
-            `}>
-              {challenge.difficulty}
-            </span>
           </div>
           
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
             {challenge.description}
           </p>
 
-          {/* Progress Bar */}
+          {/* Visual Progress Indicator (no numbers) */}
           {!isCompleted && (
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-500">{progress} / {challenge.target}</span>
-                <span className="text-gray-500">{Math.round(progressPercent)}%</span>
-              </div>
-              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="space-y-2">
+              <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${progressPercent}%` }}
+                  animate={{ width: `${Math.min((progress / challenge.target) * 100, 100)}%` }}
                   className={`h-full rounded-full bg-gradient-to-r ${config.color}`}
                 />
               </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {progress >= challenge.target ? 'Ready to complete' : 'Keep going'}
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Reward */}
-      <div className={`
-        mt-4 pt-4 border-t flex items-center justify-between
-        ${isCompleted 
-          ? 'border-green-200 dark:border-green-800' 
-          : 'border-gray-100 dark:border-gray-700'
-        }
-      `}>
-        <div className="flex items-center gap-2">
-          <Gift className={`w-4 h-4 ${isCompleted ? 'text-green-500' : 'text-gray-400'}`} />
-          <span className={`text-sm ${isCompleted ? 'text-green-600 dark:text-green-400 line-through' : 'text-gray-600 dark:text-gray-400'}`}>
-            +{challenge.reward} points
+      {/* Completion Status */}
+      {isCompleted && (
+        <div className={`
+          mt-4 pt-4 border-t flex items-center justify-center
+          ${isCompleted 
+            ? 'border-green-200 dark:border-green-800' 
+            : 'border-gray-100 dark:border-gray-700'
+          }
+        `}>
+          <span className="text-sm font-medium text-green-600 dark:text-green-400">
+            ✓ Complete
           </span>
         </div>
-        
-        {isCompleted && (
-          <span className="text-sm font-medium text-green-600 dark:text-green-400">
-            Completed! ✓
-          </span>
-        )}
-      </div>
+      )}
     </motion.div>
   );
 };
@@ -550,32 +521,8 @@ const DailyChallengesPanel = ({ entries = [], userData = {}, isOpen, onClose }) 
   const { 
     dailyChallenges, 
     completedChallenges, 
-    challengeStreak, 
-    totalRewards,
     allCompleted 
   } = useChallenges();
-
-  // Calculate time remaining
-  const [timeRemaining, setTimeRemaining] = useState('');
-  
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      
-      const diff = tomorrow - now;
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      
-      setTimeRemaining(`${hours}h ${minutes}m`);
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
-    return () => clearInterval(interval);
-  }, []);
 
   if (!isOpen) return null;
 
@@ -604,7 +551,7 @@ const DailyChallengesPanel = ({ entries = [], userData = {}, isOpen, onClose }) 
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Target className="w-6 h-6" />
-              Daily Challenges
+              Daily Invitations
             </h2>
             <button
               onClick={onClose}
@@ -614,31 +561,34 @@ const DailyChallengesPanel = ({ entries = [], userData = {}, isOpen, onClose }) 
             </button>
           </div>
 
-          {/* Stats */}
+          {/* Message */}
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 opacity-80" />
-              <span className="text-sm opacity-90">Resets in {timeRemaining}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 opacity-80" />
-              <span className="text-sm opacity-90">{challengeStreak} day streak</span>
+              <Sparkles className="w-4 h-4 opacity-80" />
+              <span className="text-sm opacity-90">Fresh invitations daily</span>
             </div>
           </div>
 
-          {/* Completion Progress */}
+          {/* Progress Indicator - Visual Only */}
           <div className="mt-4">
-            <div className="flex justify-between text-sm mb-1">
-              <span>{completedChallenges.length}/{dailyChallenges.length} completed</span>
-              <span>{totalRewards} total points</span>
+            <div className="flex justify-center mb-2">
+              {dailyChallenges.map((_, index) => (
+                <motion.div
+                  key={index}
+                  className={`w-2 h-2 rounded-full mx-1 ${
+                    index < completedChallenges.length 
+                      ? 'bg-white' 
+                      : 'bg-white/40'
+                  }`}
+                  animate={{ scale: index < completedChallenges.length ? 1.2 : 1 }}
+                />
+              ))}
             </div>
-            <div className="h-2 bg-white/30 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(completedChallenges.length / dailyChallenges.length) * 100}%` }}
-                className="h-full bg-white rounded-full"
-              />
-            </div>
+            <p className="text-center text-sm opacity-90">
+              {completedChallenges.length === dailyChallenges.length 
+                ? 'All done!' 
+                : 'Making progress'}
+            </p>
           </div>
         </div>
 
@@ -652,10 +602,10 @@ const DailyChallengesPanel = ({ entries = [], userData = {}, isOpen, onClose }) 
             >
               <Trophy className="w-12 h-12 mx-auto text-yellow-500 mb-2" />
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                All Challenges Complete! 🎉
+                All Invitations Complete! 🎉
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Come back tomorrow for new challenges
+                Come back tomorrow for new invitations
               </p>
             </motion.div>
           )}
@@ -680,7 +630,7 @@ const DailyChallengesPanel = ({ entries = [], userData = {}, isOpen, onClose }) 
         <div className="p-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4 text-sage-500" />
-            Complete all challenges to earn bonus points!
+            Complete all invitations to build your practice
           </p>
         </div>
       </motion.div>
@@ -697,7 +647,7 @@ const ChallengesWidget = ({ entries = [], userData = {}, onOpenFull }) => {
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Target className="w-5 h-5 text-sage-500" />
-          Today's Challenges
+          Today's Invitations
         </h3>
         <button
           onClick={onOpenFull}
@@ -720,8 +670,26 @@ const ChallengesWidget = ({ entries = [], userData = {}, onOpenFull }) => {
         ))}
       </div>
 
-      <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-        {completedChallenges.length}/{dailyChallenges.length} completed
+      <div className="text-center text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1">
+        {completedChallenges.length === dailyChallenges.length ? (
+          <>
+            <span>✓</span>
+            <span>All complete</span>
+          </>
+        ) : (
+          <>
+            {dailyChallenges.map((_, index) => (
+              <motion.span
+                key={index}
+                className={`w-1.5 h-1.5 rounded-full ${
+                  index < completedChallenges.length 
+                    ? 'bg-sage-500' 
+                    : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              />
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

@@ -357,7 +357,7 @@ const GrowthTimelapse = ({ isOpen, onClose, entries = [], plant = null }) => {
               </div>
             </div>
             
-            {/* Stats */}
+            {/* Stats - Qualitative descriptions */}
             <div className="grid grid-cols-4 gap-2">
               <div className="bg-deep-700/50 rounded-xl p-3 text-center">
                 <Calendar className="w-4 h-4 text-cream-400 mx-auto mb-1" />
@@ -367,11 +367,15 @@ const GrowthTimelapse = ({ isOpen, onClose, entries = [], plant = null }) => {
               </div>
               <div className="bg-deep-700/50 rounded-xl p-3 text-center">
                 <Leaf className="w-4 h-4 text-sage-400 mx-auto mb-1" />
-                <span className="text-sm text-cream-200 block">{currentData.totalEntries} entries</span>
+                <span className="text-sm text-cream-200 block">
+                  {currentData.totalEntries >= 30 ? 'Many entries' : currentData.totalEntries >= 10 ? 'Growing' : 'Starting'}
+                </span>
               </div>
               <div className="bg-deep-700/50 rounded-xl p-3 text-center">
                 <Flower2 className="w-4 h-4 text-pink-400 mx-auto mb-1" />
-                <span className="text-sm text-cream-200 block">{currentData.streak} day streak</span>
+                <span className="text-sm text-cream-200 block">
+                  {currentData.streak >= 14 ? 'Flowing' : currentData.streak >= 7 ? 'Building' : currentData.streak >= 3 ? 'Growing' : 'Fresh'}
+                </span>
               </div>
               <div className="bg-deep-700/50 rounded-xl p-3 text-center">
                 <span className="text-xl block mb-0.5">{currentData.dominantMood}</span>

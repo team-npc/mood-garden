@@ -184,7 +184,7 @@ export const useEncouragement = (plantData) => {
     if (currentStreak === 0 && longestStreak > 0) {
       return {
         type: "comeback",
-        message: `You've done this before with a ${longestStreak}-day streak. Your garden remembers your care and is ready to flourish again.`
+        message: `Your garden remembers your care from before and is ready to flourish again.`
       };
     }
 

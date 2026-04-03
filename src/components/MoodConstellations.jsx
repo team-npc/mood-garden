@@ -179,7 +179,9 @@ const StarDetails = ({ star, onClose }) => {
                 year: 'numeric'
               })}
             </div>
-            <div className="text-xs text-cream-600">{star.wordCount} words</div>
+            <div className="text-xs text-cream-600">
+              {star.wordCount >= 300 ? 'Deep reflection' : star.wordCount >= 100 ? 'Thoughtful entry' : 'Quick thought'}
+            </div>
           </div>
         </div>
         <button
@@ -218,16 +220,20 @@ const ConstellationStats = ({ stars }) => {
     <div className="absolute top-4 left-4 p-3 bg-deep-800/80 backdrop-blur rounded-xl border border-deep-600">
       <div className="flex items-center gap-2 mb-2">
         <Star className="w-4 h-4 text-amber-400" />
-        <span className="text-sm text-cream-200">{stats.totalStars} stars</span>
+        <span className="text-sm text-cream-200">
+          {stats.totalStars < 5 ? 'A few stars' : 
+           stats.totalStars < 15 ? 'Growing constellation' : 
+           stats.totalStars < 30 ? 'Bright sky' : 'Starry night'}
+        </span>
       </div>
       <div className="flex flex-wrap gap-1">
-        {Object.entries(stats.moodCounts).map(([mood, count]) => (
+        {Object.entries(stats.moodCounts).map(([mood]) => (
           <span
             key={mood}
             className="px-2 py-0.5 rounded-full text-xs"
             style={{ backgroundColor: MOOD_COLORS[mood] + '30', color: MOOD_COLORS[mood] }}
           >
-            {mood} {count}
+            {mood}
           </span>
         ))}
       </div>

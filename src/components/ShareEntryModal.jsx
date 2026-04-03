@@ -178,9 +178,6 @@ const ShareEntryModal = ({ entry, isOpen, onClose }) => {
                 </div>
               )}
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-deep-500">
-                <span className="text-xs text-cream-500">
-                  {shareCard?.wordCount} words
-                </span>
                 <span className="text-xs text-leaf-400">🌱 Mood Garden</span>
               </div>
             </div>

@@ -34,17 +34,26 @@ const getTimeRemaining = (unlockDate) => {
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   
+  // Qualitative time descriptions instead of exact numbers
   if (days > 365) {
-    const years = Math.floor(days / 365);
-    return { expired: false, text: `${years} year${years > 1 ? 's' : ''} ${days % 365} days` };
+    return { expired: false, text: 'A long journey ahead' };
+  }
+  if (days > 180) {
+    return { expired: false, text: 'Seasons away' };
+  }
+  if (days > 30) {
+    return { expired: false, text: 'Still brewing' };
+  }
+  if (days > 7) {
+    return { expired: false, text: 'Coming soon' };
   }
   if (days > 0) {
-    return { expired: false, text: `${days} day${days > 1 ? 's' : ''} ${hours}h` };
+    return { expired: false, text: 'Almost ready' };
   }
   if (hours > 0) {
-    return { expired: false, text: `${hours}h ${minutes}m` };
+    return { expired: false, text: 'Opening soon' };
   }
-  return { expired: false, text: `${minutes} minutes` };
+  return { expired: false, text: 'Ready to open!' };
 };
 
 /**
@@ -437,7 +446,7 @@ const TimeCapsule = ({ isOpen, onClose }) => {
                   <h2 className="text-xl font-bold">Time Capsules</h2>
                   <p className="text-sm text-cream-200">
                     {readyCount > 0 
-                      ? `${readyCount} ready to open!` 
+                      ? 'Some capsules are ready to open!' 
                       : 'Messages to your future self'}
                   </p>
                 </div>

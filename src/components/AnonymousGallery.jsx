@@ -29,14 +29,16 @@ import {
 } from 'lucide-react';
 
 // Mock data for gallery (in production, this would come from Firebase)
+// Note: Internal metrics kept but not displayed to users
 const MOCK_GARDENS = [
   {
     id: '1',
     plantStage: 4,
     plantType: 'cherry-blossom',
     plantColor: 'pink',
-    streak: 45,
-    entriesCount: 156,
+    _streak: 45,  // Internal, not displayed
+    _entriesCount: 156,  // Internal, not displayed
+    gardenStatus: 'flourishing',  // Qualitative status shown to users
     createdAt: new Date('2024-01-15'),
     likes: 234,
     isLiked: false,
@@ -48,8 +50,9 @@ const MOCK_GARDENS = [
     plantStage: 3,
     plantType: 'succulent',
     plantColor: 'sage',
-    streak: 21,
-    entriesCount: 89,
+    _streak: 21,
+    _entriesCount: 89,
+    gardenStatus: 'growing',
     createdAt: new Date('2024-02-20'),
     likes: 156,
     isLiked: true,
@@ -61,8 +64,9 @@ const MOCK_GARDENS = [
     plantStage: 5,
     plantType: 'bonsai',
     plantColor: 'forest',
-    streak: 120,
-    entriesCount: 423,
+    _streak: 120,
+    _entriesCount: 423,
+    gardenStatus: 'legendary',
     createdAt: new Date('2023-08-01'),
     likes: 891,
     isLiked: false,
@@ -74,8 +78,9 @@ const MOCK_GARDENS = [
     plantStage: 2,
     plantType: 'lotus',
     plantColor: 'lavender',
-    streak: 7,
-    entriesCount: 28,
+    _streak: 7,
+    _entriesCount: 28,
+    gardenStatus: 'blooming',
     createdAt: new Date('2024-06-01'),
     likes: 45,
     isLiked: false,
@@ -87,8 +92,9 @@ const MOCK_GARDENS = [
     plantStage: 4,
     plantType: 'sunflower',
     plantColor: 'golden',
-    streak: 60,
-    entriesCount: 201,
+    _streak: 60,
+    _entriesCount: 201,
+    gardenStatus: 'thriving',
     createdAt: new Date('2024-01-01'),
     likes: 312,
     isLiked: true,
@@ -96,6 +102,16 @@ const MOCK_GARDENS = [
     decorations: ['butterfly', 'flowers'],
   },
 ];
+
+// Garden status display configs
+const GARDEN_STATUS = {
+  'legendary': { emoji: '🌟', label: 'Legendary garden' },
+  'flourishing': { emoji: '🌸', label: 'Flourishing' },
+  'thriving': { emoji: '🌿', label: 'Thriving' },
+  'growing': { emoji: '🌱', label: 'Growing' },
+  'blooming': { emoji: '✨', label: 'Blooming' },
+  'new': { emoji: '🌱', label: 'New garden' }
+};
 
 // Plant type display configs
 const PLANT_DISPLAY = {
@@ -169,8 +185,8 @@ const useGallery = () => {
           return b.likes - a.likes;
         case 'trending':
         default:
-          // Trending = recent likes + high streak
-          return (b.likes + b.streak * 2) - (a.likes + a.streak * 2);
+          // Trending = recent likes + plant stage (internal metrics, not shown)
+          return (b.likes + b.plantStage * 10) - (a.likes + a.plantStage * 10);
       }
     });
 
@@ -269,16 +285,16 @@ const GardenCard = ({ garden, onLike, onSendEncouragement }) => {
             {plant.name}
           </span>
           <div className="flex items-center gap-1 text-sm text-sage-500">
-            <span>🔥</span>
-            <span>{garden.streak}</span>
+            <span>{GARDEN_STATUS[garden.gardenStatus]?.emoji || '🌱'}</span>
+            <span className="text-xs">{GARDEN_STATUS[garden.gardenStatus]?.label || 'Growing'}</span>
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats - using qualitative descriptions */}
         <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
           <span className="flex items-center gap-1">
             <Leaf className="w-3 h-3" />
-            {garden.entriesCount} entries
+            Active gardener
           </span>
           <span className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
@@ -456,12 +472,12 @@ const FeaturedCarousel = ({ gardens }) => {
                     {PLANT_DISPLAY[garden.plantType]?.name || 'Plant'}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    🔥 {garden.streak} day streak • {garden.entriesCount} entries
+                    {GARDEN_STATUS[garden.gardenStatus]?.emoji} {GARDEN_STATUS[garden.gardenStatus]?.label || 'Growing beautifully'}
                   </p>
                   <div className="flex items-center gap-2">
                     <Heart className="w-4 h-4 text-sage-500 fill-current" />
                     <span className="text-sm text-sage-500 font-medium">
-                      {garden.likes} people love this garden
+                      Loved by the community
                     </span>
                   </div>
                 </div>

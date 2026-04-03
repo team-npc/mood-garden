@@ -133,7 +133,7 @@ const analyzeEntryPatterns = (entries = []) => {
       recommendations.push({
         type: 'streak',
         title: 'Keep your garden growing',
-        message: `It's been ${daysSinceLastEntry} days since your last entry`,
+        message: 'Your garden misses you! Time to plant some new thoughts.',
         icon: '🌱'
       });
     }

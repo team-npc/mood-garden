@@ -598,13 +598,15 @@ export const useJournal = () => {
     if (diffMinutes < 1) {
       return 'Just now';
     } else if (diffMinutes < 60) {
-      return `${diffMinutes} ${diffMinutes === 1 ? 'minute' : 'minutes'} ago`;
+      return 'Moments ago';
     } else if (diffHours < 24) {
-      return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+      return 'Earlier today';
     } else if (diffDays === 1) {
       return 'Yesterday';
+    } else if (diffDays <= 3) {
+      return 'A few days ago';
     } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
+      return 'Earlier this week';
     } else {
       return entryDate.toLocaleDateString('en-US', {
         year: 'numeric',

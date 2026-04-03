@@ -105,7 +105,7 @@ const THEME_PACKS = {
     description: 'Rich greens and earth tones',
     icon: '🌲',
     unlocked: false,
-    unlockRequirement: 'Write 30 entries',
+    unlockRequirement: 'Grow a flourishing garden',
     colors: {
       primary: '#15803d',
       secondary: '#166534',

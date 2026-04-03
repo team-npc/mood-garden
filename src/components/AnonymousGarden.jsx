@@ -206,7 +206,7 @@ const PlantCard = ({ plant, onHeart, onClose }) => (
 );
 
 /**
- * Community Stats
+ * Community Stats - Using qualitative descriptions instead of numbers
  */
 const CommunityStats = ({ plants }) => {
   const stats = useMemo(() => {
@@ -218,13 +218,18 @@ const CommunityStats = ({ plants }) => {
     const sortedMoods = Object.entries(moodCounts)
       .sort(([,a], [,b]) => b - a);
     
+    // Qualitative garden size descriptions
+    const plantCount = plants.length;
+    const gardenSize = plantCount >= 50 ? 'Lush' : plantCount >= 30 ? 'Growing' : plantCount >= 15 ? 'Blooming' : 'Budding';
+    
+    // Qualitative community warmth descriptions  
     const totalHearts = plants.reduce((sum, p) => sum + p.hearts, 0);
+    const warmth = totalHearts >= 100 ? 'Overflowing' : totalHearts >= 50 ? 'Warm' : totalHearts >= 20 ? 'Cozy' : 'Growing';
     
     return {
-      totalPlants: plants.length,
-      totalHearts,
-      dominantMood: sortedMoods[0]?.[0] || '😊',
-      moodCounts
+      gardenSize,
+      communityWarmth: warmth,
+      dominantMood: sortedMoods[0]?.[0] || '😊'
     };
   }, [plants]);
   
@@ -232,18 +237,18 @@ const CommunityStats = ({ plants }) => {
     <div className="grid grid-cols-3 gap-2 mb-4">
       <div className="bg-deep-700/50 rounded-xl p-3 text-center">
         <Flower2 className="w-4 h-4 text-sage-400 mx-auto mb-1" />
-        <span className="text-lg font-bold text-cream-200">{stats.totalPlants}</span>
-        <span className="text-xs text-cream-500 block">Plants</span>
+        <span className="text-sm font-medium text-cream-200">{stats.gardenSize}</span>
+        <span className="text-xs text-cream-500 block">Garden</span>
       </div>
       <div className="bg-deep-700/50 rounded-xl p-3 text-center">
         <Heart className="w-4 h-4 text-pink-400 mx-auto mb-1" />
-        <span className="text-lg font-bold text-cream-200">{stats.totalHearts}</span>
-        <span className="text-xs text-cream-500 block">Hearts</span>
+        <span className="text-sm font-medium text-cream-200">{stats.communityWarmth}</span>
+        <span className="text-xs text-cream-500 block">Community</span>
       </div>
       <div className="bg-deep-700/50 rounded-xl p-3 text-center">
         <TrendingUp className="w-4 h-4 text-amber-400 mx-auto mb-1" />
         <span className="text-2xl">{stats.dominantMood}</span>
-        <span className="text-xs text-cream-500 block">Trending</span>
+        <span className="text-xs text-cream-500 block">Vibe</span>
       </div>
     </div>
   );

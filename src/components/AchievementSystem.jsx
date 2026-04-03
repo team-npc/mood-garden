@@ -27,12 +27,14 @@ import {
 } from 'lucide-react';
 
 // Achievement definitions
+// Note: Descriptions are journey-focused, not metrics-focused (No Quantification philosophy)
+// Internal requirements are kept for backend logic but hidden from users
 const ACHIEVEMENTS = {
   // Entry Milestones
   'first-entry': {
     id: 'first-entry',
     name: 'First Seed',
-    description: 'Write your first journal entry',
+    description: 'You planted your first seed of reflection',
     icon: Leaf,
     color: 'from-green-400 to-green-600',
     rarity: 'common',
@@ -41,7 +43,7 @@ const ACHIEVEMENTS = {
   'entries-10': {
     id: 'entries-10',
     name: 'Growing Garden',
-    description: 'Write 10 journal entries',
+    description: 'Your garden is taking shape',
     icon: Sparkles,
     color: 'from-sage-400 to-sage-600',
     rarity: 'common',
@@ -50,7 +52,7 @@ const ACHIEVEMENTS = {
   'entries-25': {
     id: 'entries-25',
     name: 'Flourishing',
-    description: 'Write 25 journal entries',
+    description: 'Your practice is blossoming beautifully',
     icon: Star,
     color: 'from-sage-400 to-sage-600',
     rarity: 'uncommon',
@@ -59,7 +61,7 @@ const ACHIEVEMENTS = {
   'entries-50': {
     id: 'entries-50',
     name: 'Dedicated Writer',
-    description: 'Write 50 journal entries',
+    description: 'Reflection has become part of your journey',
     icon: Book,
     color: 'from-blue-400 to-blue-600',
     rarity: 'uncommon',
@@ -68,7 +70,7 @@ const ACHIEVEMENTS = {
   'entries-100': {
     id: 'entries-100',
     name: 'Century Gardener',
-    description: 'Write 100 journal entries',
+    description: 'A remarkable journey of self-discovery',
     icon: Trophy,
     color: 'from-sage-500 to-sage-700',
     rarity: 'rare',
@@ -77,7 +79,7 @@ const ACHIEVEMENTS = {
   'entries-365': {
     id: 'entries-365',
     name: 'Year of Reflection',
-    description: 'Write 365 journal entries',
+    description: 'You have cultivated a garden through all seasons',
     icon: Crown,
     color: 'from-sage-400 to-sage-600',
     rarity: 'legendary',
@@ -88,7 +90,7 @@ const ACHIEVEMENTS = {
   'streak-3': {
     id: 'streak-3',
     name: 'Getting Started',
-    description: 'Journal for 3 consecutive days',
+    description: 'Building a gentle rhythm',
     icon: Flame,
     color: 'from-sage-400 to-sage-600',
     rarity: 'common',
@@ -97,7 +99,7 @@ const ACHIEVEMENTS = {
   'streak-7': {
     id: 'streak-7',
     name: 'Week Warrior',
-    description: 'Journal for 7 consecutive days',
+    description: 'Finding your rhythm',
     icon: Flame,
     color: 'from-sage-500 to-earth-500',
     rarity: 'uncommon',
@@ -106,7 +108,7 @@ const ACHIEVEMENTS = {
   'streak-14': {
     id: 'streak-14',
     name: 'Fortnight Focus',
-    description: 'Journal for 14 consecutive days',
+    description: 'Your dedication is shining through',
     icon: Zap,
     color: 'from-sage-400 to-sage-500',
     rarity: 'uncommon',
@@ -115,7 +117,7 @@ const ACHIEVEMENTS = {
   'streak-30': {
     id: 'streak-30',
     name: 'Monthly Master',
-    description: 'Journal for 30 consecutive days',
+    description: 'A beautiful habit has taken root',
     icon: Award,
     color: 'from-sage-500 to-sage-600',
     rarity: 'rare',
@@ -124,7 +126,7 @@ const ACHIEVEMENTS = {
   'streak-60': {
     id: 'streak-60',
     name: 'Steadfast Spirit',
-    description: 'Journal for 60 consecutive days',
+    description: 'Your consistency is inspiring',
     icon: Trophy,
     color: 'from-sage-500 to-sage-700',
     rarity: 'rare',
@@ -133,7 +135,7 @@ const ACHIEVEMENTS = {
   'streak-100': {
     id: 'streak-100',
     name: 'Century Streak',
-    description: 'Journal for 100 consecutive days',
+    description: 'Reflection has become your way of being',
     icon: Crown,
     color: 'from-sage-400 to-sage-600',
     rarity: 'epic',
@@ -142,7 +144,7 @@ const ACHIEVEMENTS = {
   'streak-365': {
     id: 'streak-365',
     name: 'Legendary Dedication',
-    description: 'Journal for 365 consecutive days',
+    description: 'A full cycle of mindful presence',
     icon: Crown,
     color: 'from-sage-300 via-sage-400 to-sage-500',
     rarity: 'legendary',
@@ -153,7 +155,7 @@ const ACHIEVEMENTS = {
   'early-bird': {
     id: 'early-bird',
     name: 'Early Bird',
-    description: 'Write an entry before 6 AM',
+    description: 'Greeting the dawn with reflection',
     icon: Sun,
     color: 'from-sage-300 to-sage-400',
     rarity: 'uncommon',
@@ -162,7 +164,7 @@ const ACHIEVEMENTS = {
   'night-owl': {
     id: 'night-owl',
     name: 'Night Owl',
-    description: 'Write an entry after 11 PM',
+    description: 'Finding wisdom in the quiet hours',
     icon: Moon,
     color: 'from-sage-600 to-sage-700',
     rarity: 'uncommon',
@@ -171,7 +173,7 @@ const ACHIEVEMENTS = {
   'weekend-writer': {
     id: 'weekend-writer',
     name: 'Weekend Writer',
-    description: 'Write on 10 weekends',
+    description: 'Making time for yourself on restful days',
     icon: Calendar,
     color: 'from-sage-400 to-earth-500',
     rarity: 'uncommon',
@@ -182,7 +184,7 @@ const ACHIEVEMENTS = {
   'words-1000': {
     id: 'words-1000',
     name: 'Finding Your Voice',
-    description: 'Write 1,000 total words',
+    description: 'Your words are beginning to flow',
     icon: Feather,
     color: 'from-sky-400 to-blue-500',
     rarity: 'common',
@@ -191,7 +193,7 @@ const ACHIEVEMENTS = {
   'words-10000': {
     id: 'words-10000',
     name: 'Storyteller',
-    description: 'Write 10,000 total words',
+    description: 'You have stories to tell and wisdom to share',
     icon: Book,
     color: 'from-sage-500 to-sage-700',
     rarity: 'uncommon',
@@ -200,7 +202,7 @@ const ACHIEVEMENTS = {
   'words-50000': {
     id: 'words-50000',
     name: 'Novelist',
-    description: 'Write 50,000 total words',
+    description: 'A rich tapestry of thoughts and feelings',
     icon: Trophy,
     color: 'from-sage-400 to-sage-500',
     rarity: 'rare',
@@ -209,7 +211,7 @@ const ACHIEVEMENTS = {
   'long-entry': {
     id: 'long-entry',
     name: 'Deep Reflection',
-    description: 'Write an entry with 500+ words',
+    description: 'You explored your thoughts deeply',
     icon: Heart,
     color: 'from-sage-400 to-earth-500',
     rarity: 'uncommon',
@@ -220,7 +222,7 @@ const ACHIEVEMENTS = {
   'plant-sprout': {
     id: 'plant-sprout',
     name: 'First Sprout',
-    description: 'Grow your plant to sprout stage',
+    description: 'New life emerges in your garden',
     icon: Leaf,
     color: 'from-sage-400 to-sage-500',
     rarity: 'common',
@@ -229,7 +231,7 @@ const ACHIEVEMENTS = {
   'plant-blooming': {
     id: 'plant-blooming',
     name: 'First Bloom',
-    description: 'Grow your plant to blooming stage',
+    description: 'Beauty unfolds from your care',
     icon: Sparkles,
     color: 'from-sage-400 to-earth-400',
     rarity: 'uncommon',
@@ -238,7 +240,7 @@ const ACHIEVEMENTS = {
   'plant-tree': {
     id: 'plant-tree',
     name: 'Mighty Oak',
-    description: 'Grow your plant to tree stage',
+    description: 'Your dedication has grown something strong',
     icon: Award,
     color: 'from-sage-400 to-sage-600',
     rarity: 'rare',
@@ -247,7 +249,7 @@ const ACHIEVEMENTS = {
   'plant-fruiting': {
     id: 'plant-fruiting',
     name: 'Harvest Master',
-    description: 'Grow your plant to fruiting tree stage',
+    description: 'Your garden now bears fruit',
     icon: Crown,
     color: 'from-sage-400 to-sage-600',
     rarity: 'epic',
@@ -258,7 +260,7 @@ const ACHIEVEMENTS = {
   'comeback': {
     id: 'comeback',
     name: 'Comeback Kid',
-    description: 'Return after 7+ days away',
+    description: 'Welcome back — your garden missed you',
     icon: Heart,
     color: 'from-sage-400 to-earth-500',
     rarity: 'uncommon',
@@ -267,7 +269,7 @@ const ACHIEVEMENTS = {
   'consistent-mood': {
     id: 'consistent-mood',
     name: 'Emotional Explorer',
-    description: 'Use 10 different mood emojis',
+    description: 'You embrace the full spectrum of feelings',
     icon: Star,
     color: 'from-sage-500 to-sage-600',
     rarity: 'uncommon',
@@ -276,7 +278,7 @@ const ACHIEVEMENTS = {
   'first-flower': {
     id: 'first-flower',
     name: 'First Flower',
-    description: 'Earn your first flower reward',
+    description: 'Something beautiful has bloomed for you',
     icon: Gift,
     color: 'from-sage-300 to-earth-400',
     rarity: 'common',
@@ -285,7 +287,7 @@ const ACHIEVEMENTS = {
   'first-fruit': {
     id: 'first-fruit',
     name: 'First Fruit',
-    description: 'Earn your first fruit reward',
+    description: 'The harvest of your mindful practice',
     icon: Gift,
     color: 'from-earth-400 to-sage-500',
     rarity: 'uncommon',
@@ -293,6 +295,9 @@ const ACHIEVEMENTS = {
   }
 };
 
+// RARITY_CONFIG kept for internal/backend purposes only
+// Per "No Quantification" philosophy, rarity labels are NOT shown to users
+// All achievements should feel equally valuable and special
 const RARITY_CONFIG = {
   common: { 
     label: 'Common', 
@@ -327,9 +332,9 @@ const RARITY_CONFIG = {
 };
 
 // Achievement Badge Component
+// No Quantification: Rarity labels are hidden from users - all achievements are equal
 const AchievementBadge = ({ achievement, unlocked = false, showDetails = true, size = 'md' }) => {
   const Icon = achievement.icon;
-  const rarity = RARITY_CONFIG[achievement.rarity];
   
   const sizeClasses = {
     sm: 'w-12 h-12',
@@ -370,26 +375,29 @@ const AchievementBadge = ({ achievement, unlocked = false, showDetails = true, s
           ${unlocked ? 'text-white' : 'text-gray-400 dark:text-gray-500'}
         `} />
         
-        {/* Locked Overlay */}
+        {/* Locked Overlay - No hint about requirements */}
         {!unlocked && (
           <div className="absolute inset-0 rounded-full bg-gray-900/20 flex items-center justify-center">
-            <span className="text-2xl">🔒</span>
+            <span className="text-2xl">✨</span>
           </div>
         )}
       </div>
       
-      {/* Badge Info */}
+      {/* Badge Info - Only show name for unlocked, mystery for locked */}
       {showDetails && (
         <div className="mt-2 text-center">
           <p className={`
             text-sm font-medium
             ${unlocked ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}
           `}>
-            {achievement.name}
+            {unlocked ? achievement.name : '???'}
           </p>
-          <span className={`text-xs ${rarity.textColor}`}>
-            {rarity.label}
-          </span>
+          {/* Show description only when unlocked */}
+          {unlocked && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {achievement.description}
+            </p>
+          )}
         </div>
       )}
       
@@ -404,6 +412,7 @@ const AchievementBadge = ({ achievement, unlocked = false, showDetails = true, s
 };
 
 // Achievement Unlock Notification
+// No Quantification: No rarity labels, XP, or requirements shown
 const AchievementNotification = ({ achievement, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, 5000);
@@ -411,7 +420,6 @@ const AchievementNotification = ({ achievement, onClose }) => {
   }, [onClose]);
 
   const Icon = achievement.icon;
-  const rarity = RARITY_CONFIG[achievement.rarity];
 
   return (
     <motion.div
@@ -423,7 +431,7 @@ const AchievementNotification = ({ achievement, onClose }) => {
         max-w-sm w-full p-4
         bg-white dark:bg-gray-800
         rounded-2xl shadow-luxury-lg
-        border-2 ${rarity.borderColor}
+        border-2 border-sage-300 dark:border-sage-600
         backdrop-blur-xl
       `}
     >
@@ -445,10 +453,10 @@ const AchievementNotification = ({ achievement, onClose }) => {
           <Icon className="w-8 h-8 text-white" />
         </div>
         
-        {/* Content */}
+        {/* Content - No rarity label or XP */}
         <div className="flex-1">
           <p className="text-xs text-sage-600 dark:text-sage-400 font-medium uppercase tracking-wide">
-            Achievement Unlocked!
+            Discovery!
           </p>
           <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">
             {achievement.name}
@@ -456,9 +464,6 @@ const AchievementNotification = ({ achievement, onClose }) => {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {achievement.description}
           </p>
-          <span className={`text-xs ${rarity.textColor} font-medium`}>
-            {rarity.label}
-          </span>
         </div>
       </div>
       
@@ -492,21 +497,20 @@ const AchievementNotification = ({ achievement, onClose }) => {
 };
 
 // Achievement Gallery Component
+// No Quantification: No percentages, counts, progress bars, or rarity filters
 const AchievementGallery = ({ unlockedAchievements = [], onClose }) => {
   const [filter, setFilter] = useState('all');
   
+  // Simplified filtering - no rarity filters
   const filteredAchievements = Object.values(ACHIEVEMENTS).filter(achievement => {
     if (filter === 'all') return true;
-    if (filter === 'unlocked') return unlockedAchievements.includes(achievement.id);
-    if (filter === 'locked') return !unlockedAchievements.includes(achievement.id);
-    return achievement.rarity === filter;
+    if (filter === 'discovered') return unlockedAchievements.includes(achievement.id);
+    if (filter === 'undiscovered') return !unlockedAchievements.includes(achievement.id);
+    return true;
   });
 
-  const stats = {
-    total: Object.keys(ACHIEVEMENTS).length,
-    unlocked: unlockedAchievements.length,
-    percentage: Math.round((unlockedAchievements.length / Object.keys(ACHIEVEMENTS).length) * 100)
-  };
+  // Visual-only progress indicator (for internal use, not shown as percentage)
+  const hasDiscoveries = unlockedAchievements.length > 0;
 
   return (
     <motion.div
@@ -533,10 +537,12 @@ const AchievementGallery = ({ unlockedAchievements = [], onClose }) => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                🏆 Achievement Gallery
+                ✨ Your Discoveries
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {stats.unlocked} of {stats.total} achievements unlocked ({stats.percentage}%)
+                {hasDiscoveries 
+                  ? "Moments of growth on your journey" 
+                  : "Keep exploring — discoveries await"}
               </p>
             </div>
             <button
@@ -547,39 +553,33 @@ const AchievementGallery = ({ unlockedAchievements = [], onClose }) => {
             </button>
           </div>
           
-          {/* Progress Bar */}
-          <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${stats.percentage}%` }}
-              transition={{ duration: 1, ease: 'easeOut' }}
-              className="h-full bg-gradient-to-r from-sage-400 via-sage-500 to-earth-400"
-            />
-          </div>
-          
-          {/* Filters */}
+          {/* Simplified Filters - no rarity categories */}
           <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-            {['all', 'unlocked', 'locked', 'common', 'uncommon', 'rare', 'epic', 'legendary'].map((f) => (
+            {[
+              { key: 'all', label: 'All' },
+              { key: 'discovered', label: 'Discovered' },
+              { key: 'undiscovered', label: 'Awaiting' }
+            ].map((f) => (
               <button
-                key={f}
-                onClick={() => setFilter(f)}
+                key={f.key}
+                onClick={() => setFilter(f.key)}
                 className={`
                   px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap
                   transition-all duration-200
-                  ${filter === f 
+                  ${filter === f.key 
                     ? 'bg-sage-500 text-white' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }
                 `}
               >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
+                {f.label}
               </button>
             ))}
           </div>
         </div>
         
         {/* Achievement Grid */}
-        <div className="p-6 overflow-y-auto max-h-[calc(85vh-200px)]">
+        <div className="p-6 overflow-y-auto max-h-[calc(85vh-180px)]">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {filteredAchievements.map((achievement) => (
               <AchievementBadge
@@ -594,7 +594,9 @@ const AchievementGallery = ({ unlockedAchievements = [], onClose }) => {
           {filteredAchievements.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">
-                No achievements found with this filter
+                {filter === 'discovered' 
+                  ? "Your journey of discovery is just beginning" 
+                  : "No discoveries here yet"}
               </p>
             </div>
           )}

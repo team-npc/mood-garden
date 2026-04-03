@@ -43,3 +43,7 @@ ehthumbs.db
 # Temporary files
 .tmp
 .temp
+
+# Documentation files (keep README.md only)
+*.md
+!README.md

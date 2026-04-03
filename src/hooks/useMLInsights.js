@@ -142,7 +142,7 @@ const generatePrompts = (patterns, entries) => {
       type: 'encouragement',
       emoji: '✨',
       title: 'Your Writing Flourishes',
-      prompt: `You've been writing more deeply lately (avg ${patterns.avgWordCount} words)! What topics are you most excited to explore today?`,
+      prompt: `You've been writing more deeply lately! What topics are you most excited to explore today?`,
       motivation: "Your dedication to reflection is remarkable. Keep this beautiful momentum going!"
     });
   } else if (patterns.writingTrend === 'decreasing') {

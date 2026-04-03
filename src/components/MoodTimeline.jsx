@@ -243,9 +243,6 @@ const MoodDistribution = ({ entries = [] }) => {
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {item.config.label}
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {item.count} ({Math.round(item.percentage)}%)
-              </span>
             </div>
             
             <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">

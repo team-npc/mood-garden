@@ -139,9 +139,10 @@ export const usePlantLogic = () => {
 
     const { currentStreak } = plant;
 
-    if (currentStreak >= 10) return `🌟 ${currentStreak} days of mindful growth!`;
-    if (currentStreak >= 7) return `✨ Week-long journey of reflection`;
-    if (currentStreak >= 3) return `🌱 Building momentum with ${currentStreak} days`;
+    if (currentStreak >= 30) return `🌟 Your garden is flourishing beautifully!`;
+    if (currentStreak >= 14) return `✨ Your practice is blooming wonderfully`;
+    if (currentStreak >= 7) return `🌸 A beautiful week of reflection`;
+    if (currentStreak >= 3) return `🌱 Your garden is growing strong`;
     if (currentStreak >= 1) return `🌿 Growing stronger each day`;
     
     return '';
@@ -215,19 +216,17 @@ export const usePlantLogic = () => {
     loadPlant();
   }, [loadPlant]);
 
-  // Set up periodic health checks
+  // Set up periodic health checks (deferred - not on initial mount)
   useEffect(() => {
     if (!user || !plant) return;
 
     // Check plant health every 5 minutes
     const interval = setInterval(updatePlantHealth, 5 * 60 * 1000);
 
-    // Initial health check after 5 seconds
-    const timeout = setTimeout(updatePlantHealth, 5000);
+    // REMOVED: Initial health check timeout - was blocking load for 5 seconds
 
     return () => {
       clearInterval(interval);
-      clearTimeout(timeout);
     };
   }, [updatePlantHealth, user, plant]);
 

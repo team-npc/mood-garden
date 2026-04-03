@@ -200,7 +200,7 @@ const generateInsights = (analysis) => {
       type: 'achievement',
       icon: CheckCircle,
       title: 'Consistent Practice',
-      message: `Amazing! You've written on ${analysis.consistency}% of days. Your commitment to journaling is truly inspiring.`,
+      message: `Your dedication to journaling is truly inspiring. You've built a beautiful rhythm!`,
     });
   } else if (analysis.consistency < 30 && analysis.totalEntries > 3) {
     insights.push({
@@ -613,21 +613,27 @@ const AIWritingCoach = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-sage-50 dark:bg-sage-900/20 rounded-xl text-center">
                       <p className="text-2xl font-bold text-sage-600 dark:text-sage-400">
-                        {analysis.totalEntries}
+                        {analysis.totalEntries <= 10 ? 'Beginning' : 
+                         analysis.totalEntries <= 30 ? 'Growing' : 
+                         analysis.totalEntries <= 100 ? 'Flourishing' : 'Abundant'}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Total Entries</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Your Garden</p>
                     </div>
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-center">
                       <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {analysis.avgWordCount}
+                        {analysis.avgWordCount < 50 ? 'Brief' : 
+                         analysis.avgWordCount < 150 ? 'Thoughtful' : 
+                         analysis.avgWordCount < 300 ? 'Deep' : 'Expansive'}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Avg. Words</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Reflections</p>
                     </div>
                     <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-center">
                       <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                        {analysis.consistency}%
+                        {analysis.consistency < 30 ? 'Exploring' :
+                         analysis.consistency < 60 ? 'Building' :
+                         analysis.consistency < 80 ? 'Consistent' : 'Devoted'}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Consistency</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Practice</p>
                     </div>
                     <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl text-center">
                       <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 capitalize">

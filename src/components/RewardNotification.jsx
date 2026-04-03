@@ -67,7 +67,7 @@ const RewardNotification = ({ rewards = [], onComplete }) => {
       case 'flower':
         return {
           title: 'A Flower Blooms!',
-          message: `Your ${reward.streak}-day streak has earned you a beautiful ${reward.flowerType} flower.`
+          message: `Your consistent care has earned you a beautiful ${reward.flowerType} flower.`
         };
       case 'fruit':
         return {
@@ -76,8 +76,8 @@ const RewardNotification = ({ rewards = [], onComplete }) => {
         };
       case 'streak':
         return {
-          title: 'Streak Milestone!',
-          message: `${reward.days} days of mindful reflection. Your consistency is inspiring!`
+          title: 'Beautiful Rhythm!',
+          message: `Your consistent reflection is inspiring! Your garden is flourishing.`
         };
       case 'milestone':
         return {

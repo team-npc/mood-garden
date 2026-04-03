@@ -43,9 +43,9 @@ const POT_STYLES = [
   { id: 'terracotta', name: 'Terracotta', shape: 'cylinder', emoji: '🏺', unlocked: true },
   { id: 'modern', name: 'Modern', shape: 'cube', emoji: '🔲', unlocked: true },
   { id: 'ceramic', name: 'Ceramic', shape: 'bowl', emoji: '🥣', unlocked: true },
-  { id: 'hanging', name: 'Hanging', shape: 'basket', emoji: '🧺', unlocked: false, requirement: '30-day streak' },
-  { id: 'crystal', name: 'Crystal', shape: 'prism', emoji: '💎', unlocked: false, requirement: '100 entries' },
-  { id: 'zen', name: 'Zen Garden', shape: 'tray', emoji: '🪨', unlocked: false, requirement: '50 gratitude entries' },
+  { id: 'hanging', name: 'Hanging', shape: 'basket', emoji: '🧺', unlocked: false, requirement: 'Build a steady rhythm' },
+  { id: 'crystal', name: 'Crystal', shape: 'prism', emoji: '💎', unlocked: false, requirement: 'Grow a flourishing garden' },
+  { id: 'zen', name: 'Zen Garden', shape: 'tray', emoji: '🪨', unlocked: false, requirement: 'Practice gratitude regularly' },
   { id: 'floating', name: 'Floating', shape: 'levitate', emoji: '✨', unlocked: false, requirement: 'Premium' },
 ];
 
@@ -61,10 +61,10 @@ const DECORATIONS = [
   { id: 'rocks', name: 'Zen Rocks', icon: Mountain, emoji: '🪨', unlocked: true },
   { id: 'mushrooms', name: 'Mushrooms', icon: Sparkles, emoji: '🍄', unlocked: true },
   { id: 'flowers', name: 'Wildflowers', icon: Flower2, emoji: '🌸', unlocked: true },
-  { id: 'lantern', name: 'Lantern', icon: Sun, emoji: '🏮', unlocked: false, requirement: '7-day streak' },
-  { id: 'butterfly', name: 'Butterfly', icon: Sparkles, emoji: '🦋', unlocked: false, requirement: '50 entries' },
+  { id: 'lantern', name: 'Lantern', icon: Sun, emoji: '🏮', unlocked: false, requirement: 'Start your rhythm' },
+  { id: 'butterfly', name: 'Butterfly', icon: Sparkles, emoji: '🦋', unlocked: false, requirement: 'Nurture your garden' },
   { id: 'dewdrops', name: 'Dew Drops', icon: Droplets, emoji: '💧', unlocked: true },
-  { id: 'fairy', name: 'Fairy Lights', icon: Star, emoji: '✨', unlocked: false, requirement: '100 entries' },
+  { id: 'fairy', name: 'Fairy Lights', icon: Star, emoji: '✨', unlocked: false, requirement: 'Grow a flourishing garden' },
   { id: 'gnome', name: 'Garden Gnome', icon: Sparkles, emoji: '🧙', unlocked: false, requirement: 'Premium' },
 ];
 
@@ -73,7 +73,7 @@ const BACKGROUNDS = [
   { id: 'sunset', name: 'Sunset', gradient: 'linear-gradient(135deg, #FFE5B4 0%, #FFB347 100%)', unlocked: true },
   { id: 'night', name: 'Night Sky', gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', unlocked: true },
   { id: 'forest', name: 'Forest', gradient: 'linear-gradient(135deg, #2d5016 0%, #1a4d2e 100%)', unlocked: true },
-  { id: 'ocean', name: 'Ocean', gradient: 'linear-gradient(135deg, #006994 0%, #40E0D0 100%)', unlocked: false, requirement: '14-day streak' },
+  { id: 'ocean', name: 'Ocean', gradient: 'linear-gradient(135deg, #006994 0%, #40E0D0 100%)', unlocked: false, requirement: 'Build a steady rhythm' },
   { id: 'sakura', name: 'Sakura', gradient: 'linear-gradient(135deg, #FFB7C5 0%, #FF85A2 100%)', unlocked: false, requirement: 'Spring event' },
   { id: 'aurora', name: 'Aurora', gradient: 'linear-gradient(135deg, #00C9A7 0%, #845EC2 50%, #FF6F91 100%)', unlocked: false, requirement: 'Premium' },
 ];

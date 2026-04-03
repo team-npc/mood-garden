@@ -6,6 +6,7 @@
 import React, { Component } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw, Home, Bug, ChevronDown } from 'lucide-react';
+import { GardenLoader } from './LazyLoading';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -232,8 +233,6 @@ export const AsyncBoundary = ({ children, fallback, loading }) => {
 
 // Loading Fallback Component
 const LoadingFallback = () => {
-  // Import dynamically to avoid circular dependency
-  const { GardenLoader } = require('./LazyLoading');
   return <GardenLoader message="Loading..." size="small" />;
 };
 

@@ -140,9 +140,7 @@ const FormattingToolbar = ({
   onVoiceToggle, 
   isVoiceActive,
   showPreview,
-  onTogglePreview,
-  wordCount,
-  readingTime
+  onTogglePreview
 }) => {
   const tools = [
     { icon: Bold, action: 'bold', label: 'Bold' },
@@ -187,16 +185,8 @@ const FormattingToolbar = ({
         />
       </div>
       
-      {/* Stats & Preview */}
+      {/* Preview Toggle - No word counts or time metrics */}
       <div className="flex items-center gap-3 text-xs text-cream-500">
-        <div className="flex items-center gap-1.5">
-          <Type className="w-3.5 h-3.5" />
-          <span>{wordCount} words</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5" />
-          <span>{readingTime} min read</span>
-        </div>
         <button
           onClick={onTogglePreview}
           className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-deep-700 transition-colors"
@@ -430,8 +420,6 @@ const RichTextEditor = ({
           isVoiceActive={isVoiceActive}
           showPreview={showPreview}
           onTogglePreview={() => setShowPreview(!showPreview)}
-          wordCount={wordCount}
-          readingTime={readingTime}
         />
         
         {/* Editor/Preview */}

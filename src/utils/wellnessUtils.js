@@ -135,7 +135,7 @@ export const getMoodPatterns = (entries) => {
   });
 
   if (maxStreak >= 3) {
-    insights.push(`You've been feeling ${maxStreakMood} for ${maxStreak} consecutive entries.`);
+    insights.push(`You've been feeling ${maxStreakMood} consistently in recent entries.`);
     recommendations.push('Notice any triggers or patterns that might be influencing this mood?');
   }
 

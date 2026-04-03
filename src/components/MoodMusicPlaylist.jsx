@@ -296,14 +296,13 @@ const MoodMusicPlaylist = ({ isOpen, onClose, entries = [] }) => {
             </div>
           </div>
           
-          {/* Mood Distribution */}
+          {/* Mood Distribution - Visual only, no percentages */}
           <div className="px-4 py-3 bg-deep-700/50 border-b border-deep-600">
-            <p className="text-xs text-cream-500 mb-2">Your mood distribution:</p>
-            <div className="flex gap-2">
-              {Object.entries(moodAnalysis.distribution).map(([mood, percent]) => (
-                <div key={mood} className="flex items-center gap-1">
-                  <span className="text-lg">{mood}</span>
-                  <span className="text-xs text-cream-400">{percent}%</span>
+            <p className="text-xs text-cream-500 mb-2">Your mood mix:</p>
+            <div className="flex gap-3">
+              {Object.entries(moodAnalysis.distribution).slice(0, 4).map(([mood]) => (
+                <div key={mood} className="flex items-center">
+                  <span className="text-xl">{mood}</span>
                 </div>
               ))}
             </div>

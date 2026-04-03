@@ -32,52 +32,68 @@ const generateMockFriends = () => [
     name: 'Sarah Johnson',
     username: 'sarah_writes',
     avatar: '👩',
-    streak: 45,
-    level: 8,
+    // Internal metrics (not displayed)
+    _streak: 45,
+    _level: 8,
+    _gardenScore: 850,
+    _mutualFriends: 12,
+    // Qualitative fields for display
+    gardenStatus: 'flourishing',
+    activityLevel: 'recently active',
     lastEntry: '2 hours ago',
     mood: '😊',
-    isOnline: true,
-    mutualFriends: 12,
-    gardenScore: 850
+    isOnline: true
   },
   {
     id: '2',
     name: 'Mike Chen',
     username: 'mindful_mike',
     avatar: '👨',
-    streak: 32,
-    level: 6,
+    // Internal metrics (not displayed)
+    _streak: 32,
+    _level: 6,
+    _gardenScore: 720,
+    _mutualFriends: 8,
+    // Qualitative fields for display
+    gardenStatus: 'growing',
+    activityLevel: 'recently active',
     lastEntry: '5 hours ago',
     mood: '😌',
-    isOnline: true,
-    mutualFriends: 8,
-    gardenScore: 720
+    isOnline: true
   },
   {
     id: '3',
     name: 'Emma Davis',
     username: 'emma_journals',
     avatar: '👧',
-    streak: 67,
-    level: 10,
+    // Internal metrics (not displayed)
+    _streak: 67,
+    _level: 10,
+    _gardenScore: 1050,
+    _mutualFriends: 15,
+    // Qualitative fields for display
+    gardenStatus: 'lush',
+    activityLevel: 'consistently present',
     lastEntry: '1 day ago',
     mood: '😴',
-    isOnline: false,
-    mutualFriends: 15,
-    gardenScore: 1050
+    isOnline: false
   },
   {
     id: '4',
     name: 'Alex Rivera',
     username: 'alex_reflects',
     avatar: '🧑',
-    streak: 21,
-    level: 5,
+    // Internal metrics (not displayed)
+    _streak: 21,
+    _level: 5,
+    _gardenScore: 580,
+    _mutualFriends: 6,
+    // Qualitative fields for display
+    gardenStatus: 'sprouting',
+    activityLevel: 'active today',
     lastEntry: '3 hours ago',
     mood: '🤔',
-    isOnline: true,
-    mutualFriends: 6,
-    gardenScore: 580
+    isOnline: true
   }
 ];
 
@@ -86,10 +102,12 @@ const generateMockActivities = () => [
     id: '1',
     user: { name: 'Sarah Johnson', avatar: '👩' },
     type: 'milestone',
-    content: 'reached a 45-day streak! 🔥',
+    content: 'reached a significant milestone! 🔥',
     timestamp: '2 hours ago',
-    likes: 12,
-    comments: 3
+    // Internal metrics (not displayed)
+    _likes: 12,
+    _comments: 3,
+    hasAppreciation: true
   },
   {
     id: '2',
@@ -97,26 +115,32 @@ const generateMockActivities = () => [
     type: 'entry',
     content: 'wrote a heartfelt entry about gratitude',
     timestamp: '5 hours ago',
-    likes: 8,
-    comments: 2
+    // Internal metrics (not displayed)
+    _likes: 8,
+    _comments: 2,
+    hasAppreciation: true
   },
   {
     id: '3',
     user: { name: 'Emma Davis', avatar: '👧' },
     type: 'achievement',
-    content: 'unlocked the "Garden Sage" badge! 🏆',
-    timestamp: '1 day ago',
-    likes: 24,
-    comments: 7
+    content: 'unlocked the "Garden Sage" recognition! 🏆',
+    timestamp: 'recently',
+    // Internal metrics (not displayed)
+    _likes: 24,
+    _comments: 7,
+    hasAppreciation: true
   },
   {
     id: '4',
     user: { name: 'Alex Rivera', avatar: '🧑' },
     type: 'challenge',
-    content: 'completed the 30 Days of Gratitude challenge',
-    timestamp: '1 day ago',
-    likes: 15,
-    comments: 4
+    content: 'shared their gratitude practice',
+    timestamp: 'recently',
+    // Internal metrics (not displayed)
+    _likes: 15,
+    _comments: 4,
+    hasAppreciation: true
   }
 ];
 
@@ -124,6 +148,16 @@ const generateMockActivities = () => [
  * Friend Card Component
  */
 const FriendCard = ({ friend, onViewProfile, onSendGift, onSendEncouragement }) => {
+  const getGardenPlant = () => {
+    switch (friend.gardenStatus) {
+      case 'flourishing': return '🌸';
+      case 'lush': return '🌳';
+      case 'growing': return '🌱';
+      case 'sprouting': return '🌿';
+      default: return '🌾';
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -143,23 +177,20 @@ const FriendCard = ({ friend, onViewProfile, onSendGift, onSendEncouragement }) 
             <p className="text-xs text-cream-500">@{friend.username}</p>
           </div>
         </div>
-        {friend.level >= 10 && (
+        {friend._level >= 10 && (
           <Crown className="w-5 h-5 text-yellow-400" />
         )}
       </div>
       
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <div className="bg-deep-800/50 rounded-lg p-2 text-center">
-          <div className="text-orange-400 font-bold">{friend.streak}</div>
-          <div className="text-[10px] text-cream-600">Streak</div>
+      {/* Garden Status Cards - Qualitative */}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="bg-deep-800/50 rounded-lg p-3 text-center">
+          <div className="text-3xl mb-1">{getGardenPlant()}</div>
+          <div className="text-xs text-cream-400 capitalize">{friend.gardenStatus}</div>
         </div>
-        <div className="bg-deep-800/50 rounded-lg p-2 text-center">
-          <div className="text-sage-400 font-bold">Lv {friend.level}</div>
-          <div className="text-[10px] text-cream-600">Level</div>
-        </div>
-        <div className="bg-deep-800/50 rounded-lg p-2 text-center">
-          <div className="text-purple-400 font-bold">{friend.gardenScore}</div>
-          <div className="text-[10px] text-cream-600">Score</div>
+        <div className="bg-deep-800/50 rounded-lg p-3 text-center">
+          <div className="text-2xl mb-1">🌍</div>
+          <div className="text-xs text-cream-400 capitalize">{friend.activityLevel}</div>
         </div>
       </div>
       
@@ -236,18 +267,24 @@ const ActivityFeedItem = ({ activity, onLike, onComment }) => {
               className={`flex items-center gap-1.5 text-sm transition-colors ${
                 liked ? 'text-red-400' : 'text-cream-500 hover:text-cream-300'
               }`}
+              title="Appreciate this activity"
             >
               <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
-              <span>{activity.likes + (liked ? 1 : 0)}</span>
             </button>
+            {activity.hasAppreciation && !liked && (
+              <span className="text-xs text-cream-600">Others appreciated this</span>
+            )}
+            {liked && (
+              <span className="text-xs text-red-400">You appreciated this</span>
+            )}
             <button
               onClick={() => onComment?.(activity.id)}
               className="flex items-center gap-1.5 text-sm text-cream-500 hover:text-cream-300 transition-colors"
+              title="View or add comments"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>{activity.comments}</span>
             </button>
-            <button className="flex items-center gap-1.5 text-sm text-cream-500 hover:text-cream-300 transition-colors">
+            <button className="flex items-center gap-1.5 text-sm text-cream-500 hover:text-cream-300 transition-colors" title="Share">
               <Share2 className="w-4 h-4" />
             </button>
           </div>
@@ -262,6 +299,26 @@ const ActivityFeedItem = ({ activity, onLike, onComment }) => {
  */
 const FriendProfileModal = ({ friend, isOpen, onClose }) => {
   if (!isOpen || !friend) return null;
+
+  const getGardenPlant = () => {
+    switch (friend.gardenStatus) {
+      case 'flourishing': return '🌸';
+      case 'lush': return '🌳';
+      case 'growing': return '🌱';
+      case 'sprouting': return '🌿';
+      default: return '🌾';
+    }
+  };
+
+  const getGardenDescription = () => {
+    switch (friend.gardenStatus) {
+      case 'flourishing': return 'A garden in full bloom, thriving with vibrant growth';
+      case 'lush': return 'A lush and verdant garden, rich with life and abundance';
+      case 'growing': return 'A garden showing steady growth and beautiful development';
+      case 'sprouting': return 'A garden full of promise, just beginning to flourish';
+      default: return 'A peaceful garden, nurturing its own rhythm';
+    }
+  };
   
   return (
     <motion.div
@@ -299,50 +356,45 @@ const FriendProfileModal = ({ friend, isOpen, onClose }) => {
         
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[60vh]">
-          <div className="grid grid-cols-4 gap-3 mb-6">
-            <div className="bg-deep-700/50 rounded-lg p-3 text-center">
-              <div className="text-2xl text-orange-400 font-bold mb-1">{friend.streak}</div>
-              <div className="text-xs text-cream-500">Day Streak</div>
+          {/* Garden Status - Qualitative */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="bg-deep-700/50 rounded-lg p-4 text-center">
+              <div className="text-4xl mb-2">{getGardenPlant()}</div>
+              <div className="text-sm text-cream-200 capitalize font-medium">{friend.gardenStatus}</div>
+              <div className="text-xs text-cream-500 mt-1">Garden Status</div>
             </div>
-            <div className="bg-deep-700/50 rounded-lg p-3 text-center">
-              <div className="text-2xl text-sage-400 font-bold mb-1">Lv {friend.level}</div>
-              <div className="text-xs text-cream-500">Level</div>
-            </div>
-            <div className="bg-deep-700/50 rounded-lg p-3 text-center">
-              <div className="text-2xl text-purple-400 font-bold mb-1">{friend.gardenScore}</div>
-              <div className="text-xs text-cream-500">Garden Score</div>
-            </div>
-            <div className="bg-deep-700/50 rounded-lg p-3 text-center">
-              <div className="text-2xl text-blue-400 font-bold mb-1">{friend.mutualFriends}</div>
-              <div className="text-xs text-cream-500">Mutual</div>
+            <div className="bg-deep-700/50 rounded-lg p-4 text-center">
+              <div className="text-4xl mb-2">🌍</div>
+              <div className="text-sm text-cream-200 capitalize font-medium">{friend.activityLevel}</div>
+              <div className="text-xs text-cream-500 mt-1">Activity</div>
             </div>
           </div>
           
-          {/* Mock Garden Preview */}
+          {/* Garden Visualization */}
           <div className="bg-gradient-to-br from-green-900 to-green-700 rounded-xl p-6 mb-6">
             <h3 className="text-white font-medium mb-3">Their Garden</h3>
             <div className="flex justify-center">
-              <div className="text-6xl animate-sway">🌳</div>
+              <div className="text-6xl animate-sway">{getGardenPlant()}</div>
             </div>
             <p className="text-center text-green-200 mt-3 text-sm">
-              A thriving garden with {friend.level} plants
+              {getGardenDescription()}
             </p>
           </div>
           
-          {/* Recent Achievements */}
+          {/* Recent Achievements - Without numerical dates */}
           <div>
-            <h3 className="text-cream-200 font-medium mb-3">Recent Achievements</h3>
+            <h3 className="text-cream-200 font-medium mb-3">Growth Milestones</h3>
             <div className="space-y-2">
               {[
-                { icon: '🏆', title: 'Garden Keeper', date: '2 days ago' },
-                { icon: '🔥', title: '30-Day Streak', date: '1 week ago' },
-                { icon: '⭐', title: 'Consistent Writer', date: '2 weeks ago' }
+                { icon: '🏆', title: 'Garden Keeper', timeframe: 'Recently' },
+                { icon: '🔥', title: 'Consistent Writer', timeframe: 'This season' },
+                { icon: '⭐', title: 'Reflective Soul', timeframe: 'Earlier this year' }
               ].map((achievement, i) => (
                 <div key={i} className="flex items-center gap-3 bg-deep-700/30 rounded-lg p-3">
                   <span className="text-3xl">{achievement.icon}</span>
                   <div className="flex-1">
                     <div className="text-cream-200 text-sm">{achievement.title}</div>
-                    <div className="text-cream-600 text-xs">{achievement.date}</div>
+                    <div className="text-cream-600 text-xs">{achievement.timeframe}</div>
                   </div>
                 </div>
               ))}
@@ -438,8 +490,8 @@ const SocialHub = ({ isOpen, onClose }) => {
           {/* Tabs */}
           <div className="flex border-b border-deep-700">
             {[
-              { id: 'friends', icon: Users, label: 'Friends', count: friends.length },
-              { id: 'activity', icon: TrendingUp, label: 'Activity', count: activities.length },
+              { id: 'friends', icon: Users, label: 'Friends' },
+              { id: 'activity', icon: TrendingUp, label: 'Activity' },
               { id: 'discover', icon: Search, label: 'Discover' }
             ].map((tab) => (
               <button
@@ -453,11 +505,6 @@ const SocialHub = ({ isOpen, onClose }) => {
               >
                 <tab.icon className="w-4 h-4" />
                 <span className="text-sm font-medium">{tab.label}</span>
-                {tab.count && (
-                  <span className="px-1.5 py-0.5 bg-deep-600 rounded-full text-xs">
-                    {tab.count}
-                  </span>
-                )}
               </button>
             ))}
           </div>

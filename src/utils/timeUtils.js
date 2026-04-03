@@ -207,11 +207,14 @@ export const formatDate = (date, style = 'relative') => {
       return 'Yesterday';
     } else {
       const days = daysBetween(inputDate, now);
-      if (days < 7) {
-        return `${days} day${days === 1 ? '' : 's'} ago`;
+      if (days <= 3) {
+        return 'A few days ago';
+      } else if (days < 7) {
+        return 'Earlier this week';
+      } else if (days < 14) {
+        return 'Last week';
       } else if (days < 30) {
-        const weeks = Math.floor(days / 7);
-        return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+        return 'Earlier this month';
       } else {
         return inputDate.toLocaleDateString('en-US', {
           month: 'short',

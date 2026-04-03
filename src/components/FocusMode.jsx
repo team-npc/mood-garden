@@ -179,14 +179,11 @@ const BreathingExercise = ({ isActive, pattern = 'box', onComplete }) => {
 
       {/* Pattern Info */}
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        <h3 className="text-lg font-semibold text-earth-800 dark:text-cream-100">
           {selectedPattern.name}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-earth-600 dark:text-cream-400">
           {selectedPattern.description}
-        </p>
-        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-          Cycle {cycleCount + 1}
         </p>
       </div>
 
@@ -194,10 +191,10 @@ const BreathingExercise = ({ isActive, pattern = 'box', onComplete }) => {
       <div className="flex items-center gap-4">
         <button
           onClick={toggleRunning}
-          className={`p-4 rounded-full ${isRunning ? 'bg-gray-200 dark:bg-gray-700' : 'bg-sage-500'} transition-colors`}
+          className={`p-4 rounded-full ${isRunning ? 'bg-gray-200 dark:bg-deep-600' : 'bg-sage-500'} transition-colors`}
         >
           {isRunning ? (
-            <Pause className={`w-6 h-6 ${isRunning ? 'text-gray-700 dark:text-gray-300' : 'text-white'}`} />
+            <Pause className={`w-6 h-6 ${isRunning ? 'text-earth-700 dark:text-cream-300' : 'text-white'}`} />
           ) : (
             <Play className="w-6 h-6 text-white" />
           )}
@@ -205,7 +202,7 @@ const BreathingExercise = ({ isActive, pattern = 'box', onComplete }) => {
         
         <button
           onClick={reset}
-          className="p-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+          className="p-3 rounded-full bg-gray-200 dark:bg-deep-600 text-earth-700 dark:text-cream-300 hover:bg-gray-300 dark:hover:bg-deep-500 transition-colors"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
@@ -219,6 +216,7 @@ const PomodoroTimer = ({ isActive, onComplete }) => {
   const [mode, setMode] = useState('focus'); // focus, break, longBreak
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [sessions, setSessions] = useState(0);
 
   const modes = {
@@ -251,10 +249,16 @@ const PomodoroTimer = ({ isActive, onComplete }) => {
     return () => clearInterval(interval);
   }, [isRunning, isActive, mode, sessions, onComplete]);
 
+  const startFocus = () => {
+    setHasStarted(true);
+    setIsRunning(true);
+  };
+
   const toggleRunning = () => setIsRunning(!isRunning);
   
   const reset = () => {
     setIsRunning(false);
+    setHasStarted(false);
     setTimeLeft(modes[mode].duration);
   };
 
@@ -262,13 +266,14 @@ const PomodoroTimer = ({ isActive, onComplete }) => {
     setMode(newMode);
     setTimeLeft(modes[newMode].duration);
     setIsRunning(false);
+    setHasStarted(false);
   };
 
   if (!isActive) return null;
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const progress = 1 - (timeLeft / modes[mode].duration);
+  const progress = hasStarted ? (1 - (timeLeft / modes[mode].duration)) : 0;
 
   return (
     <motion.div
@@ -286,7 +291,7 @@ const PomodoroTimer = ({ isActive, onComplete }) => {
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               mode === key
                 ? 'bg-sage-500 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                : 'bg-gray-200 dark:bg-deep-600 text-gray-700 dark:text-cream-300 hover:bg-gray-300 dark:hover:bg-deep-500'
             }`}
           >
             {value.label}
@@ -305,7 +310,7 @@ const PomodoroTimer = ({ isActive, onComplete }) => {
             fill="none"
             stroke="currentColor"
             strokeWidth="8"
-            className="text-gray-200 dark:text-gray-700"
+            className="text-gray-200 dark:text-deep-600"
           />
           <circle
             cx="112"
@@ -327,54 +332,83 @@ const PomodoroTimer = ({ isActive, onComplete }) => {
           </defs>
         </svg>
         
-        {/* Time Display */}
+        {/* Time Display - No quantification, show qualitative state only */}
         <div className="text-center">
-          <p className="text-5xl font-bold text-gray-800 dark:text-gray-100 font-mono">
-            {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            {modes[mode].label}
-          </p>
+          {!hasStarted ? (
+            <>
+              <p className="text-2xl font-semibold text-earth-700 dark:text-cream-200 mb-2">
+                Ready to focus?
+              </p>
+              <p className="text-sm text-earth-500 dark:text-cream-400">
+                {modes[mode].label}
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="text-center">
+                <div className="text-4xl mb-3">
+                  {isRunning ? '🌿' : '⏸️'}
+                </div>
+                <p className="text-2xl font-semibold text-earth-800 dark:text-cream-100 mb-2">
+                  {isRunning ? 'Focused' : 'Paused'}
+                </p>
+                <p className="text-sm text-earth-600 dark:text-cream-400">
+                  {modes[mode].label}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* Controls */}
       <div className="flex items-center gap-4">
-        <button
-          onClick={toggleRunning}
-          className={`p-4 rounded-full ${isRunning ? 'bg-gray-200 dark:bg-gray-700' : 'bg-sage-500'} transition-colors`}
-        >
-          {isRunning ? (
-            <Pause className={`w-6 h-6 ${isRunning ? 'text-gray-700 dark:text-gray-300' : 'text-white'}`} />
-          ) : (
-            <Play className="w-6 h-6 text-white" />
-          )}
-        </button>
-        
-        <button
-          onClick={reset}
-          className="p-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-        >
-          <RotateCcw className="w-5 h-5" />
-        </button>
+        {!hasStarted ? (
+          <button
+            onClick={startFocus}
+            className="px-6 py-3 rounded-full bg-sage-500 hover:bg-sage-600 text-white font-medium transition-colors flex items-center gap-2"
+          >
+            <Play className="w-5 h-5" />
+            Start Focus
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={toggleRunning}
+              className={`p-4 rounded-full ${isRunning ? 'bg-gray-200 dark:bg-deep-600' : 'bg-sage-500'} transition-colors`}
+            >
+              {isRunning ? (
+                <Pause className={`w-6 h-6 ${isRunning ? 'text-earth-700 dark:text-cream-300' : 'text-white'}`} />
+              ) : (
+                <Play className="w-6 h-6 text-white" />
+              )}
+            </button>
+            
+            <button
+              onClick={reset}
+              className="p-3 rounded-full bg-gray-200 dark:bg-deep-600 text-earth-700 dark:text-cream-300 hover:bg-gray-300 dark:hover:bg-deep-500 transition-colors"
+            >
+              <RotateCcw className="w-5 h-5" />
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Session Counter */}
-      <div className="flex items-center gap-2">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              i < (sessions % 4)
-                ? 'bg-sage-500'
-                : 'bg-gray-300 dark:bg-gray-600'
-            }`}
-          />
-        ))}
-        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-          Session {sessions + 1}
-        </span>
-      </div>
+      {/* Focus Progress - Visual only, no numbers */}
+      {hasStarted && (
+        <div className="flex items-center gap-2">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className={`w-3 h-3 rounded-full transition-colors ${
+                i < (sessions % 4)
+                  ? 'bg-sage-500'
+                  : 'bg-gray-300 dark:bg-deep-600'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -389,7 +423,6 @@ const FocusMode = ({
 }) => {
   const [activePanel, setActivePanel] = useState(null); // 'breathing', 'pomodoro', null
   const [breathingPattern, setBreathingPattern] = useState('box');
-  const [wordCount, setWordCount] = useState(0);
   const [typingSounds, setTypingSounds] = useState(false);
   const textRef = useRef(null);
 
@@ -417,12 +450,12 @@ const FocusMode = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-gradient-to-br from-sage-50 via-white to-earth-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+      className="fixed inset-0 z-50 bg-gradient-to-br from-sage-50 via-white to-earth-50 dark:from-deep-800 dark:via-deep-900 dark:to-deep-800"
     >
       {/* Ambient Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sage-200/30 dark:bg-sage-800/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-earth-200/30 dark:bg-earth-800/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sage-200/30 dark:bg-sage-900/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-earth-200/30 dark:bg-earth-900/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
         <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-gold-200/20 dark:bg-gold-900/10 rounded-full blur-3xl animate-breathe" />
       </div>
 
@@ -433,14 +466,14 @@ const FocusMode = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-gray-700/70 transition-colors"
+            className="p-2 rounded-xl bg-white/50 dark:bg-deep-700/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-deep-600/70 transition-colors"
           >
-            <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <X className="w-5 h-5 text-earth-700 dark:text-cream-300" />
           </motion.button>
           
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-deep-700/50 backdrop-blur-sm rounded-xl">
             <Sparkles className="w-4 h-4 text-sage-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-earth-700 dark:text-cream-300">
               Focus Mode
             </span>
           </div>
@@ -455,7 +488,7 @@ const FocusMode = ({
               className={`p-2 rounded-xl backdrop-blur-sm transition-colors ${
                 activePanel === 'breathing'
                   ? 'bg-sage-500 text-white'
-                  : 'bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 dark:hover:bg-gray-700/70 text-gray-700 dark:text-gray-300'
+                  : 'bg-white/50 dark:bg-deep-700/50 hover:bg-white/70 dark:hover:bg-deep-600/70 text-earth-700 dark:text-cream-300'
               }`}
             >
               <Wind className="w-5 h-5" />
@@ -470,7 +503,7 @@ const FocusMode = ({
               className={`p-2 rounded-xl backdrop-blur-sm transition-colors ${
                 activePanel === 'pomodoro'
                   ? 'bg-sage-500 text-white'
-                  : 'bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 dark:hover:bg-gray-700/70 text-gray-700 dark:text-gray-300'
+                  : 'bg-white/50 dark:bg-deep-700/50 hover:bg-white/70 dark:hover:bg-deep-600/70 text-earth-700 dark:text-cream-300'
               }`}
             >
               <Timer className="w-5 h-5" />
@@ -484,7 +517,7 @@ const FocusMode = ({
             className={`p-2 rounded-xl backdrop-blur-sm transition-colors ${
               typingSounds
                 ? 'bg-sage-500 text-white'
-                : 'bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 dark:hover:bg-gray-700/70 text-gray-700 dark:text-gray-300'
+                : 'bg-white/50 dark:bg-deep-700/50 hover:bg-white/70 dark:hover:bg-deep-600/70 text-earth-700 dark:text-cream-300'
             }`}
           >
             {typingSounds ? (
@@ -505,19 +538,19 @@ const FocusMode = ({
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 320, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="h-full bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border-r border-white/20 dark:border-gray-700/20 overflow-hidden"
+              className="h-full bg-white/30 dark:bg-deep-800/30 backdrop-blur-xl border-r border-white/20 dark:border-deep-600/20 overflow-hidden"
             >
               {activePanel === 'breathing' && (
                 <div className="h-full flex flex-col pt-20">
                   {/* Pattern Selector */}
                   <div className="px-4 pb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-earth-700 dark:text-cream-300 mb-2">
                       Breathing Pattern
                     </label>
                     <select
                       value={breathingPattern}
                       onChange={(e) => setBreathingPattern(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-gray-700/50 border border-gray-200/50 dark:border-gray-600/50 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-sage-500"
+                      className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-deep-700/50 border border-gray-200/50 dark:border-deep-500/50 text-earth-700 dark:text-cream-300 focus:outline-none focus:ring-2 focus:ring-sage-500"
                     >
                       {Object.entries(BREATHING_PATTERNS).map(([key, value]) => (
                         <option key={key} value={key}>
@@ -551,11 +584,11 @@ const FocusMode = ({
         </div>
       </div>
 
-      {/* Word Count Footer */}
+      {/* Footer Hint */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-        <div className="px-4 py-2 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            Press <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Esc</kbd> to exit focus mode
+        <div className="px-4 py-2 bg-white/50 dark:bg-deep-700/50 backdrop-blur-sm rounded-xl">
+          <span className="text-sm text-earth-600 dark:text-cream-400">
+            Press <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-deep-600 rounded text-xs">Esc</kbd> to exit focus mode
           </span>
         </div>
       </div>

@@ -23,29 +23,40 @@ import {
 
 /**
  * Generate mock partner data
+ * Note: Internal metrics kept but not displayed to users
  */
 const generateMockPartners = () => [
   {
     id: 'partner-1',
     name: 'Garden Buddy',
     avatar: '🌻',
-    streak: 15,
+    _streak: 15,  // Internal
+    gardenStatus: 'thriving',  // Qualitative status shown to users
     lastActive: new Date().toISOString(),
     status: 'online',
-    achievements: ['7-day streak', 'Early Bird', 'Night Owl'],
+    achievements: ['Consistent Writer', 'Early Riser', 'Night Owl'],
     encouragement: 'Keep going! You\'re doing amazing! 🌟'
   },
   {
     id: 'partner-2', 
     name: 'Mindful Friend',
     avatar: '🌸',
-    streak: 8,
+    _streak: 8,  // Internal
+    gardenStatus: 'growing',
     lastActive: new Date(Date.now() - 3600000).toISOString(),
     status: 'away',
-    achievements: ['First Entry', 'Consistency King'],
+    achievements: ['First Entry', 'Finding Rhythm'],
     encouragement: 'Proud of your progress! 💪'
   }
 ];
+
+// Garden status display
+const PARTNER_STATUS = {
+  'thriving': { emoji: '🌟', label: 'Thriving' },
+  'growing': { emoji: '🌿', label: 'Growing' },
+  'blooming': { emoji: '🌸', label: 'Blooming' },
+  'starting': { emoji: '🌱', label: 'Starting' }
+};
 
 /**
  * Partner Card Component
@@ -71,8 +82,9 @@ const PartnerCard = ({ partner, onNudge, onMessage }) => {
     const diff = Date.now() - new Date(date).getTime();
     const hours = Math.floor(diff / 3600000);
     if (hours < 1) return 'Just now';
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
+    if (hours < 24) return 'Earlier today';
+    if (hours < 48) return 'Yesterday';
+    return 'Recently';
   };
   
   return (
@@ -92,10 +104,10 @@ const PartnerCard = ({ partner, onNudge, onMessage }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="text-cream-200 font-medium">{partner.name}</h3>
-            {partner.streak >= 7 && (
-              <span className="text-xs bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                <Flame className="w-3 h-3" />
-                {partner.streak}
+            {partner.gardenStatus && (
+              <span className="text-xs bg-sage-500/20 text-sage-400 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                <span>{PARTNER_STATUS[partner.gardenStatus]?.emoji || '🌱'}</span>
+                {PARTNER_STATUS[partner.gardenStatus]?.label || 'Growing'}
               </span>
             )}
           </div>
@@ -354,7 +366,8 @@ const AccountabilityPartners = ({ isOpen, onClose, userStreak = 0 }) => {
       id: `partner-${Date.now()}`,
       name: 'New Buddy',
       avatar: ['🌷', '🌺', '🌹', '🌼'][Math.floor(Math.random() * 4)],
-      streak: 0,
+      _streak: 0,  // Internal
+      gardenStatus: 'starting',
       lastActive: new Date().toISOString(),
       status: 'online',
       achievements: [],
@@ -404,18 +417,20 @@ const AccountabilityPartners = ({ isOpen, onClose, userStreak = 0 }) => {
           </div>
           
           <div className="p-4 overflow-y-auto max-h-[70vh] space-y-4">
-            {/* Your Stats */}
+            {/* Your Status - Qualitative, no numbers */}
             <div className="bg-deep-700/50 rounded-xl p-4 flex items-center justify-between">
               <div>
-                <p className="text-cream-400 text-sm">Your current streak</p>
-                <p className="text-2xl font-bold text-cream-200 flex items-center gap-2">
-                  <Flame className="w-6 h-6 text-orange-400" />
-                  {userStreak} days
+                <p className="text-cream-400 text-sm">Your rhythm</p>
+                <p className="text-xl font-bold text-cream-200 flex items-center gap-2">
+                  <span className="text-2xl">{userStreak >= 7 ? '🌟' : userStreak >= 3 ? '🌿' : '🌱'}</span>
+                  {userStreak >= 14 ? 'Flourishing' : userStreak >= 7 ? 'Growing strong' : userStreak >= 3 ? 'Building momentum' : 'Getting started'}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-cream-400 text-sm">Partners</p>
-                <p className="text-2xl font-bold text-cream-200">{partners.length}</p>
+                <p className="text-cream-200 flex items-center gap-1">
+                  {partners.length > 0 ? '💚 Connected' : '🔍 Find partners'}
+                </p>
               </div>
             </div>
             

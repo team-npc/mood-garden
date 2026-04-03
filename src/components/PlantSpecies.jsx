@@ -335,27 +335,28 @@ const PlantCard = ({ species, isUnlocked, isSelected, onSelect, userStats = {} }
 
   const getRequirementText = () => {
     if (!species.unlockRequirement) return 'Default plant';
-    const { type, count } = species.unlockRequirement;
+    const { type } = species.unlockRequirement;
     
+    // Qualitative descriptions instead of numbers
     switch (type) {
       case 'streak':
-        return `${count}-day streak`;
+        return 'Build your rhythm';
       case 'entries':
-        return `${count} entries`;
+        return 'Keep journaling';
       case 'totalWords':
-        return `${count.toLocaleString()} words`;
+        return 'Express yourself deeply';
       case 'uniqueMoods':
-        return `${count} mood types`;
+        return 'Explore your emotions';
       case 'nightEntries':
-        return `${count} night entries`;
+        return 'Write under the stars';
       case 'gratitudeEntries':
-        return `${count} gratitude entries`;
+        return 'Practice gratitude';
       case 'comebacks':
-        return `${count} comebacks`;
+        return 'Return after breaks';
       case 'flowers':
-        return `${count} flowers earned`;
+        return 'Grow your garden';
       default:
-        return 'Complete requirement';
+        return 'Keep growing';
     }
   };
 
@@ -434,12 +435,13 @@ const PlantCard = ({ species, isUnlocked, isSelected, onSelect, userStats = {} }
         {species.description}
       </p>
 
-      {/* Stats */}
+      {/* Stats - qualitative instead of numeric */}
       {isUnlocked && (
         <div className="flex justify-center gap-4 text-xs">
           <div className="text-center">
             <span className="block font-bold text-sage-600 dark:text-sage-400">
-              {Math.round(species.growthBonus * 100)}%
+              {species.growthBonus >= 0.3 ? 'Fast' : 
+               species.growthBonus >= 0.2 ? 'Moderate' : 'Gentle'}
             </span>
             <span className="text-gray-500">Growth</span>
           </div>
@@ -525,7 +527,9 @@ const PlantSelectionModal = ({
                 Plant Collection
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {unlockedSpecies.length} of {Object.keys(PLANT_SPECIES).length} species unlocked
+                {unlockedSpecies.length === 0 ? 'Begin your collection' :
+                 unlockedSpecies.length < 3 ? 'A few species discovered' :
+                 unlockedSpecies.length < 6 ? 'Growing collection' : 'Many species discovered'}
               </p>
             </div>
             <button

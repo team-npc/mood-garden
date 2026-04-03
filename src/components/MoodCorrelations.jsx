@@ -180,7 +180,7 @@ const CorrelationCard = ({ factorKey, correlation, dataPoints }) => {
         </span>
       </div>
       
-      {/* Correlation bar */}
+      {/* Correlation bar - visual only */}
       <div className="relative h-2 bg-deep-600 rounded-full overflow-hidden mb-2">
         <div className="absolute inset-0 flex">
           <div className="w-1/2 flex justify-end">
@@ -207,7 +207,7 @@ const CorrelationCard = ({ factorKey, correlation, dataPoints }) => {
       
       <div className="flex justify-between text-xs text-cream-500">
         <span>Negative</span>
-        <span>{dataPoints} data points</span>
+        <span>{dataPoints >= 10 ? 'Good data' : 'Gathering insights'}</span>
         <span>Positive</span>
       </div>
       
@@ -456,13 +456,13 @@ const MoodCorrelations = ({ isOpen, onClose, entries = [] }) => {
                     <BarChart2 className="w-12 h-12 text-cream-600 mx-auto mb-3" />
                     <h3 className="text-cream-300 font-medium mb-2">Not enough data yet</h3>
                     <p className="text-cream-500 text-sm">
-                      Log at least 3 days to see correlation insights
+                      Keep journaling to see correlation insights
                     </p>
                   </div>
                 ) : (
                   <>
                     <p className="text-cream-400 text-sm">
-                      Based on {logs.length} days of data, here's how factors correlate with your mood:
+                      Based on your reflections, here's how factors correlate with your mood:
                     </p>
                     <div className="grid gap-3">
                       {correlations && Object.entries(correlations)

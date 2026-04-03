@@ -386,7 +386,9 @@ export const CreatureCollection = ({ entries = [], plantData = {}, isOpen, onClo
             <div>
               <h2 className="text-xl font-bold">Garden Creatures</h2>
               <p className="text-sm text-cream-200">
-                {unlockedIds.size}/{creatures.length} discovered
+                {unlockedIds.size === 0 ? 'Begin discovering' : 
+                 unlockedIds.size < 5 ? 'A few friends found' : 
+                 unlockedIds.size < 10 ? 'Growing community' : 'Thriving ecosystem'}
               </p>
             </div>
             <button

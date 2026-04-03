@@ -2,6 +2,8 @@
 
 A mindful journaling web app where your virtual plant grows with your reflections — no numbers, just natural growth and gentle encouragement for consistent self-care.
 
+> **Latest Update**: Project structure optimized with improved documentation organization.
+
 ![Mood Garden](https://img.shields.io/badge/React-18.2.0-blue) ![Firebase](https://img.shields.io/badge/Firebase-10.0.0-orange) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.0-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## ✨ Overview

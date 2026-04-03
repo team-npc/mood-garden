@@ -171,7 +171,7 @@ const analyzePatterns = (entries) => {
     if (recoveryRate >= 0.5) {
       insights.push({
         type: 'recovery',
-        description: `You have a ${Math.round(recoveryRate * 100)}% recovery rate - you bounce back well from difficult moods!`,
+        description: `You bounce back beautifully from difficult moods - that's real resilience!`,
         icon: Sparkles,
         sentiment: 'positive'
       });
@@ -268,7 +268,8 @@ const PatternCard = ({ pattern }) => {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl">{pattern.mood}</span>
             <span className="text-sm text-indigo-400 font-medium">
-              {pattern.confidence}% confidence
+              {pattern.confidence >= 80 ? 'Very likely' : 
+               pattern.confidence >= 60 ? 'Likely' : 'Possible'}
             </span>
           </div>
           <p className="text-sm text-cream-300">{pattern.description}</p>
@@ -322,7 +323,8 @@ const PredictionCard = ({ prediction }) => (
           Today's Mood Prediction
         </div>
         <div className="text-xs text-purple-400">
-          {prediction.confidence}% likely
+          {prediction.confidence >= 80 ? 'Very likely' : 
+           prediction.confidence >= 60 ? 'Likely' : 'Possible'}
         </div>
       </div>
     </div>

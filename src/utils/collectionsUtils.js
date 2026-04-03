@@ -72,7 +72,7 @@ export const SMART_COLLECTIONS = {
     id: 'quick-notes',
     name: 'Quick Notes',
     icon: '⚡',
-    description: 'Short entries under 50 words',
+    description: 'Brief reflections and quick thoughts',
     filter: (entry) => {
       const wordCount = entry.wordCount || entry.content?.trim().split(/\s+/).length || 0;
       return wordCount < 50;
@@ -97,7 +97,7 @@ export const SMART_COLLECTIONS = {
     id: 'recent-favorites',
     name: 'Recent Favorites',
     icon: '⭐',
-    description: 'Pinned entries from the last 30 days',
+    description: 'Your recently pinned entries',
     filter: (entry) => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

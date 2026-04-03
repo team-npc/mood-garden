@@ -1,288 +1,160 @@
 /**
- * Daily Quests Component
- * Gamification with daily/weekly challenges and XP rewards
+ * Daily Invitations Component
+ * Gentle suggestions for journaling practice - No XP, no pressure
+ * Philosophy: No quantification - just optional invitations
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Target, 
+  Sparkles, 
   X, 
   Star, 
-  Zap, 
-  Trophy,
+  Heart,
   CheckCircle,
-  Clock,
-  Flame,
-  Calendar,
-  Gift,
-  ChevronRight
+  Sun,
+  Moon,
+  Leaf,
+  Coffee
 } from 'lucide-react';
 
-const QUESTS_KEY = 'mood-garden-quests';
-const LAST_RESET_KEY = 'mood-garden-quests-reset';
+const INVITATIONS_KEY = 'mood-garden-invitations';
 
 /**
- * Quest definitions
+ * Daily Invitations - Gentle, non-pressuring suggestions
  */
-const DAILY_QUESTS = [
+const DAILY_INVITATIONS = [
   {
-    id: 'write-entry',
+    id: 'write-today',
     name: 'Plant a Thought',
-    description: 'Write at least one journal entry today',
-    xp: 50,
-    type: 'daily',
-    checkCondition: (stats) => stats.todayEntries >= 1,
-    icon: '📝'
+    description: 'Take a moment to reflect today',
+    icon: '🌱',
+    encouragement: 'Every seed planted grows'
   },
   {
-    id: 'write-long',
-    name: 'Deep Reflection',
-    description: 'Write an entry with 100+ words',
-    xp: 75,
-    type: 'daily',
-    checkCondition: (stats) => stats.longestEntryToday >= 100,
-    icon: '📖'
+    id: 'deeper-reflection',
+    name: 'Go Deeper',
+    description: 'Explore what\'s on your mind more fully',
+    icon: '🌊',
+    encouragement: 'Depth brings clarity'
   },
   {
-    id: 'use-tag',
-    name: 'Organizer',
-    description: 'Add a tag to your entry',
-    xp: 25,
-    type: 'daily',
-    checkCondition: (stats) => stats.entriesWithTagsToday >= 1,
-    icon: '🏷️'
+    id: 'add-feeling',
+    name: 'Name Your Feeling',
+    description: 'Add an emotion to your reflection',
+    icon: '💭',
+    encouragement: 'Naming feelings helps us understand them'
   },
   {
-    id: 'morning-writer',
-    name: 'Early Bird',
-    description: 'Write an entry before 10 AM',
-    xp: 100,
-    type: 'daily',
-    checkCondition: (stats) => stats.morningEntryToday,
-    icon: '🌅'
+    id: 'morning-light',
+    name: 'Morning Light',
+    description: 'Capture thoughts as the day begins',
+    icon: '🌅',
+    encouragement: 'Fresh mornings, fresh perspectives'
   },
   {
-    id: 'evening-writer',
-    name: 'Night Owl',
-    description: 'Write an entry after 8 PM',
-    xp: 75,
-    type: 'daily',
-    checkCondition: (stats) => stats.eveningEntryToday,
-    icon: '🌙'
+    id: 'evening-calm',
+    name: 'Evening Calm',
+    description: 'Reflect as the day winds down',
+    icon: '🌙',
+    encouragement: 'Evening reflections bring peace'
   },
   {
-    id: 'use-prompt',
-    name: 'Inspired',
-    description: 'Write using a writing prompt',
-    xp: 50,
-    type: 'daily',
-    checkCondition: (stats) => stats.usedPromptToday,
-    icon: '💡'
-  },
-  {
-    id: 'gratitude',
-    name: 'Grateful Heart',
-    description: 'Complete daily gratitude',
-    xp: 75,
-    type: 'daily',
-    checkCondition: (stats) => stats.gratitudeToday,
-    icon: '💖'
-  }
-];
-
-const WEEKLY_QUESTS = [
-  {
-    id: 'streak-3',
-    name: '3-Day Warrior',
-    description: 'Maintain a 3-day streak',
-    xp: 150,
-    type: 'weekly',
-    checkCondition: (stats) => stats.currentStreak >= 3,
-    icon: '🔥'
-  },
-  {
-    id: 'streak-7',
-    name: 'Week Champion',
-    description: 'Maintain a 7-day streak',
-    xp: 500,
-    type: 'weekly',
-    checkCondition: (stats) => stats.currentStreak >= 7,
-    icon: '👑'
-  },
-  {
-    id: 'entries-5',
-    name: 'Dedicated Writer',
-    description: 'Write 5 entries this week',
-    xp: 200,
-    type: 'weekly',
-    checkCondition: (stats) => stats.weekEntries >= 5,
-    icon: '✨'
-  },
-  {
-    id: 'words-1000',
-    name: 'Wordsmith',
-    description: 'Write 1000 words this week',
-    xp: 300,
-    type: 'weekly',
-    checkCondition: (stats) => stats.weekWords >= 1000,
-    icon: '📚'
-  },
-  {
-    id: 'mood-variety',
-    name: 'Emotional Range',
-    description: 'Log 4 different moods this week',
-    xp: 250,
-    type: 'weekly',
-    checkCondition: (stats) => stats.uniqueMoodsThisWeek >= 4,
-    icon: '🎭'
-  },
-  {
-    id: 'weekend-writer',
-    name: 'Weekend Reflector',
-    description: 'Write entries on both Saturday and Sunday',
-    xp: 200,
-    type: 'weekly',
-    checkCondition: (stats) => stats.saturdayEntry && stats.sundayEntry,
-    icon: '🌴'
+    id: 'gratitude-moment',
+    name: 'Gratitude Moment',
+    description: 'Notice something you\'re thankful for',
+    icon: '🙏',
+    encouragement: 'Gratitude opens the heart'
   }
 ];
 
 /**
- * XP level thresholds
+ * Weekly Themes - Ongoing journeys, not requirements
  */
-const LEVELS = [
-  { level: 1, xpRequired: 0, title: 'Seedling' },
-  { level: 2, xpRequired: 100, title: 'Sprout' },
-  { level: 3, xpRequired: 300, title: 'Sapling' },
-  { level: 4, xpRequired: 600, title: 'Growing Plant' },
-  { level: 5, xpRequired: 1000, title: 'Flourishing' },
-  { level: 6, xpRequired: 1500, title: 'Blooming' },
-  { level: 7, xpRequired: 2200, title: 'Thriving' },
-  { level: 8, xpRequired: 3000, title: 'Mature Plant' },
-  { level: 9, xpRequired: 4000, title: 'Wise Oak' },
-  { level: 10, xpRequired: 5500, title: 'Garden Master' },
-  { level: 11, xpRequired: 7500, title: 'Nature Spirit' },
-  { level: 12, xpRequired: 10000, title: 'Legendary Gardener' }
+const WEEKLY_THEMES = [
+  {
+    id: 'consistency',
+    name: 'Finding Rhythm',
+    description: 'Build a natural writing practice',
+    icon: '🎵',
+    encouragement: 'Rhythm comes naturally with time'
+  },
+  {
+    id: 'exploration',
+    name: 'Emotional Explorer',
+    description: 'Notice different feelings this week',
+    icon: '🗺️',
+    encouragement: 'Every emotion has something to teach'
+  },
+  {
+    id: 'presence',
+    name: 'Being Present',
+    description: 'Show up for yourself regularly',
+    icon: '🧘',
+    encouragement: 'Presence is its own reward'
+  }
 ];
 
 /**
- * Get level from XP
+ * Journey levels - qualitative growth stages (no XP)
  */
-const getLevel = (xp) => {
-  for (let i = LEVELS.length - 1; i >= 0; i--) {
-    if (xp >= LEVELS[i].xpRequired) {
-      return LEVELS[i];
-    }
-  }
-  return LEVELS[0];
+const JOURNEY_STAGES = [
+  { stage: 'seedling', title: 'Seedling', message: 'Just beginning to grow' },
+  { stage: 'sprout', title: 'Sprout', message: 'Taking root' },
+  { stage: 'sapling', title: 'Sapling', message: 'Growing stronger' },
+  { stage: 'blooming', title: 'Blooming', message: 'Finding your voice' },
+  { stage: 'flourishing', title: 'Flourishing', message: 'Your practice is thriving' }
+];
+
+/**
+ * Get journey stage from practice (qualitative assessment)
+ */
+const getJourneyStage = (completedCount) => {
+  if (completedCount >= 50) return JOURNEY_STAGES[4];
+  if (completedCount >= 25) return JOURNEY_STAGES[3];
+  if (completedCount >= 10) return JOURNEY_STAGES[2];
+  if (completedCount >= 3) return JOURNEY_STAGES[1];
+  return JOURNEY_STAGES[0];
 };
 
 /**
- * Get next level info
+ * Invitation Card Component - No progress bars or percentages
  */
-const getNextLevel = (xp) => {
-  const currentLevel = getLevel(xp);
-  const nextLevelIndex = LEVELS.findIndex(l => l.level === currentLevel.level + 1);
-  return nextLevelIndex >= 0 ? LEVELS[nextLevelIndex] : null;
-};
-
-/**
- * Calculate stats from entries for quest checking
- */
-const calculateQuestStats = (entries, savedData) => {
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  
-  const todayEntries = entries.filter(e => {
-    const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
-    return date.toISOString().split('T')[0] === today;
-  });
-  
-  const weekEntries = entries.filter(e => {
-    const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
-    return date >= startOfWeek;
-  });
-  
-  return {
-    todayEntries: todayEntries.length,
-    longestEntryToday: Math.max(...todayEntries.map(e => e.content?.split(/\s+/).length || 0), 0),
-    entriesWithTagsToday: todayEntries.filter(e => e.tags?.length > 0).length,
-    morningEntryToday: todayEntries.some(e => {
-      const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
-      return date.getHours() < 10;
-    }),
-    eveningEntryToday: todayEntries.some(e => {
-      const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
-      return date.getHours() >= 20;
-    }),
-    usedPromptToday: savedData?.usedPromptToday || false,
-    gratitudeToday: savedData?.gratitudeToday || false,
-    currentStreak: savedData?.currentStreak || 0,
-    weekEntries: weekEntries.length,
-    weekWords: weekEntries.reduce((sum, e) => sum + (e.content?.split(/\s+/).length || 0), 0),
-    uniqueMoodsThisWeek: new Set(weekEntries.map(e => e.mood).filter(Boolean)).size,
-    saturdayEntry: weekEntries.some(e => {
-      const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
-      return date.getDay() === 6;
-    }),
-    sundayEntry: weekEntries.some(e => {
-      const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
-      return date.getDay() === 0;
-    })
-  };
-};
-
-/**
- * Quest Card Component
- */
-const QuestCard = ({ quest, isCompleted, stats }) => {
-  const progress = quest.checkCondition(stats) ? 100 : 0;
-  
+const InvitationCard = ({ invitation, isAccepted }) => {
   return (
     <motion.div
       layout
       className={`p-4 rounded-xl border transition-all ${
-        isCompleted
-          ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/30'
-          : 'bg-deep-700 border-deep-600'
+        isAccepted
+          ? 'bg-gradient-to-r from-leaf-500/20 to-sage-500/20 border-leaf-500/30'
+          : 'bg-deep-700 border-deep-600 hover:border-sage-500/50'
       }`}
     >
       <div className="flex items-center gap-3">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
-          isCompleted ? 'bg-green-500/30' : 'bg-deep-600'
+          isAccepted ? 'bg-leaf-500/30' : 'bg-deep-600'
         }`}>
-          {isCompleted ? '✅' : quest.icon}
+          {isAccepted ? '✨' : invitation.icon}
         </div>
         
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-cream-100">{quest.name}</span>
-            {isCompleted && (
-              <CheckCircle className="w-4 h-4 text-green-400" />
+            <span className="font-medium text-cream-100">{invitation.name}</span>
+            {isAccepted && (
+              <CheckCircle className="w-4 h-4 text-leaf-400" />
             )}
           </div>
-          <p className="text-xs text-cream-500">{quest.description}</p>
+          <p className="text-xs text-cream-500">{invitation.description}</p>
         </div>
         
-        <div className="text-right">
-          <div className="flex items-center gap-1 text-amber-400">
-            <Zap className="w-4 h-4" />
-            <span className="font-bold">{quest.xp}</span>
-          </div>
-          <span className="text-xs text-cream-600">XP</span>
-        </div>
+        {!isAccepted && (
+          <Heart className="w-5 h-5 text-cream-600" />
+        )}
       </div>
       
-      {!isCompleted && (
-        <div className="mt-3 h-1.5 bg-deep-600 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-amber-500 to-orange-500"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-          />
+      {isAccepted && (
+        <div className="mt-2 text-xs text-sage-400 italic">
+          ✓ {invitation.encouragement}
         </div>
       )}
     </motion.div>
@@ -290,156 +162,114 @@ const QuestCard = ({ quest, isCompleted, stats }) => {
 };
 
 /**
- * Level Progress Component
+ * Journey Progress - Visual, non-numerical
  */
-const LevelProgress = ({ totalXP }) => {
-  const currentLevel = getLevel(totalXP);
-  const nextLevel = getNextLevel(totalXP);
-  
-  const progress = nextLevel 
-    ? ((totalXP - currentLevel.xpRequired) / (nextLevel.xpRequired - currentLevel.xpRequired)) * 100
-    : 100;
-  
+const JourneyProgress = ({ stage }) => {
   return (
-    <div className="p-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl border border-amber-500/30 mb-6">
+    <div className="p-4 bg-gradient-to-r from-sage-500/20 to-leaf-500/20 rounded-xl border border-sage-500/30 mb-6">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-amber-400" />
-          <span className="font-bold text-cream-100">Level {currentLevel.level}</span>
-          <span className="text-cream-400">- {currentLevel.title}</span>
+          <Leaf className="w-5 h-5 text-leaf-400" />
+          <span className="font-bold text-cream-100">{stage.title}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <Zap className="w-4 h-4 text-amber-400" />
-          <span className="font-bold text-amber-400">{totalXP} XP</span>
-        </div>
+        <span className="text-2xl">🌱</span>
       </div>
       
-      <div className="h-3 bg-deep-700 rounded-full overflow-hidden">
-        <motion.div
-          className="h-full bg-gradient-to-r from-amber-400 to-orange-500"
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.5 }}
-        />
-      </div>
+      <p className="text-sm text-cream-400">{stage.message}</p>
       
-      {nextLevel && (
-        <div className="flex justify-between text-xs text-cream-500 mt-1">
-          <span>{totalXP - currentLevel.xpRequired} / {nextLevel.xpRequired - currentLevel.xpRequired}</span>
-          <span>Next: Level {nextLevel.level} - {nextLevel.title}</span>
-        </div>
-      )}
+      {/* Visual growth indicator - not numerical */}
+      <div className="mt-3 flex gap-1">
+        {JOURNEY_STAGES.map((s, i) => (
+          <div
+            key={i}
+            className={`h-1.5 flex-1 rounded-full ${
+              JOURNEY_STAGES.indexOf(stage) >= i
+                ? 'bg-leaf-500'
+                : 'bg-deep-600'
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
 
 /**
- * Main Daily Quests Component
+ * Main Daily Invitations Component
  */
 const DailyQuests = ({ isOpen, onClose, entries = [], plantData = {} }) => {
-  const [questData, setQuestData] = useState({
-    totalXP: 0,
-    completedQuests: [],
-    lastDailyReset: null,
-    lastWeeklyReset: null
+  const [invitationData, setInvitationData] = useState({
+    acceptedInvitations: [],
+    totalAccepted: 0
   });
   
-  // Load saved quest data
+  // Load saved data
   useEffect(() => {
-    const saved = localStorage.getItem(QUESTS_KEY);
+    const saved = localStorage.getItem(INVITATIONS_KEY);
     if (saved) {
       try {
-        setQuestData(JSON.parse(saved));
+        setInvitationData(JSON.parse(saved));
       } catch (e) {
-        console.error('Error loading quest data:', e);
+        console.error('Error loading invitation data:', e);
       }
     }
   }, []);
   
-  // Check for resets
+  // Check for daily reset
   useEffect(() => {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
-    const currentWeek = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000));
     
-    let updated = false;
-    let newData = { ...questData };
-    
-    // Daily reset
-    if (questData.lastDailyReset !== today) {
-      newData = {
-        ...newData,
-        completedQuests: newData.completedQuests.filter(id => 
-          WEEKLY_QUESTS.some(q => q.id === id)
-        ),
-        lastDailyReset: today
+    if (invitationData.lastReset !== today) {
+      const newData = {
+        ...invitationData,
+        acceptedInvitations: [],
+        lastReset: today
       };
-      updated = true;
+      setInvitationData(newData);
+      localStorage.setItem(INVITATIONS_KEY, JSON.stringify(newData));
     }
-    
-    // Weekly reset (Sunday)
-    if (now.getDay() === 0 && questData.lastWeeklyReset !== currentWeek) {
-      newData = {
-        ...newData,
-        completedQuests: [],
-        lastWeeklyReset: currentWeek
-      };
-      updated = true;
-    }
-    
-    if (updated) {
-      setQuestData(newData);
-      localStorage.setItem(QUESTS_KEY, JSON.stringify(newData));
-    }
-  }, [questData]);
+  }, [invitationData]);
   
-  // Calculate quest stats
-  const stats = useMemo(() => calculateQuestStats(entries, {
-    currentStreak: plantData?.currentStreak || 0,
-    usedPromptToday: false, // Would need to track this
-    gratitudeToday: false // Would need to track this
-  }), [entries, plantData]);
-  
-  // Check for newly completed quests
-  useEffect(() => {
-    const allQuests = [...DAILY_QUESTS, ...WEEKLY_QUESTS];
-    let xpGained = 0;
-    const newCompletions = [];
-    
-    allQuests.forEach(quest => {
-      if (!questData.completedQuests.includes(quest.id) && quest.checkCondition(stats)) {
-        newCompletions.push(quest.id);
-        xpGained += quest.xp;
-      }
+  // Calculate which invitations are "accepted" based on today's activity
+  const todayStats = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const todayEntries = entries.filter(e => {
+      const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
+      return date.toISOString().split('T')[0] === today;
     });
     
-    if (newCompletions.length > 0) {
-      const newData = {
-        ...questData,
-        totalXP: questData.totalXP + xpGained,
-        completedQuests: [...questData.completedQuests, ...newCompletions]
-      };
-      setQuestData(newData);
-      localStorage.setItem(QUESTS_KEY, JSON.stringify(newData));
-    }
-  }, [stats, questData]);
+    const hasEntry = todayEntries.length > 0;
+    const hasMood = todayEntries.some(e => e.mood);
+    const morningEntry = todayEntries.some(e => {
+      const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
+      return date.getHours() < 10;
+    });
+    const eveningEntry = todayEntries.some(e => {
+      const date = e.createdAt?.toDate?.() || new Date(e.createdAt);
+      return date.getHours() >= 20;
+    });
+    
+    return { hasEntry, hasMood, morningEntry, eveningEntry };
+  }, [entries]);
   
-  // Get time until reset
-  const getTimeUntilReset = () => {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    
-    const diff = tomorrow.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    return `${hours}h ${minutes}m`;
+  const isAccepted = (invitationId) => {
+    switch (invitationId) {
+      case 'write-today':
+        return todayStats.hasEntry;
+      case 'add-feeling':
+        return todayStats.hasMood;
+      case 'morning-light':
+        return todayStats.morningEntry;
+      case 'evening-calm':
+        return todayStats.eveningEntry;
+      default:
+        return invitationData.acceptedInvitations.includes(invitationId);
+    }
   };
   
-  const completedDaily = DAILY_QUESTS.filter(q => questData.completedQuests.includes(q.id)).length;
-  const completedWeekly = WEEKLY_QUESTS.filter(q => questData.completedQuests.includes(q.id)).length;
+  const journeyStage = getJourneyStage(invitationData.totalAccepted || 0);
+  const acceptedToday = DAILY_INVITATIONS.filter(i => isAccepted(i.id)).length;
   
   if (!isOpen) return null;
   
@@ -450,16 +280,15 @@ const DailyQuests = ({ isOpen, onClose, entries = [], plantData = {} }) => {
         animate={{ opacity: 1, scale: 1 }}
         className="bento-item max-w-lg w-full my-8 p-0 overflow-hidden max-h-[90vh] flex flex-col"
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-amber-600 to-orange-600 p-6 text-cream-100">
+        {/* Header - Warm, inviting, no pressure */}
+        <div className="bg-gradient-to-r from-sage-600 to-leaf-600 p-6 text-cream-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Target className="w-6 h-6" />
+              <Sparkles className="w-6 h-6" />
               <div>
-                <h2 className="text-xl font-bold">Daily Quests</h2>
-                <p className="text-sm text-cream-200 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Resets in {getTimeUntilReset()}
+                <h2 className="text-xl font-bold">Today's Invitations</h2>
+                <p className="text-sm text-sage-200">
+                  Gentle suggestions for your practice
                 </p>
               </div>
             </div>
@@ -473,53 +302,65 @@ const DailyQuests = ({ isOpen, onClose, entries = [], plantData = {} }) => {
         </div>
         
         <div className="p-6 overflow-y-auto flex-1">
-          {/* Level Progress */}
-          <LevelProgress totalXP={questData.totalXP} />
+          {/* Journey Stage - No XP, just growth narrative */}
+          <JourneyProgress stage={journeyStage} />
           
-          {/* Daily Quests */}
+          {/* Daily Invitations */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-cream-100 flex items-center gap-2">
-                <Flame className="w-4 h-4 text-orange-400" />
-                Daily Quests
+                <Sun className="w-4 h-4 text-amber-400" />
+                Today
               </h3>
-              <span className="text-sm text-cream-500">
-                {completedDaily}/{DAILY_QUESTS.length}
-              </span>
+              {acceptedToday > 0 && (
+                <span className="text-sm text-leaf-400">
+                  🌿 Growing beautifully
+                </span>
+              )}
             </div>
             <div className="space-y-3">
-              {DAILY_QUESTS.map(quest => (
-                <QuestCard
-                  key={quest.id}
-                  quest={quest}
-                  isCompleted={questData.completedQuests.includes(quest.id)}
-                  stats={stats}
+              {DAILY_INVITATIONS.map(invitation => (
+                <InvitationCard
+                  key={invitation.id}
+                  invitation={invitation}
+                  isAccepted={isAccepted(invitation.id)}
                 />
               ))}
             </div>
           </div>
           
-          {/* Weekly Quests */}
+          {/* Weekly Themes */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-cream-100 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-purple-400" />
-                Weekly Quests
+                <Moon className="w-4 h-4 text-purple-400" />
+                This Week's Themes
               </h3>
-              <span className="text-sm text-cream-500">
-                {completedWeekly}/{WEEKLY_QUESTS.length}
-              </span>
             </div>
             <div className="space-y-3">
-              {WEEKLY_QUESTS.map(quest => (
-                <QuestCard
-                  key={quest.id}
-                  quest={quest}
-                  isCompleted={questData.completedQuests.includes(quest.id)}
-                  stats={stats}
-                />
+              {WEEKLY_THEMES.map(theme => (
+                <div
+                  key={theme.id}
+                  className="p-4 rounded-xl bg-deep-700/50 border border-deep-600"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{theme.icon}</span>
+                    <div>
+                      <div className="font-medium text-cream-100">{theme.name}</div>
+                      <p className="text-xs text-cream-500">{theme.description}</p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
+          </div>
+          
+          {/* Encouraging message */}
+          <div className="mt-6 p-4 bg-deep-700/30 rounded-xl text-center">
+            <p className="text-cream-400 text-sm">
+              These are just gentle invitations, not requirements. 💚<br/>
+              <span className="text-cream-500">Write when it feels right.</span>
+            </p>
           </div>
         </div>
       </motion.div>

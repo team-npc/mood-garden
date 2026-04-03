@@ -160,6 +160,18 @@ const PlantCard = ({ plant, entries }) => {
 const StreakCard = ({ streak = 0, history = [] }) => {
   const last12Days = history.slice(-12);
   
+  // Qualitative streak descriptions
+  const getStreakDescription = (days) => {
+    if (days >= 30) return { status: 'Flourishing', message: 'Your garden is thriving beautifully' };
+    if (days >= 14) return { status: 'Blooming', message: 'A wonderful rhythm has formed' };
+    if (days >= 7) return { status: 'Growing', message: 'You\'re finding your flow' };
+    if (days >= 3) return { status: 'Sprouting', message: 'Building momentum' };
+    if (days >= 1) return { status: 'Planting', message: 'Every seed matters' };
+    return { status: 'Ready', message: 'Your garden awaits' };
+  };
+  
+  const { status, message } = getStreakDescription(streak);
+  
   return (
     <Card
       style={{
@@ -168,16 +180,16 @@ const StreakCard = ({ streak = 0, history = [] }) => {
       }}
     >
       <div className="text-[10px] text-[#4a7a4a] uppercase tracking-wider mb-3">
-        Writing streak
+        Writing rhythm
       </div>
-      <div className="font-serif text-[56px] text-[#c8e6c9] leading-none font-normal">
-        {streak}
+      <div className="font-serif text-[32px] text-[#c8e6c9] leading-none font-normal">
+        {status}
       </div>
-      <div className="text-xs text-[#6b9e6b] tracking-wide mt-0.5">
-        days in a row
+      <div className="text-xs text-[#6b9e6b] tracking-wide mt-2">
+        {message}
       </div>
       
-      {/* Mini dots */}
+      {/* Visual rhythm dots - no numbers */}
       <div className="flex gap-1.5 mt-3.5">
         {last12Days.map((day, i) => (
           <motion.div
@@ -198,7 +210,7 @@ const StreakCard = ({ streak = 0, history = [] }) => {
       
       {streak >= 10 && (
         <div className="text-xs text-[#4a7a4a] mt-3 italic">
-          Your plant bloomed on day 10 ✦
+          Your garden has bloomed ✦
         </div>
       )}
     </Card>
@@ -261,37 +273,40 @@ const MoodCard = ({ entries = [] }) => {
 };
 
 /**
- * Wellness Score Card
+ * Wellness Card - Using qualitative descriptions instead of numbers
  */
 const WellnessCard = ({ score = 74 }) => {
-  const getBadge = (score) => {
-    if (score >= 80) return { label: 'Thriving', color: '#81c784' };
-    if (score >= 60) return { label: 'Growing', color: '#aed581' };
-    if (score >= 40) return { label: 'Steady', color: '#9ccc65' };
-    return { label: 'Nurturing', color: '#7cb342' };
+  const getWellnessStatus = (score) => {
+    if (score >= 80) return { emoji: '🌸', label: 'Thriving', description: 'Your practice is blossoming', color: '#81c784' };
+    if (score >= 60) return { emoji: '🌿', label: 'Growing', description: 'Steady and healthy growth', color: '#aed581' };
+    if (score >= 40) return { emoji: '🌱', label: 'Steady', description: 'Nurturing your wellness', color: '#9ccc65' };
+    return { emoji: '✨', label: 'Beginning', description: 'Every journey starts here', color: '#7cb342' };
   };
   
-  const badge = getBadge(score);
+  const status = getWellnessStatus(score);
   
   return (
     <Card>
       <div className="text-[10px] text-[#4a7a4a] uppercase tracking-wider mb-2.5">
-        Wellness score
+        Wellness journey
       </div>
       <div className="flex items-start justify-between">
-        <div className="font-serif text-[38px] text-[#c8e6c9] leading-none">
-          {score}
+        <div className="font-serif text-[38px] leading-none">
+          {status.emoji}
         </div>
         <div 
           className="text-[11px] px-2.5 py-1 rounded-xl border"
           style={{
             background: 'rgba(76,175,80,0.15)',
             borderColor: 'rgba(76,175,80,0.25)',
-            color: badge.color
+            color: status.color
           }}
         >
-          {badge.label}
+          {status.label}
         </div>
+      </div>
+      <div className="text-xs text-[#6b9e6b] mt-1.5">
+        {status.description}
       </div>
       <div className="flex flex-wrap gap-1.5 mt-2.5">
         {['consistent sleep', 'positive outlook', 'social moments'].map((tag, i) => (
@@ -444,7 +459,7 @@ const EnhancedDashboard = () => {
         <div className="flex items-center justify-between mb-10">
           <div>
             <div className="text-[11px] text-[#6b9e6b] font-medium uppercase tracking-[0.12em] mb-1">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · Day {entries.length} of your garden
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </div>
             <div className="font-serif text-[26px] text-[#c8e6c9] font-normal">
               {getGreeting()}, <em className="italic text-[#a5d6a7]">{userName}</em>

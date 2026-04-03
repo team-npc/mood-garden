@@ -86,34 +86,42 @@ const GardenPageContent = () => {
   const { entries, addEntry, submitting, getPlantInsights } = useJournal();
   
   // New hooks
-  const { checkAchievements, unlockedAchievements } = useAchievements();
+  const { checkAllAchievements, unlockedAchievements } = useAchievements();
   const { selectedSpecies, getSpeciesConfig } = usePlantSpecies();
   const { isOpen: isFocusMode, enterFocusMode, exitFocusMode } = useFocusMode();
 
-  // Calculate mood theme for plant colors based on weekly mood
+  // Calculate mood theme for plant colors based on weekly mood - memoized
   const moodTheme = useMemo(() => {
+    if (!entries || entries.length === 0) return { primary: '#68a67d', secondary: '#4ade80' };
     const weeklyMood = getDominantWeeklyMood(entries);
     return weeklyMood.colorScheme;
   }, [entries]);
   
-  // Check achievements when entries change
-  useEffect(() => {
-    if (entries.length > 0 && plant) {
-      const userData = {
-        streak: plant.currentStreak || 0,
-        totalWords: entries.reduce((sum, e) => sum + (e.content?.split(/\s+/).length || 0), 0),
-        plantStage: plant.stage,
-        uniqueMoods: new Set(entries.map(e => e.mood).filter(Boolean)).size,
-        flowers: plant.flowers?.length || 0,
-        fruits: plant.fruits?.length || 0
-      };
-      
-      const newAchievements = checkAchievements(entries, userData);
-      if (newAchievements.length > 0) {
-        setNotification(newAchievements[0]);
-      }
-    }
+  // Memoize user data for achievements
+  const userData = useMemo(() => {
+    if (!plant || !entries || entries.length === 0) return null;
+    return {
+      streak: plant.currentStreak || 0,
+      totalWords: entries.reduce((sum, e) => sum + (e.content?.split(/\s+/).length || 0), 0),
+      plantStage: plant.stage,
+      uniqueMoods: new Set(entries.map(e => e.mood).filter(Boolean)).size,
+      flowers: plant.flowers?.length || 0,
+      fruits: plant.fruits?.length || 0
+    };
   }, [entries, plant]);
+  
+  // Check achievements when entries change (deferred to avoid blocking render)
+  useEffect(() => {
+    if (entries.length > 0 && plant && userData) {
+      // Defer achievement check to not block render
+      queueMicrotask(() => {
+        const newAchievements = checkAllAchievements(userData);
+        if (newAchievements.length > 0) {
+          setNotification(newAchievements[0]);
+        }
+      });
+    }
+  }, [entries, plant, userData, checkAllAchievements]);
 
   /**
    * Handle new journal entry submission
@@ -273,11 +281,13 @@ const GardenPageContent = () => {
               </motion.div>
             </div>
 
-            {/* Progress Bar at Bottom */}
+            {/* Progress Bar at Bottom - visual only */}
             <div className="absolute bottom-4 left-4 right-4">
               <div className="flex items-center justify-between text-xs text-earth-600 dark:text-cream-500 mb-2">
                 <span>Growth Progress</span>
-                <span>{Math.round(stageProgress)}%</span>
+                <span>{stageProgress < 25 ? 'Beginning' : 
+                       stageProgress < 50 ? 'Growing' : 
+                       stageProgress < 75 ? 'Flourishing' : 'Almost there!'}</span>
               </div>
               <div className="h-2 bg-sage-200 dark:bg-deep-700 rounded-full overflow-hidden">
                 <motion.div 
@@ -343,18 +353,26 @@ const GardenPageContent = () => {
                 <div className="p-2 rounded-xl bg-sage-100 dark:bg-deep-600">
                   <TrendingUp className="w-4 h-4 text-leaf-600 dark:text-leaf-400" />
                 </div>
-                <span className="text-xs text-earth-600 dark:text-cream-500">Current Streak</span>
+                <span className="text-xs text-earth-600 dark:text-cream-500">Your Rhythm</span>
               </div>
               <div className="mt-3">
-                <p className="text-4xl font-bold text-leaf-600 dark:text-leaf-300">{plant?.currentStreak || 0}</p>
+                <p className="text-4xl font-bold text-leaf-600 dark:text-leaf-300">
+                  {plant?.currentStreak >= 30 ? '🌟' : 
+                   plant?.currentStreak >= 14 ? '🌸' : 
+                   plant?.currentStreak >= 7 ? '🌿' : 
+                   plant?.currentStreak >= 3 ? '🌱' : '🫛'}
+                </p>
                 <p className="text-xs text-earth-600 dark:text-cream-500 mt-1">
-                  {plant?.currentStreak === 1 ? 'day' : 'days'}
+                  {plant?.currentStreak >= 30 ? 'Flourishing' : 
+                   plant?.currentStreak >= 14 ? 'Blooming' : 
+                   plant?.currentStreak >= 7 ? 'Growing' : 
+                   plant?.currentStreak >= 3 ? 'Sprouting' : 'Planting'}
                 </p>
               </div>
             </div>
           </motion.div>
 
-          {/* Entries Count */}
+          {/* Garden Status instead of Entries Count */}
           <motion.div 
             className="col-span-1 bento-item"
             initial={{ opacity: 0, y: 20 }}
@@ -366,11 +384,21 @@ const GardenPageContent = () => {
                 <div className="p-2 rounded-xl bg-sage-100 dark:bg-deep-600">
                   <Droplets className="w-4 h-4 text-earth-600 dark:text-cream-400" />
                 </div>
-                <span className="text-xs text-earth-600 dark:text-cream-500">Total Entries</span>
+                <span className="text-xs text-earth-600 dark:text-cream-500">Your Garden</span>
               </div>
               <div className="mt-3">
-                <p className="text-4xl font-bold text-earth-800 dark:text-cream-200">{plant?.totalEntries || 0}</p>
-                <p className="text-xs text-earth-600 dark:text-cream-500 mt-1">reflections</p>
+                <p className="text-4xl font-bold text-earth-800 dark:text-cream-200">
+                  {plant?.totalEntries >= 100 ? '🏡' : 
+                   plant?.totalEntries >= 50 ? '🌳' : 
+                   plant?.totalEntries >= 20 ? '🌻' : 
+                   plant?.totalEntries >= 5 ? '🌱' : '🌰'}
+                </p>
+                <p className="text-xs text-earth-600 dark:text-cream-500 mt-1">
+                  {plant?.totalEntries >= 100 ? 'Abundant' : 
+                   plant?.totalEntries >= 50 ? 'Thriving' : 
+                   plant?.totalEntries >= 20 ? 'Blooming' : 
+                   plant?.totalEntries >= 5 ? 'Growing' : 'New'}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -392,7 +420,7 @@ const GardenPageContent = () => {
                 <div>
                   <p className="font-semibold text-earth-800 dark:text-cream-100">Achievements</p>
                   <p className="text-sm text-earth-600 dark:text-cream-500">
-                    {unlockedAchievements.length} badges unlocked
+                    {unlockedAchievements.length > 0 ? 'Discoveries made' : 'Ready to explore'}
                   </p>
                 </div>
               </div>
@@ -404,14 +432,14 @@ const GardenPageContent = () => {
                 ))}
                 {unlockedAchievements.length > 4 && (
                   <div className="w-10 h-10 rounded-full bg-sage-100 dark:bg-deep-600 border-2 border-sage-200 dark:border-deep-700 flex items-center justify-center text-xs text-earth-700 dark:text-cream-400 font-medium">
-                    +{unlockedAchievements.length - 4}
+                    +✨
                   </div>
                 )}
               </div>
             </div>
           </motion.div>
 
-          {/* Flowers & Fruits */}
+          {/* Flowers & Fruits - Visual count with emoji indicators */}
           {((plant?.flowers?.length || 0) > 0 || (plant?.fruits?.length || 0) > 0) && (
             <motion.div 
               className="col-span-2 bento-item bg-gradient-to-br from-pink-50 to-rose-50 dark:from-deep-600/50 dark:to-deep-700/50"
@@ -426,8 +454,10 @@ const GardenPageContent = () => {
                       <Flower2 className="w-5 h-5 text-pink-500 dark:text-pink-400" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-pink-600 dark:text-pink-300">{plant.flowers.length}</p>
-                      <p className="text-xs text-earth-600 dark:text-cream-500">Flowers</p>
+                      <p className="text-2xl">🌸</p>
+                      <p className="text-xs text-earth-600 dark:text-cream-500">
+                        {plant.flowers.length >= 10 ? 'Many flowers' : plant.flowers.length >= 5 ? 'Blooming' : 'Budding'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -437,8 +467,10 @@ const GardenPageContent = () => {
                       <Apple className="w-5 h-5 text-red-500 dark:text-red-400" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-red-600 dark:text-red-300">{plant.fruits.length}</p>
-                      <p className="text-xs text-earth-600 dark:text-cream-500">Fruits</p>
+                      <p className="text-2xl">🍎</p>
+                      <p className="text-xs text-earth-600 dark:text-cream-500">
+                        {plant.fruits.length >= 10 ? 'Bountiful' : plant.fruits.length >= 5 ? 'Harvesting' : 'Growing'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -513,7 +545,9 @@ const GardenPageContent = () => {
                 {plant.daysSinceLastEntry > 0 && (
                   <p className="ml-auto text-sm text-earth-600 dark:text-cream-500 italic">
                     {plant.daysSinceLastEntry === 1 ? "Yesterday" :
-                     `${plant.daysSinceLastEntry} days ago`}
+                     plant.daysSinceLastEntry <= 3 ? "A few days ago" :
+                     plant.daysSinceLastEntry <= 7 ? "Earlier this week" :
+                     "Your garden misses you"}
                   </p>
                 )}
               </div>
